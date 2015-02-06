@@ -33,7 +33,7 @@ serve.router = (function() {
 				if(typeof this !== "function")
 					throw new TypeError("serve.router expected 'function' but got '"+(typeof this)+"'.");
 
-				if(router.filter(location, options.filter.bind(this), options.filterInverse))
+				if(tools.filter(location, options.filter.bind(this), options.filterInverse))
 					return this.call(this, location);
 				throw new Error("'"+location+"' could not be routed.");
 			},
@@ -41,7 +41,7 @@ serve.router = (function() {
 				if(typeof this !== "object")
 					throw new TypeError("serve.router expected 'object' but got '"+(typeof this)+"'.");
 
-				if(location in this && router.filter(location, options.filter.bind(this), options.filterInverse)) {
+				if(location in this && tools.filter(location, options.filter.bind(this), options.filterInverse)) {
 					var value = this[location];
 					if(typeof value === "function") {
 						if(options.mapFunctions)
@@ -79,9 +79,9 @@ serve.router = (function() {
 
 		return function servedRouter(location) {
 			var mode = options.type == "auto" ? typeof this : options.type;
-			if(!(mode in router.modes))
+			if(!(mode in tools.modes))
 				throw new TypeError("'"+mode+"'-data cannot be routed by serve.router.");
-			return router.modes[mode].call(this, options, location);
+			return tools.modes[mode].call(this, options, location);
 		};
 	};
 }());
