@@ -1,5 +1,9 @@
 
 function Binding(object, router, closer, rebind) {
+
+	if(object == null)
+		object = Object.create(Binding.empty);
+
 	if(typeof object !== "object")
 		throw new TypeError("Only objects can be bound. Got '"+object.toString()+"'.");
 	if(Binding.isBound(object) && !rebind)
@@ -42,14 +46,18 @@ Binding.prototype = {
 };
 
 Binding.key = Symbol("binding");
+Binding.empty = Object.create(null);
 
 Binding.isBound = function isBound(object) {
 	return typeof object === "object" && this.key in object && object[this.key] instanceof this;
 };
 
+Binding.isEmpty = function isEmpty(object) {
+	return this.isBound(object) && Binding.empty.isPrototypeOf(object);
+};
+
 Binding.bind = function bind(object, router, closer, rebind) {
-	new this(object, router, closer, rebind);
-	return object;
+	return (new this(object, router, closer, rebind)).target;
 };
 
 Binding.imitate = function imitate(object, master, permanent) {

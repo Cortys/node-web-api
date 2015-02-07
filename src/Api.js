@@ -38,7 +38,7 @@ Api.prototype = {
 	close: function close(data) {
 		return this._boundObject.then(function(object) {
 			return object[Binding.key].close(data);
-		}, function(err) {
+		}).catch(function(err) {
 			err.type = "close";
 			err.location = this._position;
 			err.data = data;

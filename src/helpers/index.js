@@ -1,5 +1,3 @@
-var Binding = require("./Binding");
-
 var serve = function serve(options) {
 	if(typeof options !== "object")
 		options = {};
@@ -49,7 +47,7 @@ var helpers = {
 				errs.push(err);
 				throw errs;
 			});
-			
+
 			return result;
 		};
 	}
