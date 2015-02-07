@@ -28,7 +28,7 @@ Api.prototype = {
 
 		return new Api(this._boundObject.then(function(object) {
 			return object[Binding.key].route(location);
-		}, function(err) {
+		}).catch(function(err) {
 			err.type = "route";
 			err.location = newPosition;
 			throw err;

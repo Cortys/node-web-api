@@ -1,3 +1,5 @@
 {
-	"eqnull": true
+	"eqnull": true,
+	"loopfunc": true,
+	"esnext": true
 }

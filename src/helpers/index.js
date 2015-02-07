@@ -26,26 +26,31 @@ var helpers = {
 			throw new TypeError("Given fallthrough data either has to be of type 'function' or 'array'.");
 
 		return function() {
-			for(var currErr, lastErr, r, f, i = 0; i < functions.length; i++) {
-				f = functions[i];
+			var that = this,
+				result,
+				errs = [],
+				args = arguments;
+
+			for(let i = 0; i < functions.length; i++) {
+				let f = functions[i];
 				if(typeof f != "function")
 					continue;
 
-				currErr = null;
-				try {
-					r = f.apply(this, arguments);
-				} catch(err) {
-					lastErr = currErr = err;
-				}
-
-				if(!currErr && r !== undefined)
-					return r;
+				if(!result)
+					result = Promise.resolve(f.apply(that, args));
+				else
+					result.catch(function(err) {
+						errs.push(err);
+						return f.apply(that, args);
+					});
 			}
 
-			if(!lastErr)
-				return undefined;
-			else
-				throw lastErr;
+			result.catch(function(err) {
+				errs.push(err);
+				throw errs;
+			});
+			
+			return result;
 		};
 	}
 };

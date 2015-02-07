@@ -10,25 +10,35 @@ function Binding(object, router, closer, rebind) {
 			writable: true
 		});
 
+	this.target = object;
+
 	if(typeof router === "function" && typeof closer === "function") {
-
-		this.route = router.bind(object);
-
-		this.close = closer.bind(object);
-
-		object[Binding.key] = this;
+		this.router = router;
+		this.closer = closer;
 	}
-	else if(router instanceof Binding)
-		object[Binding.key] = router;
+	else if(router instanceof Binding) {
+		this.router = router.router;
+		this.closer = router.closer;
+	}
 	else
 		throw new TypeError("Bindings require a router and a closer function or a master binding.");
+
+	object[Binding.key] = this;
 }
 
 Binding.prototype = {
 	constructor: Binding,
 
-	route: null,
-	close: null
+	target: null,
+	router: null,
+	closer: null,
+
+	route: function route() {
+		return this.router.apply(this.target, arguments);
+	},
+	close: function close() {
+		return this.closer.apply(this.target, arguments);
+	}
 };
 
 Binding.key = Symbol("binding");
