@@ -1,4 +1,4 @@
-var Binding = require("./Binding"),
+var Binding = require("../Binding"),
 	filter = require("./filter");
 
 function closer(options) {
@@ -13,7 +13,9 @@ function closer(options) {
 	};
 
 	return function servedCloser(data) {
-
+		if(!filter(this, typeof this, options.types))
+			throw new Error("This route could not be closed.");
+		return this;
 	};
 }
 

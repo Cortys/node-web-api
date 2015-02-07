@@ -2,7 +2,7 @@
 function Binding(object, router, closer, rebind) {
 
 	if(object == null)
-		object = Object.create(Binding.empty);
+		object = Object.create(null);
 
 	if(typeof object !== "object")
 		throw new TypeError("Only objects can be bound. Got '"+object.toString()+"'.");
@@ -46,7 +46,6 @@ Binding.prototype = {
 };
 
 Binding.key = Symbol("binding");
-Binding.empty = Object.create(null);
 
 Binding.isBound = function isBound(object) {
 	return typeof object === "object" && this.key in object && object[this.key] instanceof this;

@@ -1,4 +1,4 @@
-var Binding = require("./Binding"),
+var Binding = require("../Binding"),
 	filter = require("./filter");
 
 function router(options) {
