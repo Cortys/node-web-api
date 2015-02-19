@@ -1,12 +1,13 @@
 var serve = function serve(options) {
-	if(typeof options !== "object")
-		options = {};
+		if(typeof options !== "object")
+			options = {};
 
-	return {
-		router: this.router(options.routing),
-		closer: this.closer(options.closing)
-	};
-}, serve = serve.bind(serve);
+		return {
+			router: this.router(options.routing),
+			closer: this.closer(options.closing)
+		};
+	},
+	serve = serve.bind(serve);
 
 serve.router = require("./router");
 

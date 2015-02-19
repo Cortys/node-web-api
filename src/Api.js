@@ -11,7 +11,7 @@ function Api(boundObject, position) {
 		return api;
 	this._boundObject = Promise.resolve(boundObject).then(function(object) {
 		if(!Binding.isBound(object))
-			throw new TypeError("Object at position '"+position.join("/"+"' is not exposed."));
+			throw new TypeError("Object at position '" + position.join("/" + "' is not exposed."));
 		return object;
 	});
 	this._position = position || [];

@@ -1,13 +1,12 @@
-
 function Binding(object, router, closer, rebind) {
 
 	if(object == null)
 		object = Object.create(null);
 
 	if(typeof object !== "object")
-		throw new TypeError("Only objects can be bound. Got '"+object.toString()+"'.");
+		throw new TypeError("Only objects can be bound. Got '" + object.toString() + "'.");
 	if(Binding.isBound(object) && !rebind)
-		throw new Error("Object '"+object.toString()+"' is already bound.");
+		throw new Error("Object '" + object.toString() + "' is already bound.");
 
 	if(!(Binding.key in object))
 		Object.defineProperty(object, Binding.key, {
@@ -56,13 +55,13 @@ Binding.isEmpty = function isEmpty(object) {
 };
 
 Binding.bind = function bind(object, router, closer, rebind) {
-	return (new this(object, router, closer, rebind)).target;
+	return(new this(object, router, closer, rebind)).target;
 };
 
 Binding.imitate = function imitate(object, master, permanent) {
 	if(!this.isBound(master))
 		throw new TypeError("Only bound objects can be imitated.");
-	return this.bind(permanent?object:Object.create(object), master[this.key]);
+	return this.bind(permanent ? object : Object.create(object), master[this.key]);
 };
 
 module.exports = Binding;

@@ -10,5 +10,5 @@ module.exports = function(target, location, filter, inverse) {
 		res = filter.indexOf(location) !== -1;
 	else if(typeof filter === "object")
 		res = !!filter[location];
-	return inverse?!res:res;
+	return inverse ? !res : res;
 };

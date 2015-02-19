@@ -19,7 +19,7 @@ function router(options) {
 	return function servedRouter(location) {
 		var mode = options.type == "auto" ? typeof this : options.type;
 		if(!(mode in tools.modes))
-			throw new TypeError("'"+mode+"'-data cannot be routed by serve.router.");
+			throw new TypeError("'" + mode + "'-data cannot be routed by serve.router.");
 		return tools.modes[mode].call(this, options, location);
 	};
 }
@@ -29,17 +29,17 @@ var tools = {
 	modes: {
 		"function": function(options, location) {
 			if(typeof this !== "function")
-				throw new TypeError("serve.router expected 'function' but got '"+(typeof this)+"'.");
+				throw new TypeError("serve.router expected 'function' but got '" + (typeof this) + "'.");
 
 			if(filter(this, location, options.filter, options.filterInverse))
 				return this.call(this, location);
-			throw new Error("'"+location+"' could not be routed.");
+			throw new Error("'" + location + "' could not be routed.");
 		},
 		"object": function(options, location) {
 			if(typeof this !== "object")
-				throw new TypeError("serve.router expected 'object' but got '"+(typeof this)+"'.");
+				throw new TypeError("serve.router expected 'object' but got '" + (typeof this) + "'.");
 
-			if(location in this && filter(this, location, options.filter, options.filterInverse)) {
+			if(location in this &&  filter(this, location, options.filter, options.filterInverse)) {
 				var value = this[location],
 					usedDirectMapping = false;
 
@@ -67,10 +67,10 @@ var tools = {
 							else if(options.mapFunctions == "direct" && !usedDirectMapping)
 								value = value.call(this);
 							else
-								throw new Error("'"+location+"' could not be routed.");
+								throw new Error("'" + location + "' could not be routed.");
 						}
 						else
-							throw new Error("'"+location+"' could not be routed.");
+							throw new Error("'" + location + "' could not be routed.");
 					}
 					// Case 2: Bound object (could be a function)
 					if(Binding.isBound(value))
@@ -84,7 +84,7 @@ var tools = {
 				});
 			}
 			else
-				throw new Error("'"+location+"' could not be routed.");
+				throw new Error("'" + location + "' could not be routed.");
 		}
 	}
 };
