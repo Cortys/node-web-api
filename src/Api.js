@@ -4,7 +4,7 @@ var Binding = require("./Binding");
  * Represents an Api node.
  * @constructor
  * @module Api
- * @param {object} binding - An object this node should be bound to.
+ * @param {Object} binding - An object this node should be bound to.
  */
 function Api(boundObject, position) {
 	if(boundObject instanceof Api)
