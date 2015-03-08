@@ -44,10 +44,11 @@ var helpers = {
 					});
 			}
 
-			result.catch(function(err) {
-				errs.push(err);
-				throw errs;
-			});
+			if(result)
+				result.catch(function(err) {
+					errs.push(err);
+					throw errs;
+				});
 
 			return result;
 		};

@@ -3,17 +3,10 @@ function Binding(object, router, closer, rebind) {
 	if(object == null)
 		object = Object.create(null);
 
-	if(typeof object !== "object")
-		throw new TypeError("Only objects can be bound. Got '" + object.toString() + "'.");
+	if(typeof object !== "object" && typeof object !== "function")
+		throw new TypeError("Only objects and functions can be bound. Got '" + object.toString() + "'.");
 	if(Binding.isBound(object) && !rebind)
 		throw new Error("Object '" + object.toString() + "' is already bound.");
-
-	if(!(Binding.key in object))
-		Object.defineProperty(object, Binding.key, {
-			writable: true
-		});
-
-	this.target = object;
 
 	if(typeof router === "function" && typeof closer === "function") {
 		this.router = router;
@@ -26,6 +19,13 @@ function Binding(object, router, closer, rebind) {
 	else
 		throw new TypeError("Bindings require a router and a closer function or a master binding.");
 
+	if(!(Binding.key in object))
+		Object.defineProperty(object, Binding.key, {
+			writable: true
+		});
+
+	this.target = object;
+
 	object[Binding.key] = this;
 }
 
@@ -36,10 +36,10 @@ Binding.prototype = {
 	router: null,
 	closer: null,
 
-	route: function route() {
+	route() {
 		return this.router.apply(this.target, arguments);
 	},
-	close: function close() {
+	close() {
 		return this.closer.apply(this.target, arguments);
 	}
 };

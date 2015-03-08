@@ -18,7 +18,7 @@ Base.prototype = {
 
 	serve: helpers.serve,
 
-	expose: function expose(object, router, closer) {
+	expose(object, router, closer) {
 
 		// An object of the form { router:[function], closer:[function] } can be used as well:
 		if(closer === undefined && typeof router === "object") {

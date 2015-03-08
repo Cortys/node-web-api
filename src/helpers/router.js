@@ -40,15 +40,7 @@ var tools = {
 				throw new TypeError("serve.router expected 'object' but got '" + (typeof this) + "'.");
 
 			if(location in this &&  filter(this, location, options.filter) !== options.filterInverse) {
-				var value = this[location],
-					usedDirectMapping = false;
-
-				// If direct function mapping is used:
-				// Map functions before doing anything else. Simply replace function by its return value.
-				if(typeof value === "function" && !Binding.isBound(value) && options.mapFunctions == "direct") {
-					value = value.call(this);
-					usedDirectMapping = true;
-				}
+				let value = this[location];
 
 				return Promise.resolve(value).then(function(value) {
 					// Case 1: Function (not bound)
@@ -64,7 +56,7 @@ var tools = {
 								value = Binding.bind(null, this[Binding.key].router, value.bind(this));
 							// If direct mapping was not used before: Use it now.
 							// Simply replace function by its return value.
-							else if(options.mapFunctions == "direct" && !usedDirectMapping)
+							else if(options.mapFunctions == "direct")
 								value = value.call(this);
 							else
 								throw new Error("'" + location + "' could not be routed.");
@@ -72,6 +64,8 @@ var tools = {
 						else
 							throw new Error("'" + location + "' could not be routed.");
 					}
+					return value;
+				}).then(function() {
 					// Case 2: Bound object (could be a function)
 					if(Binding.isBound(value))
 						return value;

@@ -4,7 +4,8 @@ var Binding = require("./Binding");
  * Represents an Api node.
  * @constructor
  * @module Api
- * @param {Object} binding - An object this node should be bound to.
+ * @param {Object} boundObject - An object this node should be bound to.
+ * @param {string[]} position - The stack of routes that led to this API pointer.
  */
 function Api(boundObject, position) {
 	if(boundObject instanceof Api)
@@ -23,7 +24,7 @@ Api.prototype = {
 	_boundObject: null,
 	_position: null,
 
-	route: function route(location) {
+	route(location) {
 		var newPosition = this._position.concat([location]);
 
 		return new Api(this._boundObject.then(function(object) {
@@ -35,7 +36,7 @@ Api.prototype = {
 		}), newPosition);
 	},
 
-	close: function close(data) {
+	close(data) {
 		return this._boundObject.then(function(object) {
 			return object[Binding.key].close(data);
 		}).catch(function(err) {
