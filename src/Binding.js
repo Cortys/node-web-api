@@ -36,10 +36,10 @@ Binding.prototype = {
 	router: null,
 	closer: null,
 
-	route() {
+	route: function route() {
 		return this.router.apply(this.target, arguments);
 	},
-	close() {
+	close: function close() {
 		return this.closer.apply(this.target, arguments);
 	}
 };

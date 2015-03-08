@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 				script: "test/index.js",
 				options: {
 					watch: ["test", "src"],
-					exec: "iojs"
+					exec: "iojs --use_strict"
 				}
 			}
 		}
