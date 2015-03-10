@@ -7,7 +7,7 @@ var a = {
 		return "Alex Anderson";
 	},
 	d: {
-		foo: [1,2,3.4],
+		foo: [1, 2, 3.4],
 		bar: {
 			baz: true,
 			fuz: null
