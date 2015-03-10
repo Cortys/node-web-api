@@ -65,7 +65,7 @@ var tools = {
 							throw new Error("'" + location + "' could not be routed.");
 					}
 					return value;
-				}).then(function() {
+				}).then(function(value) {
 					// Case 2: Bound object (could be a function)
 					if(Binding.isBound(value))
 						return value;
