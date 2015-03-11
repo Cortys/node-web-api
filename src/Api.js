@@ -30,8 +30,10 @@ Api.prototype = {
 		return new Api(this[boundObject].then(function(object) {
 			return object[Binding.key].route(location);
 		}).catch(function(err) {
-			err.type = "route";
-			err.location = newPosition;
+			if(!err.location) {
+				err.type = "route";
+				err.location = newPosition;
+			}
 			throw err;
 		}), newPosition);
 	},
@@ -40,9 +42,11 @@ Api.prototype = {
 		return this[boundObject].then(function(object) {
 			return object[Binding.key].close(data);
 		}).catch(function(err) {
-			err.type = "close";
-			err.location = this[position];
-			err.data = data;
+			if(!err.location) {
+				err.type = "close";
+				err.location = this[position];
+				err.data = data;
+			}
 			throw err;
 		});
 	}
