@@ -2,7 +2,7 @@ var Binding = require("../Binding"),
 	filter = require("./filter");
 
 function router(options) {
-	if(typeof options !== "object")
+	if(typeof options !== "object" || options === null)
 		options = {};
 
 	options = {
@@ -40,7 +40,8 @@ var tools = {
 				throw new TypeError("serve.router expected 'object' but got '" + (typeof this) + "'.");
 
 			if(location in this &&  filter(this, location, options.filter) !== options.filterInverse) {
-				let value = this[location];
+				let value = this[location],
+					that = this;
 
 				return Promise.resolve(value).then(function(value) {
 					// Case 1: Function (not bound)
@@ -49,15 +50,15 @@ var tools = {
 						if(options.mapFunctions) {
 							// If functions should be mapped to being a router:
 							if(options.mapFunctions == "router")
-								value = Binding.bind(null, value.bind(this), this[Binding.key].closer);
+								value = Binding.bind(null, value.bind(that), that[Binding.key].closer);
 							// If functions should be mapped to be a closer
 							// (closing with whatever the function returned, even results with own bindings):
 							else if(options.mapFunctions == "closer")
-								value = Binding.bind(null, this[Binding.key].router, value.bind(this));
+								value = Binding.bind(null, that[Binding.key].router, value.bind(that));
 							// If direct mapping was not used before: Use it now.
 							// Simply replace function by its return value.
 							else if(options.mapFunctions == "direct")
-								value = value.call(this);
+								value = value.call(that);
 							else
 								throw new Error("'" + location + "' could not be routed.");
 						}
@@ -71,10 +72,10 @@ var tools = {
 						return value;
 					// Case 3: Object, that should be traversed deeply
 					if(typeof value === "object" && value !== null && options.deep)
-						return Binding.imitate(value, this, options.deepen);
+						return Binding.imitate(value, that, options.deepen);
 					// Case 4: Closable data was reached
 					else
-						return Binding.bind(null, function() {}, this[Binding.key].closer.bind(value));
+						return Binding.bind(null, function() {}, that[Binding.key].closer.bind(value));
 				});
 			}
 			else

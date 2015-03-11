@@ -2,7 +2,7 @@ var Binding = require("../Binding"),
 	filter = require("./filter");
 
 function closer(options) {
-	if(typeof options !== "object")
+	if(typeof options !== "object" || options === null)
 		options = {};
 
 	options = {

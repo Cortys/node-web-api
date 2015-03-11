@@ -44,7 +44,7 @@ Binding.prototype = {
 	}
 };
 
-Binding.key = Symbol("binding");
+Binding.key = Symbol();
 
 Binding.isBound = function isBound(object) {
 	return typeof object === "object" && this.key in object && object[this.key] instanceof this;
@@ -55,7 +55,7 @@ Binding.isEmpty = function isEmpty(object) {
 };
 
 Binding.bind = function bind(object, router, closer, rebind) {
-	return(new this(object, router, closer, rebind)).target;
+	return new this(object, router, closer, rebind).target;
 };
 
 Binding.imitate = function imitate(object, master, permanent) {

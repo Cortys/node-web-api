@@ -3,12 +3,11 @@ var Api = require("./Api"),
 	helpers = require("./helpers");
 
 function nwa(object, router, closer) {
-
 	// An object of the form { router:[function], closer:[function] } can be used as well:
 	if(closer === undefined && typeof router === "object") {
 		if(!Array.isArray(router)) {
-			router = router.router;
 			closer = router.closer;
+			router = router.router;
 		}
 		else {
 			closer = [];

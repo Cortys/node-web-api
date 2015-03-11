@@ -19,10 +19,9 @@ console.log(a);
 
 var api = nwa(a, nwa.serve());
 
-console.log(api);
-
 api.route("a").close().then(function(data) {
 	console.log(data);
 }, function(errs) {
 	console.error(errs);
+	console.error(errs.stack);
 });
