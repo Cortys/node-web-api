@@ -18,12 +18,15 @@ var a = {
 console.log(a);
 
 var api = nwa(a, nwa.serve({
+	router: {
+		mapFunctions: "direct"
+	},
 	closer: {
 		writable: true
 	}
 }));
 
-api.route("a").close(true).then(function(data) {
+api.route("c").close(true).then(function(data) {
 	console.log(data);
 }, function(err) {
 	console.error(err);

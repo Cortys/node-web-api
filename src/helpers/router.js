@@ -33,7 +33,7 @@ var tools = {
 
 			if(filter(this, location, options.filter) !== options.filterInverse)
 				return this.call(this, location);
-			throw new Error("'" + location + "' could not be routed.");
+			throw new ReferenceError("'" + location + "' could not be routed.");
 		},
 		"object": function(options, location) {
 			if(typeof this !== "object")
@@ -41,13 +41,15 @@ var tools = {
 
 			if(location in this &&  filter(this, location, options.filter) !== options.filterInverse) {
 				let value = this[location],
-					that = this;
+					that = this,
+					writable = true;
 
 				return Promise.resolve(value).then(function(value) {
 					// Case 1: Function (not bound)
 					if(typeof value === "function" && !Binding.isBound(value)) {
 						// If function mapping is enabled:
 						if(options.mapFunctions) {
+							writable = false;
 							// If functions should be mapped to being a router:
 							if(options.mapFunctions == "router")
 								value = Binding.bind(null, value.bind(that), that[Binding.key].closer);
@@ -75,7 +77,7 @@ var tools = {
 						return Binding.imitate(value, that, options.deepen);
 					// Case 4: Closable data was reached
 					else {
-						let valueDescriptor = {
+						let valueDescriptor = writable ? {
 							get: function() {
 								return value;
 							},
@@ -83,6 +85,9 @@ var tools = {
 								that[location] = newValue;
 								value = newValue;
 							},
+							enumerable: true
+						} : {
+							value: value,
 							enumerable: true
 						};
 						return Binding.bind(null, function() {}, function(data) {
@@ -92,7 +97,7 @@ var tools = {
 				});
 			}
 			else
-				throw new Error("'" + location + "' could not be routed.");
+				throw new ReferenceError("'" + location + "' could not be routed.");
 		}
 	}
 };
