@@ -51,7 +51,7 @@ Binding.prototype = {
 Binding.key = Symbol();
 
 Binding.isBound = function isBound(object) {
-	return typeof object === "object" && this.key in object && object[this.key] instanceof this;
+	return typeof object === "object" && object !== null && this.key in object && object[this.key] instanceof this;
 };
 
 Binding.isEmpty = function isEmpty(object) {

@@ -8,6 +8,7 @@ function router(options) {
 	options = {
 		type: options.type || "auto",
 		deep: options.deep || false,
+		deepArrays: options.deepArrays || false,
 		deepen: options.deepen || false,
 		mapFunctions: options.mapFunctions || false,
 		filter: options.filter || function() {
@@ -73,7 +74,7 @@ var tools = {
 					if(Binding.isBound(value))
 						return value;
 					// Case 3: Object, that should be traversed deeply
-					if(typeof value === "object" && value !== null && options.deep)
+					if(typeof value === "object" && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays))
 						return Binding.imitate(value, that, options.deepen);
 					// Case 4: Closable data was reached
 					else {

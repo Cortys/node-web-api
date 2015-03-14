@@ -3,8 +3,11 @@ var nwa = require("../src");
 var a = {
 	a: "John Doe",
 	b: "Adam Smith",
-	c: function() {
-		return "Alex Anderson";
+	c: function(a) {
+		var s = "Alex Anderson "+a;
+		return nwa(undefined, undefined, function() {
+			return s;
+		}).object;
 	},
 	d: {
 		foo: [1, 2, 3.4],
@@ -19,16 +22,23 @@ console.log(a);
 
 var api = nwa(a, nwa.serve({
 	router: {
-		mapFunctions: "direct"
+		mapFunctions: "router",
+		deep: true,
+		deepArrays: true
 	},
 	closer: {
 		writable: true
 	}
 }));
 
-api.route("c").close(true).then(function(data) {
+api.route("c").route("is pretty amazing.").close().then(function(data) {
 	console.log(data);
 }, function(err) {
-	console.error(err);
 	console.error(err.stack);
+});
+
+api.route("d").route("foo").close().then(function(data) {
+	console.log(data);
+}, function(err) {
+	console.log(err.stack);
 });

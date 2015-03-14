@@ -11,12 +11,13 @@ var Binding = require("./Binding"),
 function Api(pObject, pPosition) {
 	if(pObject instanceof Api)
 		return pObject;
+
+	var pos = this[position] = pPosition || [];
 	this[boundObject] = Promise.resolve(pObject).then(function(object) {
 		if(!Binding.isBound(object))
-			throw new TypeError("Object at position '" + position.join("/" + "' is not exposed."));
+			throw new TypeError("Object at position '" + pos.join("/") + "' is not exposed.");
 		return object;
 	});
-	this[position] = pPosition || [];
 }
 
 var boundObject = Symbol(),
@@ -53,6 +54,10 @@ Api.prototype = {
 			}
 			throw err;
 		});
+	},
+
+	get object() {
+		return this[boundObject];
 	}
 };
 
