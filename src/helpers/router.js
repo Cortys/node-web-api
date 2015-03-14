@@ -74,8 +74,21 @@ var tools = {
 					if(typeof value === "object" && value !== null && options.deep)
 						return Binding.imitate(value, that, options.deepen);
 					// Case 4: Closable data was reached
-					else
-						return Binding.bind(null, function() {}, that[Binding.key].closer.bind(value));
+					else {
+						let valueDescriptor = {
+							get: function() {
+								return value;
+							},
+							set: function(newValue) {
+								that[location] = newValue;
+								value = newValue;
+							},
+							enumerable: true
+						};
+						return Binding.bind(null, function() {}, function(data) {
+							return that[Binding.key].closer.call(this.setValue(valueDescriptor), data);
+						});
+					}
 				});
 			}
 			else

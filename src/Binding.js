@@ -1,3 +1,5 @@
+var Closing = require("./Closing");
+
 function Binding(object, router, closer, rebind) {
 
 	if(object == null)
@@ -39,8 +41,10 @@ Binding.prototype = {
 	route: function route() {
 		return this.router.apply(this.target, arguments);
 	},
-	close: function close() {
-		return this.closer.apply(this.target, arguments);
+	close: function close(closing, data) {
+		if(!(closing instanceof Closing))
+			throw new TypeError("closing has to be an instance of Closing.");
+		return this.closer.call(closing, data);
 	}
 };
 

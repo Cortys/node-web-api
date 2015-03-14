@@ -3,8 +3,8 @@ var serve = function serve(options) {
 		options = {};
 
 	return {
-		router: serve.router(options.routing),
-		closer: serve.closer(options.closing)
+		router: serve.router(options.router),
+		closer: serve.closer(options.closer)
 	};
 };
 

@@ -4,7 +4,7 @@ var Binding = require("../Binding"),
 function closer(options) {
 	if(typeof options !== "object" || options === null)
 		options = {};
-
+	console.log(options);
 	options = {
 		writable: options.writable || false,
 		types: options.types || function() {
@@ -13,9 +13,15 @@ function closer(options) {
 	};
 
 	return function servedCloser(data) {
-		if(!filter(this, typeof this, options.types))
+		if(!filter(this.value, typeof this.value, options.types))
 			throw new Error("This route could not be closed.");
-		return this;
+		if(data !== undefined) {
+			if(options.writable)
+				this.value = data;
+			else
+				throw new Error("This route could not be closed with data '"+data+"'.");
+		}
+		return this.value;
 	};
 }
 

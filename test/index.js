@@ -17,11 +17,15 @@ var a = {
 
 console.log(a);
 
-var api = nwa(a, nwa.serve());
+var api = nwa(a, nwa.serve({
+	closer: {
+		writable: true
+	}
+}));
 
-api.route("c").close().then(function(data) {
+api.route("a").close(true).then(function(data) {
 	console.log(data);
-}, function(errs) {
-	console.error(errs);
-	console.error(errs.stack);
+}, function(err) {
+	console.error(err);
+	console.error(err.stack);
 });
