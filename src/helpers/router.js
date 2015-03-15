@@ -18,7 +18,7 @@ function router(options) {
 	};
 
 	return function servedRouter(location) {
-		var mode = options.type == "auto" ? typeof this : options.type;
+		var mode = options.type === "auto" ? typeof this : options.type;
 		if(!(mode in tools.modes))
 			throw new TypeError("'" + mode + "'-data cannot be routed by serve.router.");
 		return tools.modes[mode].call(this, options, location);
@@ -52,15 +52,15 @@ var tools = {
 						if(options.mapFunctions) {
 							writable = false;
 							// If functions should be mapped to being a router:
-							if(options.mapFunctions == "router")
+							if(options.mapFunctions === "router")
 								value = Binding.bind(null, value.bind(that), that[Binding.key].closer);
 							// If functions should be mapped to be a closer
 							// (closing with whatever the function returned, even results with own bindings):
-							else if(options.mapFunctions == "closer")
+							else if(options.mapFunctions === "closer")
 								value = Binding.bind(null, that[Binding.key].router, value.bind(that));
 							// If direct mapping was not used before: Use it now.
 							// Simply replace function by its return value.
-							else if(options.mapFunctions == "direct")
+							else if(options.mapFunctions === "direct")
 								value = value.call(that);
 							else
 								throw new Error("'" + location + "' could not be routed.");

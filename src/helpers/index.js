@@ -18,7 +18,7 @@ var helpers = {
 	fallthrough: function fallthrough(functions) {
 		if(functions == null)
 			return function() {};
-		if(typeof functions == "function")
+		if(typeof functions === "function")
 			return functions;
 		if(!Array.isArray(functions))
 			throw new TypeError("Given fallthrough data either has to be of type 'function' or 'array'.");

@@ -56,7 +56,7 @@ Binding.prototype = {
 		return this.router.apply(this.target, arguments);
 	},
 	close: function close(location, data) {
-		return this.closer.call(new Closing(this.type == types.clone ? Object.getPrototypeOf(this.target) : this.target, location), data);
+		return this.closer.call(new Closing(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location), data);
 	}
 };
 
