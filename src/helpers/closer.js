@@ -6,21 +6,25 @@ function closer(options) {
 		options = {};
 	options = {
 		writable: options.writable || false,
-		types: options.types || function() {
-			return true;
-		}
+		filter: options.filter || function(object) {
+			return typeof object !== "object" || Array.isArray(object);
+		},
+		filterInverse: !!options.filterInverse || false
 	};
-
+	console.log("closer", options);
 	return function servedCloser(data) {
-		if(!filter(this.value, typeof this.value, options.types))
+		var v = filter(this, this.value, options.filter);
+		if(v === options.filterInverse)
 			throw new Error("This route could not be closed.");
 		if(data !== undefined) {
-			if(options.writable)
+			if(options.writable) {
 				try {
 					this.value = data;
-				} catch(err) {
+				}
+				catch(err) {
 					throw new Error("This route could not be closed with data '" + data + "'.");
 				}
+			}
 			else
 				throw new Error("This route could not be closed with data '" + data + "'.");
 		}

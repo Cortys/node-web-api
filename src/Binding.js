@@ -41,10 +41,8 @@ Binding.prototype = {
 	route: function route() {
 		return this.router.apply(this.target, arguments);
 	},
-	close: function close(closing, data) {
-		if(!(closing instanceof Closing))
-			throw new TypeError("closing has to be an instance of Closing.");
-		return this.closer.call(closing, data);
+	close: function close(location, data) {
+		return this.closer.call(new Closing(this.target, location), data);
 	}
 };
 

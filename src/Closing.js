@@ -17,6 +17,11 @@ function Closing(value, location) {
 }
 
 Closing.prototype = Object.freeze(Object.create(null, {
+
+	constructor: {
+		value: Closing
+	},
+
 	toString: {
 		value: function toString() {
 			return typeof this.value.toString === "function" ? this.value.toString() : Object.prototype.toString.call(this.value);

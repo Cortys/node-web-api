@@ -45,7 +45,7 @@ Api.prototype = {
 	close: function close(data) {
 		var that = this;
 		return this[boundObject].then(function(object) {
-			return object[Binding.key].close(new Closing(object, that[position]), data);
+			return object[Binding.key].close(that[position], data);
 		}).catch(function(err) {
 			if(!err.location) {
 				err.type = "close";
