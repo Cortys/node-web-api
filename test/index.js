@@ -10,7 +10,7 @@ var a = {
 		}).object;
 	},
 	d: {
-		foo: [1, 2, 3.4, 5],
+		foo: [1, 2, 3.4],
 		bar: {
 			baz: true,
 			fuz: null

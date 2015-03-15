@@ -11,7 +11,7 @@ function closer(options) {
 		},
 		filterInverse: !!options.filterInverse || false
 	};
-	console.log("closer", options);
+
 	return function servedCloser(data) {
 		var v = filter(this, this.value, options.filter);
 		if(v === options.filterInverse)

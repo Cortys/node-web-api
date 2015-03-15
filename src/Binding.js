@@ -1,14 +1,23 @@
 var Closing = require("./Closing");
 
-function Binding(object, router, closer, rebind) {
+var types = {
+	normal: Symbol("normal"),
+	clone: Symbol("clone"),
+	rebind: Symbol("rebind")
+};
+
+function Binding(object, router, closer, type) {
+
+	if(!type)
+		type = types.normal;
 
 	if(object == null)
 		object = Object.create(null);
 
 	if(typeof object !== "object" && typeof object !== "function")
-		throw new TypeError("Only objects and functions can be bound. Got '" + object.toString() + "'.");
-	if(Binding.isBound(object) && !rebind)
-		throw new Error("Object '" + object.toString() + "' is already bound.");
+		throw new TypeError("Only objects and functions can be bound. Got '" + object + "'.");
+	if(Binding.isBound(object) && type === types.normal)
+		throw new Error("Object '" + object + "' is already bound.");
 
 	if(typeof router === "function" && typeof closer === "function") {
 		this.router = router;
@@ -21,12 +30,16 @@ function Binding(object, router, closer, rebind) {
 	else
 		throw new TypeError("Bindings require a router and a closer function or a master binding.");
 
+	if(type === types.clone)
+		object = Object.create(object);
+
 	if(!(Binding.key in object))
 		Object.defineProperty(object, Binding.key, {
 			writable: true
 		});
 
 	this.target = object;
+	this.type = type;
 
 	object[Binding.key] = this;
 }
@@ -37,12 +50,13 @@ Binding.prototype = {
 	target: null,
 	router: null,
 	closer: null,
+	type: null,
 
 	route: function route() {
 		return this.router.apply(this.target, arguments);
 	},
 	close: function close(location, data) {
-		return this.closer.call(new Closing(this.target, location), data);
+		return this.closer.call(new Closing(this.type == types.clone ? Object.getPrototypeOf(this.target) : this.target, location), data);
 	}
 };
 
@@ -57,13 +71,13 @@ Binding.isEmpty = function isEmpty(object) {
 };
 
 Binding.bind = function bind(object, router, closer, rebind) {
-	return new this(object, router, closer, rebind).target;
+	return new this(object, router, closer, rebind ? types.rebind : types.normal).target;
 };
 
 Binding.imitate = function imitate(object, master, permanent) {
 	if(!this.isBound(master))
 		throw new TypeError("Only bound objects can be imitated.");
-	return this.bind(permanent ? object : Object.create(object), master[this.key]);
+	return new this(object, master[this.key], undefined, permanent ? types.clone : types.normal).target;
 };
 
 module.exports = Binding;
