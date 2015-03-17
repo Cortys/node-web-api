@@ -10,15 +10,19 @@ module.exports = function(target, input, filter) {
 	var res = false;
 	if(input === filter)
 		res = true;
-	else if(typeof filter === "object")
-		res = !!filter[input];
+	else if(typeof filter === "boolean")
+		res = filter;
 	else if(typeof filter === "function")
 		res = !!filter.call(target, input);
+	else if(filter instanceof RegExp)
+		res = filter.test(input);
 	else if(filter instanceof Set)
 		res = filter.has(input);
 	else if(filter instanceof Map)
 		res = !!filter.get(input);
 	else if(Array.isArray(filter))
 		res = filter.indexOf(input) !== -1;
+	else if(typeof filter === "object")
+		res = !!filter[input];
 	return res;
 };

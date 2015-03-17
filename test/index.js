@@ -28,10 +28,7 @@ var api = nwa(a, nwa.serve({
 	},
 	closer: {
 		writable: true,
-		filter: function(object) {
-			console.log("filter", Object.keys(object));
-			return Object.keys(object).length % 2;
-		}
+		filter: false
 	}
 }));
 
@@ -47,7 +44,7 @@ api.route("c").route("is pretty amazing.").close().then(function(data) {
 	console.error("(2)", err.stack);
 });
 
-api.route("d").route("foo").close().then(function(data) {
+api.route("d").route("foo").close([5, 6, 7.8]).then(function(data) {
 	console.log("(3)", data);
 }, function(err) {
 	console.error("(3)", err.stack);

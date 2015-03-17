@@ -11,7 +11,7 @@ function router(options) {
 		deepArrays: options.deepArrays || false,
 		deepen: options.deepen || false,
 		mapFunctions: options.mapFunctions || false,
-		filter: options.filter || function() {
+		filter: "filter" in options ? options.filter : function() {
 			return true;
 		},
 		filterInverse: !!options.filter || false
