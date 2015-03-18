@@ -1,6 +1,6 @@
-function Closing(value, location) {
+function State(value, location) {
 	if(!Array.isArray(location))
-		throw new TypeError("Closing location has to be an array.");
+		throw new TypeError("State location has to be an array.");
 
 	Object.defineProperties(this, {
 		value: {
@@ -16,10 +16,10 @@ function Closing(value, location) {
 	Object.freeze(this);
 }
 
-Closing.prototype = Object.freeze(Object.create(null, {
+State.prototype = Object.freeze(Object.create(null, {
 
 	constructor: {
-		value: Closing
+		value: State
 	},
 
 	toString: {
@@ -35,7 +35,7 @@ Closing.prototype = Object.freeze(Object.create(null, {
 	setValue: {
 		value: function setValue(valueDescriptor) {
 			if(typeof valueDescriptor !== "object" || valueDescriptor == null)
-				throw new TypeError("Closing valueDescriptor has to be an object.");
+				throw new TypeError("State valueDescriptor has to be an object.");
 			return Object.freeze(Object.create(this, {
 				value: valueDescriptor
 			}));
@@ -43,4 +43,4 @@ Closing.prototype = Object.freeze(Object.create(null, {
 	}
 }));
 
-module.exports = Closing;
+module.exports = State;

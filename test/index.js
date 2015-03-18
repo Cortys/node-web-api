@@ -27,8 +27,7 @@ var api = nwa(a, nwa.serve({
 		deepArrays: true
 	},
 	closer: {
-		writable: true,
-		filter: false
+		writable: true
 	}
 }));
 

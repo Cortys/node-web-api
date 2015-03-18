@@ -26,6 +26,6 @@ function nwa(object, router, closer) {
 }
 
 nwa.serve = helpers.serve;
-nwa.Closing = require("./Closing");
+nwa.State = require("./State");
 
 module.exports = nwa;

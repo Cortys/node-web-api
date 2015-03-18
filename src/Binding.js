@@ -1,4 +1,4 @@
-var Closing = require("./Closing");
+var State = require("./State");
 
 var types = {
 	normal: Symbol("normal"),
@@ -52,11 +52,11 @@ Binding.prototype = {
 	closer: null,
 	type: null,
 
-	route: function route() {
-		return this.router.apply(this.target, arguments);
+	route: function route(location, data) {
+		return this.router.call(new State(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location), data);
 	},
 	close: function close(location, data) {
-		return this.closer.call(new Closing(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location), data);
+		return this.closer.call(new State(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location), data);
 	}
 };
 
@@ -77,7 +77,7 @@ Binding.bind = function bind(object, router, closer, rebind) {
 Binding.imitate = function imitate(object, master, permanent) {
 	if(!this.isBound(master))
 		throw new TypeError("Only bound objects can be imitated.");
-	return new this(object, master[this.key], undefined, permanent ? types.clone : types.normal).target;
+	return new this(object, master[this.key], undefined, permanent ? types.normal : types.clone).target;
 };
 
 module.exports = Binding;

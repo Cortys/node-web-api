@@ -11,9 +11,7 @@ function router(options) {
 		deepArrays: options.deepArrays || false,
 		deepen: options.deepen || false,
 		mapFunctions: options.mapFunctions || false,
-		filter: "filter" in options ? options.filter : function() {
-			return true;
-		},
+		filter: "filter" in options ? options.filter : true,
 		filterInverse: !!options.filter || false
 	};
 
@@ -21,7 +19,7 @@ function router(options) {
 		var mode = options.type === "auto" ? typeof this : options.type;
 		if(!(mode in tools.modes))
 			throw new TypeError("'" + mode + "'-data cannot be routed by serve.router.");
-		return tools.modes[mode].call(this, options, location);
+		return tools.modes[mode].call(this.value, options, location);
 	};
 }
 
@@ -55,7 +53,7 @@ var tools = {
 							if(options.mapFunctions === "router")
 								value = Binding.bind(null, value.bind(that), that[Binding.key].closer);
 							// If functions should be mapped to be a closer
-							// (closing with whatever the function returned, even results with own bindings):
+							// (State with whatever the function returned, even results with own bindings):
 							else if(options.mapFunctions === "closer")
 								value = Binding.bind(null, that[Binding.key].router, value.bind(that));
 							// If direct mapping was not used before: Use it now.
@@ -70,6 +68,7 @@ var tools = {
 					}
 					return value;
 				}).then(function(value) {
+					console.log("ROUTING", location, value, typeof value === "object" && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays));
 					// Case 2: Bound object (could be a function)
 					if(Binding.isBound(value))
 						return value;

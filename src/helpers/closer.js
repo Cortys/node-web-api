@@ -21,6 +21,7 @@ function closer(options) {
 					this.value = data;
 				}
 				catch(err) {
+					console.error(err, this);
 					throw new Error("This route could not be closed with data '" + data + "'.");
 				}
 			}

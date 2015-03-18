@@ -1,5 +1,4 @@
-var Binding = require("./Binding"),
-	Closing = require("./Closing");
+var Binding = require("./Binding");
 
 /**
  * Represents an Api node.
@@ -26,13 +25,12 @@ var boundObject = Symbol(),
 Api.prototype = {
 	constructor: Api,
 
-	Closing: Closing,
-
 	route: function route(location) {
-		var newPosition = this[position].concat([location]);
+		var that = this,
+			newPosition = this[position].concat([location]);
 
 		return new Api(this[boundObject].then(function(object) {
-			return object[Binding.key].route(location);
+			return object[Binding.key].route(that[position], location);
 		}).catch(function(err) {
 			if(!err.location) {
 				err.type = "route";
