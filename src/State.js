@@ -1,4 +1,4 @@
-function State(value, location) {
+function State(value, location, binding) {
 	if(!Array.isArray(location))
 		throw new TypeError("State location has to be an array.");
 
@@ -10,6 +10,14 @@ function State(value, location) {
 		location: {
 			enumerable: true,
 			value: location
+		},
+		binding: {
+			enumerable: true,
+			value: binding
+		},
+		modified: {
+			enumerable: false,
+			value: false
 		}
 	});
 
@@ -17,10 +25,6 @@ function State(value, location) {
 }
 
 State.prototype = Object.freeze(Object.create(null, {
-
-	constructor: {
-		value: State
-	},
 
 	toString: {
 		value: function toString() {
@@ -37,7 +41,11 @@ State.prototype = Object.freeze(Object.create(null, {
 			if(typeof valueDescriptor !== "object" || valueDescriptor == null)
 				throw new TypeError("State valueDescriptor has to be an object.");
 			return Object.freeze(Object.create(this, {
-				value: valueDescriptor
+				value: valueDescriptor,
+				modified: {
+					enumerable: false,
+					value: true
+				}
 			}));
 		}
 	}

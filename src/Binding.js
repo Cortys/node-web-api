@@ -1,14 +1,14 @@
 var State = require("./State");
 
-var types = {
+var types = Object.freeze({
 	normal: Symbol("normal"),
 	clone: Symbol("clone"),
 	rebind: Symbol("rebind")
-};
+});
 
 function Binding(object, router, closer, type) {
 
-	if(!type)
+	if(typeof type !== "symbol")
 		type = types.normal;
 
 	if(object == null)
@@ -53,14 +53,16 @@ Binding.prototype = {
 	type: null,
 
 	route: function route(location, data) {
-		return this.router.call(new State(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location), data);
+		return this.router.call(new State(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location, this), data);
 	},
 	close: function close(location, data) {
-		return this.closer.call(new State(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location), data);
+		return this.closer.call(new State(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location, this), data);
 	}
 };
 
 Binding.key = Symbol();
+
+Binding.types = types;
 
 Binding.isBound = function isBound(object) {
 	return typeof object === "object" && object !== null && this.key in object && object[this.key] instanceof this;
@@ -70,14 +72,8 @@ Binding.isEmpty = function isEmpty(object) {
 	return this.isBound(object) && Binding.empty.isPrototypeOf(object);
 };
 
-Binding.bind = function bind(object, router, closer, rebind) {
-	return new this(object, router, closer, rebind ? types.rebind : types.normal).target;
-};
-
-Binding.imitate = function imitate(object, master, permanent) {
-	if(!this.isBound(master))
-		throw new TypeError("Only bound objects can be imitated.");
-	return new this(object, master[this.key], undefined, permanent ? types.normal : types.clone).target;
+Binding.bind = function bind(object, router, closer, type) {
+	return new this(object, router, closer, type).target;
 };
 
 module.exports = Binding;
