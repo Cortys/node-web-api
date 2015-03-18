@@ -27,7 +27,9 @@ var api = nwa(a, nwa.serve({
 		deepArrays: true
 	},
 	closer: {
-		writable: true
+		writable: function() {
+			return Math.random() > 0.5;
+		}
 	}
 }));
 

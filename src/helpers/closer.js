@@ -6,6 +6,7 @@ function closer(options) {
 		options = {};
 	options = {
 		writable: options.writable || false,
+		writableInverse: options.writableInverse || false,
 		filter: "filter" in options ? options.filter : function(object) {
 			return typeof object !== "object" || Array.isArray(object);
 		},
@@ -16,7 +17,7 @@ function closer(options) {
 		if(filter(this, this.value, options.filter) === options.filterInverse)
 			throw new Error("This route could not be closed.");
 		if(data !== undefined) {
-			if(options.writable) {
+			if(filter(this, this.value, options.writable) !== options.writableInverse) {
 				try {
 					this.value = data;
 				}
