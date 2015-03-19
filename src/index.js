@@ -20,7 +20,7 @@ function nwa(object, router, closer) {
 		}
 	}
 
-	object = Binding.bind(object, helpers.fallthrough(router), helpers.fallthrough(closer));
+	object = new Binding(object, helpers.fallthrough(router), helpers.fallthrough(closer));
 
 	return new Api(object);
 }

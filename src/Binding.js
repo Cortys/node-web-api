@@ -30,18 +30,25 @@ function Binding(object, router, closer, type) {
 	else
 		throw new TypeError("Bindings require a router and a closer function or a master binding.");
 
-	if(type === types.clone)
-		object = Object.create(object);
+	var target = type === types.clone ? Object.create(object) : object;
 
-	if(!(Binding.key in object))
-		Object.defineProperty(object, Binding.key, {
+	if(!(Binding.key in target))
+		Object.defineProperty(target, Binding.key, {
 			writable: true
 		});
 
-	this.target = object;
-	this.type = type;
+	Object.defineProperties(this, {
+		target: {
+			value: object
+		},
+		type: {
+			value: type
+		}
+	});
 
-	object[Binding.key] = this;
+	target[Binding.key] = this;
+
+	return target;
 }
 
 Binding.prototype = {
@@ -53,10 +60,10 @@ Binding.prototype = {
 	type: null,
 
 	route: function route(location, data) {
-		return this.router.call(new State(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location, this), data);
+		return this.router.call(new State(this.target, location, this), data);
 	},
 	close: function close(location, data) {
-		return this.closer.call(new State(this.type === types.clone ? Object.getPrototypeOf(this.target) : this.target, location, this), data);
+		return this.closer.call(new State(this.target, location, this), data);
 	}
 };
 
@@ -70,10 +77,6 @@ Binding.isBound = function isBound(object) {
 
 Binding.isEmpty = function isEmpty(object) {
 	return this.isBound(object) && Binding.empty.isPrototypeOf(object);
-};
-
-Binding.bind = function bind(object, router, closer, type) {
-	return new this(object, router, closer, type).target;
 };
 
 module.exports = Binding;

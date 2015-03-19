@@ -52,11 +52,11 @@ var tools = {
 							writable = false;
 							// If functions should be mapped to being a router:
 							if(options.mapFunctions === "router")
-								value = Binding.bind(null, value.bind(that), binding.closer);
+								value = new Binding(null, value.bind(that), binding.closer);
 							// If functions should be mapped to be a closer
 							// (State with whatever the function returned, even results with own bindings):
 							else if(options.mapFunctions === "closer")
-								value = Binding.bind(null, binding.router, value.bind(that));
+								value = new Binding(null, binding.router, value.bind(that));
 							// If direct mapping was not used before: Use it now.
 							// Simply replace function by its return value.
 							else if(options.mapFunctions === "direct")
@@ -101,7 +101,7 @@ var tools = {
 								type = Binding.types.clone;
 						}
 
-						return Binding.bind(targetValue, router, function closerPropagator(data) {
+						return new Binding(targetValue, router, function closerPropagator(data) {
 							return binding.closer.call(this.modified ? this : this.setValue(valueDescriptor), data);
 						}, type);
 					}
