@@ -31,7 +31,7 @@ var helpers = {
 
 			for(let i = 0; i < functions.length; i++) {
 				let f = functions[i];
-				if(typeof f != "function")
+				if(typeof f !== "function")
 					continue;
 
 				if(!result)

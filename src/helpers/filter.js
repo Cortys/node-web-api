@@ -8,9 +8,7 @@
 
 module.exports = function(target, input, filter) {
 	var res = false;
-	if(input === filter)
-		res = true;
-	else if(typeof filter === "boolean")
+	if(typeof filter === "boolean")
 		res = filter;
 	else if(typeof filter === "function")
 		res = !!filter.call(target, input);
