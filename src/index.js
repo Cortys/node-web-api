@@ -4,7 +4,9 @@ var Api = require("./Api"),
 
 function nwa(object, router, closer) {
 	// An object of the form { router:[function], closer:[function] } can be used as well:
-	if(closer === undefined && typeof router === "object") {
+	if(router != null && typeof router === "object") {
+		if(closer !== undefined)
+			throw new TypeError("Invalid parameters.");
 		if(!Array.isArray(router)) {
 			closer = router.closer;
 			router = router.router;
