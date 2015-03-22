@@ -31,7 +31,7 @@ describe("Binding", function() {
 		});
 	});
 
-	describe("[call]() or .bind()", function() {
+	describe(".call() or .bind()", function() {
 		it("can be called directly or by calling Binding.bind", function() {
 			expect(Binding.isBound(Binding({}, function() {}, function() {}))).to.be.ok();
 			expect(Binding.isBound(Binding.bind({}, function() {}, function() {}))).to.be.ok();
@@ -83,53 +83,50 @@ describe("Binding", function() {
 		});
 	});
 
-	describe("[instance]", function() {
+	var object = {
+			the: "object"
+		},
+		location = ["a", "b", "c"],
+		data = "ein test",
+		router = function(data) {
+			expect(this.value).to.be(object);
+			expect(this.location).to.be(location);
+			expect(this.binding).to.be(binding);
+			expect(data).to.be(data);
+			return "result";
+		},
+		closer = router,
+		binding = Binding.bind(object, router, closer)[Binding.key];
 
-		var object = {
-				the: "object"
-			},
-			location = ["a", "b", "c"],
-			data = "ein test",
-			router = function(data) {
-				expect(this.value).to.be(object);
-				expect(this.location).to.be(location);
-				expect(this.binding).to.be(binding);
-				expect(data).to.be(data);
-				return "result";
-			},
-			closer = router,
-			binding = Binding.bind(object, router, closer)[Binding.key];
-
-		describe(".router", function() {
-			it("should contain the assigned router", function() {
-				expect(binding.router).to.be(router);
-			});
+	describe("#router", function() {
+		it("should contain the assigned router", function() {
+			expect(binding.router).to.be(router);
 		});
+	});
 
-		describe(".closer", function() {
-			it("should contain the assigned closer", function() {
-				expect(binding.closer).to.be(closer);
-			});
+	describe("#closer", function() {
+		it("should contain the assigned closer", function() {
+			expect(binding.closer).to.be(closer);
 		});
+	});
 
-		describe(".type", function() {
-			it("should contain the type used at Binding creation", function() {
-				expect(Binding.bind({}, function() {}, function() {}, Binding.types.normal)[Binding.key].type).to.be(Binding.types.normal);
-				expect(Binding.bind({}, function() {}, function() {}, Binding.types.clone)[Binding.key].type).to.be(Binding.types.clone);
-				expect(Binding.bind({}, function() {}, function() {}, Binding.types.rebind)[Binding.key].type).to.be(Binding.types.rebind);
-			});
+	describe("#type", function() {
+		it("should contain the type used at Binding creation", function() {
+			expect(Binding.bind({}, function() {}, function() {}, Binding.types.normal)[Binding.key].type).to.be(Binding.types.normal);
+			expect(Binding.bind({}, function() {}, function() {}, Binding.types.clone)[Binding.key].type).to.be(Binding.types.clone);
+			expect(Binding.bind({}, function() {}, function() {}, Binding.types.rebind)[Binding.key].type).to.be(Binding.types.rebind);
 		});
+	});
 
-		describe(".route()", function() {
-			it("should call .router() bound to a State with the given location and the given data as parameter", function() {
-				expect(binding.route(location, data)).to.be("result");
-			});
+	describe("#route()", function() {
+		it("should call .router() bound to a State with the given location and the given data as parameter", function() {
+			expect(binding.route(location, data)).to.be("result");
 		});
+	});
 
-		describe(".close()", function() {
-			it("should call .closer() bound to a State with the given location and the given data as parameter", function() {
-				expect(binding.close(location, data)).to.be("result");
-			});
+	describe("#close()", function() {
+		it("should call .closer() bound to a State with the given location and the given data as parameter", function() {
+			expect(binding.close(location, data)).to.be("result");
 		});
 	});
 
