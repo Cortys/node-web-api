@@ -8,10 +8,13 @@ var types = Object.freeze({
 
 function Binding(object, router, closer, type) {
 
+	if(!(this instanceof Binding))
+		return new Binding(object, router, closer, type);
+
 	if(typeof type !== "symbol")
 		type = types.normal;
 
-	if(object == null)
+	if(object === null)
 		object = Object.create(null);
 
 	if(typeof object !== "object" && typeof object !== "function")
@@ -28,7 +31,7 @@ function Binding(object, router, closer, type) {
 		this.closer = router.closer;
 	}
 	else
-		throw new TypeError("Bindings require a router and a closer function or a master binding.");
+		throw new TypeError("Bindings require a router and a closer function or another binding to copy.");
 
 	var target = type === types.clone ? Object.create(object) : object;
 
@@ -74,6 +77,8 @@ Binding.types = types;
 Binding.isBound = function isBound(object) {
 	return typeof object === "object" && object !== null && this.key in object && object[this.key] instanceof this;
 };
+
+Binding.bind = Binding;
 
 if(State.setBinding)
 	State.setBinding(Binding);
