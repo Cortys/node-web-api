@@ -113,7 +113,7 @@ describe("State", function() {
 			expect(modified).to.be.a(State);
 			expect(modified.value).to.be("test");
 		});
-		it("modified state should have a .modified flag", function() {
+		it("should return a state with a .modified flag", function() {
 			expect(state.modified).not.to.be.ok();
 			expect(state.setValue({}).modified).to.be.ok();
 		});
