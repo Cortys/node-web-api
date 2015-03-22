@@ -1,6 +1,10 @@
+var Binding;
+
 function State(value, location, binding) {
 	if(!Array.isArray(location))
 		throw new TypeError("State location has to be an array.");
+	if(!Binding || !(binding instanceof Binding))
+		throw new TypeError("State binding has to be an instance of Binding.");
 
 	Object.defineProperties(this, {
 		value: {
@@ -43,12 +47,18 @@ State.prototype = Object.freeze(Object.create(null, {
 			return Object.freeze(Object.create(this, {
 				value: valueDescriptor,
 				modified: {
-					enumerable: false,
 					value: true
 				}
 			}));
 		}
 	}
 }));
+
+State.setBinding = function setBinding(val) {
+	if(Binding || typeof val !== "function")
+		throw new Error("Binding could not be set.");
+	Binding = val;
+	delete State.setBinding;
+};
 
 module.exports = State;

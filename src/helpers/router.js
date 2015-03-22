@@ -1,3 +1,5 @@
+"use strict";
+
 var Binding = require("../Binding"),
 	filter = require("./filter");
 

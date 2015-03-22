@@ -75,8 +75,7 @@ Binding.isBound = function isBound(object) {
 	return typeof object === "object" && object !== null && this.key in object && object[this.key] instanceof this;
 };
 
-Binding.isEmpty = function isEmpty(object) {
-	return this.isBound(object) && Binding.empty.isPrototypeOf(object);
-};
+if(State.setBinding)
+	State.setBinding(Binding);
 
 module.exports = Binding;
