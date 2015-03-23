@@ -11,6 +11,8 @@ describe("Api", function() {
 			b: 2,
 			c: 3
 		}, function() {}, function(key) {
+			if(!(key in this.value))
+				throw new Error(key + " not found.");
 			return this.value[key];
 		}),
 		api = new Api(object);

@@ -1,3 +1,5 @@
+"use strict";
+
 var Api = require("./Api"),
 	Binding = require("./Binding"),
 	helpers = require("./helpers");

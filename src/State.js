@@ -1,3 +1,5 @@
+"use strict";
+
 var Binding;
 
 function State(value, location, binding) {

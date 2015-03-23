@@ -1,3 +1,5 @@
+"use strict";
+
 var State = require("./State");
 
 var types = Object.freeze({

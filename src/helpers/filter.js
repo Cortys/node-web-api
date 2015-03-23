@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Applies a given filter to an input and returns true/false on match/mismatch.
  * @module Api
