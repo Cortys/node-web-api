@@ -21,24 +21,35 @@ function Api(pObject, pPosition) {
 	}).catch(errorHandlers.route.bind(null, pos));
 }
 
-var boundObject = Symbol(),
+var errorHandled = Symbol(),
+	boundObject = Symbol(),
 	position = Symbol();
 
 var errorHandlers = {
 	route: function route(position, err) {
-		if(typeof err === "object" && !err.location) {
-			err.type = "route";
-			err.location = position;
+		try {
+			if(!(errorHandled in err)) {
+				err.type = "route";
+				err.location = position;
+				err[errorHandled] = true;
+			}
 		}
-		throw err;
+		finally {
+			throw err;
+		}
 	},
 	close: function close(data, err) {
-		if(typeof err === "object" && !err.location) {
-			err.type = "close";
-			err.location = this[position];
-			err.data = data;
+		try {
+			if(!(errorHandled in err)) {
+				err.type = "close";
+				err.location = this[position];
+				err.data = data;
+				err[errorHandled] = true;
+			}
 		}
-		throw err;
+		finally {
+			throw err;
+		}
 	}
 };
 
