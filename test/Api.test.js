@@ -2,6 +2,7 @@ var expect = require("expect.js");
 
 var nwa = require("../src"),
 	Binding = require("../src/Binding"),
+	State = require("../src/State"),
 	Api = require("../src/Api");
 
 describe("Api", function() {
@@ -12,8 +13,10 @@ describe("Api", function() {
 			c: 3
 		}, function(a) {
 			if(a)
-				return this.object;
+				return this.value;
 		}, function(key) {
+			expect(this).to.be.a(State);
+			expect(this.value).to.be(object);
 			if(!(key in this.value))
 				throw new Error(key + " not found.");
 			return this.value[key];
@@ -23,6 +26,20 @@ describe("Api", function() {
 	describe("#route()", function() {
 		it("should return an Api", function() {
 			expect(api.route()).to.be.an(Api);
+		});
+		it("should return a navigatable Api when appropriate", function() {
+			return api.route(true).close("a").then(function(data) {
+				expect(data).to.be(1);
+			});
+		});
+		it("should return a dead Api when used inappropriately", function() {
+			return api.route().close("a").then(function(data) {
+				expect().fail("This routing was invalid.");
+			}, function(err) {
+				console.log(err);
+				expect(err.type).to.be("route");
+				expect(err.location).to.eql([undefined]);
+			});
 		});
 	});
 
@@ -44,11 +61,17 @@ describe("Api", function() {
 				api.close("d").then(function() {
 					expect().fail("This request should have thrown.");
 				}, function(err) {
+					expect(err.type).to.be("close");
+					expect(err.location).to.eql([]);
+					expect(err.data).to.be("d");
 					expect(err.message).to.be("d not found.");
 				}),
 				api.close().then(function() {
-					expect(undefined).fail("This request should have thrown.");
+					expect().fail("This request should have thrown.");
 				}, function(err) {
+					expect(err.type).to.be("close");
+					expect(err.location).to.eql([]);
+					expect(err.data).to.be(undefined);
 					expect(err.message).to.be("undefined not found.");
 				})
 			]);

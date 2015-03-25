@@ -51,11 +51,11 @@ describe("State", function() {
 			expect(state.location).to.be.an("array");
 		});
 		it("should contain the assigned location", function() {
-			expect(state.location).to.be(location);
+			expect(state.location).to.eql(location);
 		});
 		it("should be read-only", function() {
 			state.location = ["something", "else"];
-			expect(state.location).to.be(location);
+			expect(state.location).to.eql(location);
 		});
 	});
 

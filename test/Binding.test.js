@@ -91,7 +91,7 @@ describe("Binding", function() {
 		data = "ein test",
 		router = function(data) {
 			expect(this.value).to.be(object);
-			expect(this.location).to.be(location);
+			expect(this.location).to.eql(location);
 			expect(this.binding).to.be(binding);
 			expect(data).to.be(data);
 			return "result";

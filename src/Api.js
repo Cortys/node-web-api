@@ -13,16 +13,34 @@ function Api(pObject, pPosition) {
 	if(pObject instanceof Api)
 		return pObject;
 
-	var pos = this[position] = pPosition || [];
+	var pos = this[position] = (pPosition || []).slice(0);
 	this[boundObject] = Promise.resolve(pObject).then(function(object) {
 		if(!Binding.isBound(object))
 			throw new TypeError("Object at position '" + pos.join("/") + "' is not exposed.");
 		return object;
-	});
+	}).catch(errorHandlers.route.bind(null, pos));
 }
 
 var boundObject = Symbol(),
 	position = Symbol();
+
+var errorHandlers = {
+	route: function route(position, err) {
+		if(typeof err === "object" && !err.location) {
+			err.type = "route";
+			err.location = position;
+		}
+		throw err;
+	},
+	close: function close(data, err) {
+		if(typeof err === "object" && !err.location) {
+			err.type = "close";
+			err.location = this[position];
+			err.data = data;
+		}
+		throw err;
+	}
+};
 
 Api.prototype = {
 	constructor: Api,
@@ -33,12 +51,6 @@ Api.prototype = {
 
 		return new Api(this[boundObject].then(function(object) {
 			return object[Binding.key].route(that[position], location);
-		}).catch(function(err) {
-			if(!err.location) {
-				err.type = "route";
-				err.location = newPosition;
-			}
-			throw err;
 		}), newPosition);
 	},
 
@@ -46,14 +58,7 @@ Api.prototype = {
 		var that = this;
 		return this[boundObject].then(function(object) {
 			return object[Binding.key].close(that[position], data);
-		}).catch(function(err) {
-			if(!err.location) {
-				err.type = "close";
-				err.location = that[position];
-				err.data = data;
-			}
-			throw err;
-		});
+		}).catch(errorHandlers.close.bind(this, data));
 	},
 
 	get object() {

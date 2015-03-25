@@ -15,7 +15,7 @@ function State(value, location, binding) {
 		},
 		location: {
 			enumerable: true,
-			value: location
+			value: location.slice(0)
 		},
 		binding: {
 			enumerable: true,
@@ -45,7 +45,7 @@ State.prototype = Object.freeze(Object.create(null, {
 	setValue: {
 		value: function setValue(valueDescriptor) {
 			if(typeof valueDescriptor !== "object" || valueDescriptor == null)
-				throw new TypeError("State valueDescriptor has to be an object.");
+				throw new TypeError("State valueDescriptor has to be an value.");
 			return Object.freeze(Object.create(this, {
 				value: valueDescriptor,
 				modified: {
