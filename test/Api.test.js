@@ -36,7 +36,6 @@ describe("Api", function() {
 			return api.route().close("a").then(function(data) {
 				expect().fail("This routing was invalid.");
 			}, function(err) {
-				console.log(err);
 				expect(err.type).to.be("route");
 				expect(err.location).to.eql([undefined]);
 			});
