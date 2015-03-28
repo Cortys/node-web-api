@@ -33,8 +33,10 @@ var helpers = {
 
 			for(let i = 0; i < functions.length; i++) {
 				let v = functions[i];
-				if(typeof v !== "function")
-					continue;
+				if(typeof v !== "function") {
+					result = Promise.reject(new TypeError(v + " at position " + i + " could not be used as a function for fallthrough."));
+					break;
+				}
 
 				if(!result)
 					result = Promise.resolve(v.apply(that, args));
