@@ -32,16 +32,16 @@ var helpers = {
 				args = arguments;
 
 			for(let i = 0; i < functions.length; i++) {
-				let f = functions[i];
-				if(typeof f !== "function")
+				let v = functions[i];
+				if(typeof v !== "function")
 					continue;
 
 				if(!result)
-					result = Promise.resolve(f.apply(that, args));
+					result = Promise.resolve(v.apply(that, args));
 				else
 					result.catch(function(err) {
 						errs.push(err);
-						return f.apply(that, args);
+						return v.apply(that, args);
 					});
 			}
 

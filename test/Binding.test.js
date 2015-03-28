@@ -72,6 +72,12 @@ describe("Binding", function() {
 				expect(Binding.bind).withArgs(object, function() {}, function() {}).to.throwError();
 			});
 
+			it("when 'rebind': accepts all objects and rebinds them if neccessary", function() {
+				var object = {};
+				expect(Binding.bind).withArgs(object, function() {}, function() {}, Binding.types.rebind).not.to.throwError();
+				expect(Binding.bind).withArgs(object, function() {}, function() {}, Binding.types.rebind).not.to.throwError();
+			});
+
 			it("when 'clone': always binds to a prototypal descendant of the given object and returns it", function() {
 				var object = {};
 				expect(Binding.bind).withArgs(object, function() {}, function() {}).not.to.throwError();
@@ -116,6 +122,25 @@ describe("Binding", function() {
 			expect(Binding.bind({}, function() {}, function() {}, Binding.types.normal)[Binding.key].type).to.be(Binding.types.normal);
 			expect(Binding.bind({}, function() {}, function() {}, Binding.types.clone)[Binding.key].type).to.be(Binding.types.clone);
 			expect(Binding.bind({}, function() {}, function() {}, Binding.types.rebind)[Binding.key].type).to.be(Binding.types.rebind);
+		});
+	});
+
+	describe("#target", function() {
+		it("should always contain the binding target object", function() {
+			var o = {},
+				oBound = Binding.bind(o, function() {}, function() {}, Binding.types.normal);
+			expect(oBound[Binding.key].target).to.be(o);
+			expect(oBound).to.be(o);
+
+			var p = o,
+				pBound = Binding.bind(o, function() {}, function() {}, Binding.types.rebind);
+			expect(pBound[Binding.key].target).to.be(p);
+			expect(pBound).to.be(p);
+
+			var q = {},
+				qBound = Binding.bind(q, function() {}, function() {}, Binding.types.clone);
+			expect(qBound[Binding.key].target).to.be(q);
+			expect(qBound).not.to.be(q);
 		});
 	});
 
