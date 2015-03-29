@@ -1,4 +1,4 @@
-# ![owe.js](logo.svg)
+# ![owe.js](logo.png)
 
 **O**bject **W**eb **E**xposer.
 
