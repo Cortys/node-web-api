@@ -1,5 +1,5 @@
 {
-	"name": "node-web-api",
+	"name": "owe.js",
 	"version": "0.1.0",
 	"description": "A Node.js wrapper for protocol independent web API exposal.",
 	"keywords": [
@@ -18,7 +18,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Cortys/node-web-api.git"
+		"url": "https://github.com/runnr/owe.js.git"
 	},
 	"dependencies": {
 

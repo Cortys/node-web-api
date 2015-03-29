@@ -4,7 +4,7 @@ var Api = require("./Api"),
 	Binding = require("./Binding"),
 	helpers = require("./helpers");
 
-function nwa(object, router, closer) {
+function owe(object, router, closer) {
 	// An object of the form { router:[function], closer:[function] } can be used as well:
 	if(router != null && typeof router === "object") {
 		if(closer !== undefined)
@@ -29,7 +29,7 @@ function nwa(object, router, closer) {
 	return new Api(object);
 }
 
-nwa.serve = helpers.serve;
-nwa.State = require("./State");
+owe.serve = helpers.serve;
+owe.State = require("./State");
 
-module.exports = nwa;
+module.exports = owe;
