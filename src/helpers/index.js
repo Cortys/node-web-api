@@ -18,10 +18,13 @@ var helpers = {
 	serve: serve,
 
 	fallthrough: function fallthrough(functions) {
+
 		if(functions == null)
-			return function() {};
+			functions = [];
+
 		if(typeof functions === "function")
-			return functions;
+			functions = [functions];
+
 		if(!Array.isArray(functions))
 			throw new TypeError("Given fallthrough data either has to be of type 'function' or 'array'.");
 
@@ -39,21 +42,23 @@ var helpers = {
 				}
 
 				if(!result)
-					result = Promise.resolve(v.apply(that, args));
+					result = Promise.resolve().then(function() {
+						return v.apply(that, args);
+					});
 				else
-					result.catch(function(err) {
+					result = result.catch(function(err) {
 						errs.push(err);
 						return v.apply(that, args);
 					});
 			}
 
 			if(result)
-				result.catch(function(err) {
+				return result.catch(function(err) {
 					errs.push(err);
 					throw errs;
 				});
 
-			return result;
+			return Promise.reject([new Error("No functions for fallthrough found.")]);
 		};
 	}
 };
