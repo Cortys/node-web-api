@@ -15,19 +15,21 @@ function closer(options) {
 		filterInverse: !!options.filterInverse || false
 	};
 
+	function tryWrite(object, key, data) {
+		try {
+			object[key] = data;
+		}
+		catch(err) {
+			throw new Error("This route could not be closed with data '" + data + "'.");
+		}
+	}
+
 	return function servedCloser(data) {
 		if(filter(this, this.value, options.filter) === options.filterInverse)
 			throw new Error("This route could not be closed.");
 		if(data !== undefined) {
-			if(filter(this, this.value, options.writable) !== options.writableInverse) {
-				try {
-					this.value = data;
-				}
-				catch(err) {
-					console.error(err, this);
-					throw new Error("This route could not be closed with data '" + data + "'.");
-				}
-			}
+			if(filter(this, this.value, options.writable) !== options.writableInverse)
+				tryWrite(this, "value", data);
 			else
 				throw new Error("This route could not be closed with data '" + data + "'.");
 		}
