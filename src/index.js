@@ -4,6 +4,15 @@ var Api = require("./Api"),
 	Binding = require("./Binding"),
 	helpers = require("./helpers");
 
+function fallthroughCall(functions, message) {
+	try {
+		return helpers.fallthrough(functions);
+	}
+	catch(err) {
+		throw new TypeError(message);
+	}
+}
+
 function owe(object, router, closer) {
 	// An object of the form { router:[function], closer:[function] } can be used as well:
 	if(router != null && typeof router === "object") {
@@ -24,7 +33,10 @@ function owe(object, router, closer) {
 		}
 	}
 
-	object = Binding.bind(object, helpers.fallthrough(router), helpers.fallthrough(closer));
+	router = fallthroughCall(router, "Invalid router.");
+	closer = fallthroughCall(closer, "Invalid closer.");
+
+	object = Binding.bind(object, router, closer);
 
 	return new Api(object);
 }

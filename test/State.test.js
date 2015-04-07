@@ -1,6 +1,6 @@
 var expect = require("expect.js");
 
-var nwa = require("../src"),
+var owe = require("../src"),
 	State = require("../src/State"),
 	Binding = require("../src/Binding");
 

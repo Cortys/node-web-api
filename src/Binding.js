@@ -72,7 +72,7 @@ Binding.prototype = {
 	}
 };
 
-Binding.key = Symbol();
+Binding.key = Symbol("binding");
 
 Binding.types = types;
 

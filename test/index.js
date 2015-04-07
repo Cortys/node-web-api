@@ -1,11 +1,11 @@
-var nwa = require("../src");
+var owe = require("../src");
 
 var a = {
 	a: "John Doe",
 	b: "Adam Smith",
 	c: function(a) {
 		var s = "Alex Anderson " + a;
-		return nwa(null, undefined, function() {
+		return owe(null, undefined, function() {
 			return s;
 		}).object;
 	},
@@ -20,7 +20,7 @@ var a = {
 
 console.log(a);
 
-var api = nwa(a, nwa.serve({
+var api = owe(a, owe.serve({
 	router: {
 		mapFunctions: "router",
 		deep: true,
