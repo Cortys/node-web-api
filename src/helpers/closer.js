@@ -6,13 +6,17 @@ var Binding = require("../Binding"),
 function closer(options) {
 	if(typeof options !== "object" || options === null)
 		options = {};
+
 	options = {
 		writable: options.writable || false,
 		writableInverse: options.writableInverse || false,
 		filter: "filter" in options ? options.filter : function(object) {
 			return typeof object !== "object" || Array.isArray(object);
 		},
-		filterInverse: !!options.filterInverse || false
+		filterInverse: !!options.filterInverse || false,
+		output: typeof options.output === "function" ? options.output : function(value) {
+			return value;
+		}
 	};
 
 	function tryWrite(object, key, data) {
@@ -25,15 +29,15 @@ function closer(options) {
 	}
 
 	return function servedCloser(data) {
-		if(filter(this, this.value, options.filter) === options.filterInverse)
-			throw new Error("This route could not be closed.");
-		if(data !== undefined) {
-			if(filter(this, this.value, options.writable) !== options.writableInverse)
+		return filter(this, data, options.filter).then(function(result) {
+			if(result === options.filterInverse)
+				throw new Error("This route could not be closed" + (data !== undefined ? " with data '" + data + "'.": "."));
+
+			if(data !== undefined)
 				tryWrite(this, "value", data);
-			else
-				throw new Error("This route could not be closed with data '" + data + "'.");
-		}
-		return this.value;
+
+			return options.output.call(this, this.value);
+		});
 	};
 }
 
