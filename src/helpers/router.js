@@ -88,47 +88,46 @@ var tools = {
 				// Case 2: Bound object (could be a function)
 				if(Binding.isBound(value))
 					return value;
+
 				// Case 3: Closable data was reached
+				var valueDescriptor = writable ? {
+					get: function() {
+						return value;
+					},
+					set: function(newValue) {
+						that[location] = newValue;
+						value = newValue;
+					},
+					enumerable: true
+				} : {
+					value: value,
+					enumerable: true
+				};
+
+				// Case 4: Object, that should be traversed deeply
+
+				var targetValue, router, type;
+
+				if(typeof value === "object" && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
+					targetValue = value;
+					router = binding.router;
+					if(!options.deepen)
+						type = Binding.types.clone;
+				}
 				else {
 
-					let valueDescriptor = writable ? {
-						get: function() {
-							return value;
-						},
-						set: function(newValue) {
-							that[location] = newValue;
-							value = newValue;
-						},
-						enumerable: true
-					} : {
-						value: value,
-						enumerable: true
+					let errorMessage = `${typeof value === "object" ? "Object" : "Data"} at position '${that.location.concat([location]).join("/")}' is an end point and cannot be routed.`;
+					router = function() {
+						throw new Error(errorMessage);
 					};
 
-					let targetValue, router, type;
-
-					// Case 4: Object, that should be traversed deeply
-					if(typeof value === "object" && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
-						targetValue = value;
-						router = binding.router;
-						if(!options.deepen)
-							type = Binding.types.clone;
-					}
-					else {
-
-						let errorMessage = `${typeof value === "object" ? "Object" : "Data"} at position '${that.location.concat([location]).join("/")}' is an end point and cannot be routed.`;
-						router = function() {
-							throw new Error(errorMessage);
-						};
-
-						targetValue = null;
-						type = Binding.types.normal;
-					}
-
-					return Binding.bind(targetValue, router, function closerPropagator(data) {
-						return binding.closer.call(this.modified ? this : this.setValue(valueDescriptor), data);
-					}, type);
+					targetValue = null;
+					type = Binding.types.normal;
 				}
+
+				return Binding.bind(targetValue, router, function closerPropagator(data) {
+					return binding.closer.call(this.modified ? this : this.setValue(valueDescriptor), data);
+				}, type);
 			});
 		}
 	}
