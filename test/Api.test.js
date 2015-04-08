@@ -56,6 +56,9 @@ describe("Api", function() {
 			});
 		});
 		it("should reject incorrect requests", function() {
+
+			var error;
+
 			return Promise.all([
 				api.close("d").then(function() {
 					expect().fail("This request should have thrown.");
@@ -72,6 +75,23 @@ describe("Api", function() {
 					expect(err.location).to.eql([]);
 					expect(err.data).to.be(undefined);
 					expect(err.message).to.be("undefined not found.");
+				}),
+				new Api(Binding.bind({}, function() {}, function() {
+					error = new Error("A frozen error.");
+					error.type = "foo";
+					Object.defineProperty(error, "location", {
+						get: function() {
+							return undefined;
+						},
+						set: function() {
+							throw new Error("Another error.");
+						}
+					});
+					throw Object.freeze(error);
+				})).close().then(function() {
+					expect().fail("This request should have thrown.");
+				}, function(err) {
+					expect(err).to.be(error);
 				})
 			]);
 		});

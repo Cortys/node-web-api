@@ -21,9 +21,9 @@ function Api(pObject, pPosition) {
 	}).catch(errorHandlers.route.bind(null, pos));
 }
 
-var errorHandled = Symbol(),
-	boundObject = Symbol(),
-	position = Symbol();
+var errorHandled = Symbol("errorHandled"),
+	boundObject = Symbol("boundObject"),
+	position = Symbol("position");
 
 var errorHandlers = {
 	route: function route(position, err) {
