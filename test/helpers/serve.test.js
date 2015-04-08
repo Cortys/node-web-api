@@ -17,8 +17,27 @@ describe(".serve", function() {
 		expect(owe).withArgs(null, owe.serve()).not.to.throwError();
 	});
 
-	require("./serve/router.test.js");
+	var routerTest = require("./serve/router.test.js"),
+		closerTest = require("./serve/closer.test.js");
 
-	require("./serve/closer.test.js");
+	describe(".call() result", function() {
+
+		describe(".router", function() {
+			routerTest(function(options) {
+				return owe.serve({
+					router: options
+				}).router;
+			});
+		});
+		
+		describe(".closer", function() {
+			closerTest(function(options) {
+				return owe.serve({
+					closer: options
+				}).closer;
+			});
+		});
+
+	});
 
 });
