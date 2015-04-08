@@ -24,14 +24,14 @@ function closer(options) {
 			object[key] = data;
 		}
 		catch(err) {
-			throw new Error("This route could not be closed with data '" + data + "'.");
+			throw new Error(`This route could not be closed with data '${data}'.`);
 		}
 	}
 
 	return function servedCloser(data) {
 		return filter(this, data, options.filter).then(function(result) {
 			if(result === options.filterInverse)
-				throw new Error("This route could not be closed" + (data !== undefined ? " with data '" + data + "'.": "."));
+				throw new Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
 
 			if(data !== undefined)
 				tryWrite(this, "value", data);
