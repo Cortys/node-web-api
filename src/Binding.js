@@ -56,6 +56,12 @@ function Binding(object, router, closer, type) {
 	return target;
 }
 
+function traverse(type) {
+	return function(location, data) {
+		return this[type].call(new State(this.target, location, this), data);
+	};
+}
+
 Binding.prototype = {
 	constructor: Binding,
 
@@ -64,12 +70,8 @@ Binding.prototype = {
 	closer: null,
 	type: null,
 
-	route: function route(location, data) {
-		return this.router.call(new State(this.target, location, this), data);
-	},
-	close: function close(location, data) {
-		return this.closer.call(new State(this.target, location, this), data);
-	}
+	route: traverse("router"),
+	close: traverse("closer")
 };
 
 Binding.key = Symbol("binding");

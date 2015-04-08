@@ -91,9 +91,7 @@ var tools = {
 							enumerable: true
 						};
 
-						let targetValue = null,
-							router = function() {},
-							type = Binding.types.normal;
+						let targetValue, router, type;
 
 						// Case 4: Object, that should be traversed deeply
 						if(typeof value === "object" && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
@@ -101,6 +99,16 @@ var tools = {
 							router = binding.router;
 							if(!options.deepen)
 								type = Binding.types.clone;
+						}
+						else {
+
+							let errorMessage = `${typeof value === "object" ? "Object" : "Data"} at position '${that.location.concat([location]).join("/")}' is an end point and cannot be routed.`;
+							router = function() {
+								throw new Error(errorMessage);
+							};
+
+							targetValue = null;
+							type = Binding.types.normal;
 						}
 
 						return Binding.bind(targetValue, router, function closerPropagator(data) {

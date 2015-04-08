@@ -23,7 +23,6 @@ function State(value, location, binding) {
 			value: binding
 		},
 		modified: {
-			enumerable: false,
 			value: false
 		}
 	});
