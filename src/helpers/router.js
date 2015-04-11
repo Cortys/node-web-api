@@ -13,7 +13,7 @@ function router(options) {
 		deepen: options.deepen || false,
 		maxDepth: "maxDepth" in options ? options.maxDepth * 1 : Infinity,
 		mapFunctions: options.mapFunctions || "direct",
-		callRootFunction: options.callRootFunction || false,
+		mapRootFunction: options.mapRootFunction || false,
 		filter: "filter" in options ? options.filter : true,
 		filterInverse: !!options.filterInverse || false
 	};
@@ -49,12 +49,16 @@ function router(options) {
 	// Make depth of returned starting point 1 too big...
 	baseRouter[currentDepthKey] = options.maxDepth + 1;
 
+	baseRouter[isRoot] = true;
+
 	// ...because a version of it with reduced depth by 1 is returned here:
 	return baseRouter[reduceDepthKey]();
 }
 
 // Symbols:
-var currentDepthKey = Symbol("currentDepth"),
+var noDestination = Symbol("noDestination"),
+	isRoot = Symbol("isRoot"),
+	currentDepthKey = Symbol("currentDepth"),
 	reduceDepthKey = Symbol("reduceDepth");
 
 var tools = {
@@ -66,37 +70,67 @@ var tools = {
 		var that = this.value,
 			location = this.location,
 			binding = this.binding,
-			writable = true;
+			writable, target;
 
-		return filter(this, destination, options.filter).then(function(result) {
-			if(result !== options.filterInverse) {
-				if(options.callRootFunction && typeof that === "function")
-					return that.call(null, destination);
-				if(destination in that)
-					return that[destination];
-			}
-			throw new ReferenceError(`'${destination}' could not be routed.`);
-		}).then(function(value) {
-			// Case 1: Function (not bound)
-			if(typeof value === "function" && !Binding.isBound(value)) {
-				// If function mapping is enabled:
-				if(options.mapFunctions) {
-					writable = false;
-					// If functions should be mapped to being a router:
-					if(options.mapFunctions === "router")
-						value = Binding.bind(null, value.bind(that), function() {});
-					else if(options.mapFunctions === "call")
-						value = value.call(that);
-					else if(options.mapFunctions === "direct")
-						writable = true;
+		if(destination !== noDestination) {
+			writable = true;
+			target = filter(this, destination, options.filter).then(function(result) {
+
+				if(result !== options.filterInverse) {
+					if(options.mapFunctions && options.mapRootFunction && typeof that === "function" && router[isRoot]) {
+						writable = false;
+						if(options.mapFunctions === "router")
+							return that(destination);
+						if(options.mapFunctions === "closer")
+							throw new ReferenceError(`'${destination}' could not be routed.`);
+						if(options.mapFunctions === "call")
+							that = that();
+					}
+					if(destination in that)
+						return that[destination];
+				}
+				throw new ReferenceError(`'${destination}' could not be routed.`);
+			}).then(function(value) {
+				// Case 1: Function (not bound)
+				if(typeof value === "function" && !Binding.isBound(value)) {
+					// If function mapping is enabled and value was retrieved as an object property (writable = true):
+					if(options.mapFunctions && writable) {
+						writable = false;
+						// If functions should be mapped to being a router:
+						if(options.mapFunctions === "router") {
+							let traversedRouter = router[reduceDepthKey]();
+							value = Binding.bind(null, function generatedRouter(destination) {
+
+								var state = this;
+
+								return Promise.resolve(value.call(that, destination)).then(function(result) {
+									return traversedRouter.call(state.setValue(result), noDestination);
+								});
+							}, function() {});
+						}
+						else if(options.mapFunctions === "closer")
+							value = Binding.bind(null, function() {}, value.bind(that));
+						else if(options.mapFunctions === "call")
+							value = value.call(that);
+						else if(options.mapFunctions === "direct") {
+							writable = true;
+							value = value.bind(that);
+						}
+						else
+							throw new Error(`'${destination}' could not be routed.`);
+					}
 					else
 						throw new Error(`'${destination}' could not be routed.`);
 				}
-				else
-					throw new Error(`'${destination}' could not be routed.`);
-			}
-			return value;
-		}).then(function(value) {
+				return value;
+			});
+		}
+		else {
+			writable = false;
+			target = Promise.resolve(that);
+		}
+
+		return target.then(function(value) {
 			// Case 2: Bound object (could be a function)
 			if(Binding.isBound(value))
 				return value;
@@ -111,11 +145,9 @@ var tools = {
 				set: function(newValue) {
 					that[destination] = newValue;
 					value = newValue;
-				},
-				enumerable: true
+				}
 			} : {
-				value: value,
-				enumerable: true
+				value: value
 			};
 
 			// Case 4: Object, that should be traversed deeply
