@@ -10,9 +10,10 @@ function router(options) {
 	options = {
 		deep: options.deep || false,
 		deepArrays: options.deepArrays || false,
+		deepFunctions: options.deepFunctions || false,
 		deepen: options.deepen || false,
 		maxDepth: "maxDepth" in options ? options.maxDepth * 1 : Infinity,
-		mapFunctions: options.mapFunctions || "direct",
+		mapFunctions: options.mapFunctions || "member",
 		mapRootFunction: options.mapRootFunction || false,
 		filter: "filter" in options ? options.filter : true,
 		filterInverse: !!options.filterInverse || false
@@ -33,7 +34,9 @@ function router(options) {
 		var that = this;
 
 		if(options.deep && this[currentDepthKey] <= 0)
-			throw new Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
+			return function servedRouter() {
+				throw new Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
+			};
 
 		var result = function servedRouter(destination) {
 			return baseRouter.call(this, that, destination);
@@ -59,13 +62,14 @@ function router(options) {
 var noDestination = Symbol("noDestination"),
 	isRoot = Symbol("isRoot"),
 	currentDepthKey = Symbol("currentDepth"),
+	depthReductionPossible = Symbol("depthReductionPossible"),
 	reduceDepthKey = Symbol("reduceDepth");
 
 var tools = {
 
 	handle: function handle(options, router, destination) {
-		if(typeof this.value !== "object" && typeof this.value !== "function")
-			return Promise.reject(TypeError(`Router expected 'object' or 'function' but got '${typeof this}'.`));
+		if(typeof this.value !== "object" && typeof this.value !== "function" || this.value === null)
+			return Promise.reject(TypeError(`Router expected 'object' or 'function' but got '${this.value === null ? "null" : typeof this.value}'.`));
 
 		var that = this.value,
 			location = this.location,
@@ -82,14 +86,14 @@ var tools = {
 						if(options.mapFunctions === "router")
 							return that(destination);
 						if(options.mapFunctions === "closer")
-							throw new ReferenceError(`'${destination}' could not be routed.`);
+							throw new Error(`'${destination}' could not be routed.`);
 						if(options.mapFunctions === "call")
 							that = that();
 					}
 					if(destination in that)
 						return that[destination];
 				}
-				throw new ReferenceError(`'${destination}' could not be routed.`);
+				throw new Error(`'${destination}' could not be routed.`);
 			}).then(function(value) {
 				// Case 1: Function (not bound)
 				if(typeof value === "function" && !Binding.isBound(value)) {
@@ -97,25 +101,25 @@ var tools = {
 					if(options.mapFunctions && writable) {
 						writable = false;
 						// If functions should be mapped to being a router:
-						if(options.mapFunctions === "router") {
-							let traversedRouter = router[reduceDepthKey]();
+						if(options.mapFunctions === "router")
 							value = Binding.bind(null, function generatedRouter(destination) {
 
 								var state = this;
 
 								return Promise.resolve(value.call(that, destination)).then(function(result) {
-									return traversedRouter.call(state.setValue(result), noDestination);
+									return router.call(state.setValue(result), noDestination);
 								});
 							}, function() {});
-						}
 						else if(options.mapFunctions === "closer")
 							value = Binding.bind(null, function() {}, value.bind(that));
 						else if(options.mapFunctions === "call")
 							value = value.call(that);
-						else if(options.mapFunctions === "direct") {
+						else if(options.mapFunctions === "member") {
 							writable = true;
 							value = value.bind(that);
 						}
+						else if(options.mapFunctions === "direct")
+							writable = true;
 						else
 							throw new Error(`'${destination}' could not be routed.`);
 					}
@@ -138,8 +142,6 @@ var tools = {
 			// Case 3: Closable data was reached
 			var valueDescriptor = writable ? {
 				get: function() {
-					if(typeof value === "function")
-						return value.bind(that);
 					return value;
 				},
 				set: function(newValue) {
@@ -154,17 +156,16 @@ var tools = {
 
 			var targetValue, traversedRouter, type;
 
-			if((typeof value === "object" || typeof value === "function") && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
+			if((typeof value === "object" || typeof value === "function" && options.deepFunctions) && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
 				targetValue = value;
 				// Request a version of this router with reduced depth:
-				// This throws if maxDepth has already been exceeded.
 				traversedRouter = router[reduceDepthKey]();
 				if(!options.deepen)
 					type = Binding.types.clone;
 			}
 			else {
 
-				let errorMessage = `${typeof value === "object" ? "Object" : "Data"} at position '${location.concat([destination]).join("/")}' is an end point and cannot be routed.`;
+				let errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${location.concat([destination]).join("/")}' is an end point and cannot be routed.`;
 				traversedRouter = function servedRouter() {
 					throw new Error(errorMessage);
 				};
