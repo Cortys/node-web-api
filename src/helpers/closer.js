@@ -10,8 +10,8 @@ function closer(options) {
 	options = {
 		writable: options.writable || false,
 		writableInverse: options.writableInverse || false,
-		filter: "filter" in options ? options.filter : function(object) {
-			return typeof object !== "object" || Array.isArray(object);
+		filter: "filter" in options ? options.filter : function() {
+			return typeof this.value !== "object" || Array.isArray(this.value);
 		},
 		filterInverse: !!options.filterInverse || false,
 		callFunctions: "callFunctions" in options ? options.callFunctions : true,
@@ -30,7 +30,7 @@ function closer(options) {
 	}
 
 	return function servedCloser(data) {
-		return filter(this, data, options.filter).then(function(result) {
+		return filter(this, this.value, options.filter).then(function(result) {
 			if(result === options.filterInverse)
 				throw new Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
 
