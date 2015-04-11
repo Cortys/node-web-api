@@ -34,16 +34,24 @@ function closer(options) {
 			if(result === options.filterInverse)
 				throw new Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
 
+			if(typeof this.value === "function" && options.callFunctions)
+				return this.value(data);
+
 			var out = this.value;
 
-			if(typeof this.value === "function" && options.callFunctions)
-				out = this.value(data);
-			else if(data !== undefined)
-				tryWrite(this, "value", data);
+			if(data !== undefined)
+				return filter(this, data, options.writable).then(function(result) {
+					if(result !== options.writableInverse) {
+						tryWrite(this, "value", data);
+						return out;
+					}
+					throw new Error(`This route could not be closed with data '${data}'.`);
+				});
 
-			return Promise.resolve(out).then(function(result) {
-				return options.output.call(this, result);
-			});
+			return out;
+
+		}).then(function(result) {
+			return options.output.call(this, result);
 		});
 	};
 }
