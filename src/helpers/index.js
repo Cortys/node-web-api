@@ -17,7 +17,7 @@ serve.closer = require("./closer");
 var helpers = {
 	serve: serve,
 
-	fallthrough: function fallthrough(functions) {
+	chain: function chain(functions) {
 
 		if(functions == null)
 			functions = [];

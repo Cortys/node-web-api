@@ -3,30 +3,30 @@ var expect = require("expect.js");
 var owe = require("../../src"),
 	helpers = require("../../src/helpers");
 
-describe(".fallthrough", function() {
+describe(".chain", function() {
 	it("should return a function", function() {
-		expect(helpers.fallthrough(undefined)).to.be.a("function");
-		expect(helpers.fallthrough(null)).to.be.a("function");
-		expect(helpers.fallthrough(function() {})).to.be.a("function");
-		expect(helpers.fallthrough([])).to.be.a("function");
-		expect(helpers.fallthrough([function() {}, "test"])).to.be.a("function");
+		expect(helpers.chain(undefined)).to.be.a("function");
+		expect(helpers.chain(null)).to.be.a("function");
+		expect(helpers.chain(function() {})).to.be.a("function");
+		expect(helpers.chain([])).to.be.a("function");
+		expect(helpers.chain([function() {}, "test"])).to.be.a("function");
 	});
 
 	it("should throw for non-function, non-array, not-null values", function() {
-		expect(helpers.fallthrough).withArgs(true).to.throwError();
-		expect(helpers.fallthrough).withArgs(1).to.throwError();
-		expect(helpers.fallthrough).withArgs({}).to.throwError();
-		expect(helpers.fallthrough).withArgs("test").to.throwError();
-		expect(helpers.fallthrough).withArgs(Symbol()).to.throwError();
+		expect(helpers.chain).withArgs(true).to.throwError();
+		expect(helpers.chain).withArgs(1).to.throwError();
+		expect(helpers.chain).withArgs({}).to.throwError();
+		expect(helpers.chain).withArgs("test").to.throwError();
+		expect(helpers.chain).withArgs(Symbol()).to.throwError();
 	});
 
 	describe(".call() result", function() {
 		it("should be a Promise", function() {
-			expect(helpers.fallthrough(undefined)()).to.be.a(Promise);
-			expect(helpers.fallthrough(null)()).to.be.a(Promise);
-			expect(helpers.fallthrough(function() {})()).to.be.a(Promise);
-			expect(helpers.fallthrough([])()).to.be.a(Promise);
-			expect(helpers.fallthrough([function() {}, "test"])()).to.be.a(Promise);
+			expect(helpers.chain(undefined)()).to.be.a(Promise);
+			expect(helpers.chain(null)()).to.be.a(Promise);
+			expect(helpers.chain(function() {})()).to.be.a(Promise);
+			expect(helpers.chain([])()).to.be.a(Promise);
+			expect(helpers.chain([function() {}, "test"])()).to.be.a(Promise);
 		});
 
 		it("should return first successful function return", function() {
@@ -46,30 +46,30 @@ describe(".fallthrough", function() {
 			}];
 
 			return Promise.all([
-				helpers.fallthrough([function() {
+				helpers.chain([function() {
 					return 1;
 				}, function() {
 					return 2;
 				}])().then(function(result) {
 					expect(result).to.be(1);
 				}, function() {
-					expect.fail("fallthrough should be successfull.");
+					expect.fail("chain should be successfull.");
 				}),
-				helpers.fallthrough(arr)("test", "ING").then(function(result) {
+				helpers.chain(arr)("test", "ING").then(function(result) {
 					expect(result).to.be("TESTING");
 				}),
-				helpers.fallthrough(arr)(1, 1).then(function(result) {
+				helpers.chain(arr)(1, 1).then(function(result) {
 					expect(result).to.be(Math.PI + 1);
 				}),
-				helpers.fallthrough(arr)(arr).then(function(result) {
+				helpers.chain(arr)(arr).then(function(result) {
 					expect(result).to.be(arr);
 				})
 			]);
 		});
 
 		it("should reject if no function was given", function() {
-			return helpers.fallthrough()().then(function() {
-				expect.fail("Empty fallthroughs should reject.");
+			return helpers.chain()().then(function() {
+				expect.fail("Empty chains should reject.");
 			}, function(errs) {
 				expect(errs).to.be.an("array");
 				expect(errs.length).to.be(1);
@@ -77,7 +77,7 @@ describe(".fallthrough", function() {
 		});
 
 		it("should pass given this to all functions", function() {
-			var f = helpers.fallthrough([function(a) {
+			var f = helpers.chain([function(a) {
 					if(a)
 						throw new Error("test");
 					return this;
@@ -101,22 +101,22 @@ describe(".fallthrough", function() {
 			var err1 = new Error("test 1"),
 				err2 = new Error("test 2");
 			return Promise.all([
-				helpers.fallthrough(function() {
+				helpers.chain(function() {
 					throw err1;
 				})().then(function() {
-					expect.fail("This fallthrough should reject.");
+					expect.fail("This chain should reject.");
 				}, function(errs) {
 					expect(errs).to.be.an("array");
 					expect(errs[0]).to.be(err1);
 				}),
-				helpers.fallthrough([function() {
+				helpers.chain([function() {
 					throw err1;
 				}, function() {
 					throw err2;
 				}, function() {
 					throw err1;
 				}])().then(function() {
-					expect.fail("This fallthrough should reject.");
+					expect.fail("This chain should reject.");
 				}, function(errs) {
 					expect(errs).to.be.an("array");
 					expect(errs.length).to.be(3);

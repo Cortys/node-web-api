@@ -13,7 +13,7 @@ function Api(pObject, pPosition) {
 	if(pObject instanceof Api)
 		return pObject;
 
-	var pos = this[position] = Object.freeze((pPosition || []).slice(0));
+	var pos = this[position] = (pPosition || []).slice(0);
 	this[boundObject] = Promise.resolve(pObject).then(function(object) {
 		if(!Binding.isBound(object))
 			throw new TypeError("Object at position '" + pos.join("/") + "' is not exposed.");
@@ -56,12 +56,12 @@ var errorHandlers = {
 Api.prototype = {
 	constructor: Api,
 
-	route: function route(location) {
+	route: function route(destination) {
 		var that = this,
-			newPosition = this[position].concat([location]);
+			newPosition = this[position].concat([destination]);
 
 		return new Api(this[boundObject].then(function(object) {
-			return object[Binding.key].route(that[position], location);
+			return object[Binding.key].route(that[position], destination);
 		}), newPosition);
 	},
 

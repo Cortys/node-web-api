@@ -14,6 +14,7 @@ function closer(options) {
 			return typeof object !== "object" || Array.isArray(object);
 		},
 		filterInverse: !!options.filterInverse || false,
+		callFunctions: "callFunctions" in options ? options.callFunctions : true,
 		output: typeof options.output === "function" ? options.output : function(value) {
 			return value;
 		}
@@ -33,10 +34,16 @@ function closer(options) {
 			if(result === options.filterInverse)
 				throw new Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
 
-			if(data !== undefined)
+			var out = this.value;
+
+			if(typeof this.value === "function" && options.callFunctions)
+				out = this.value(data);
+			else if(data !== undefined)
 				tryWrite(this, "value", data);
 
-			return options.output.call(this, this.value);
+			return Promise.resolve(out).then(function(result) {
+				return options.output.call(this, result);
+			});
 		});
 	};
 }

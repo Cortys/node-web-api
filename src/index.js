@@ -4,37 +4,17 @@ var Api = require("./Api"),
 	Binding = require("./Binding"),
 	helpers = require("./helpers");
 
-function fallthroughCall(functions, message) {
-	try {
-		return helpers.fallthrough(functions);
-	}
-	catch(err) {
-		throw new TypeError(message);
-	}
-}
-
 function owe(object, router, closer) {
 	// An object of the form { router:[function], closer:[function] } can be used as well:
 	if(router != null && typeof router === "object") {
-		if(closer !== undefined)
+		if(closer !== undefined || Array.isArray(router))
 			throw new TypeError("Invalid parameters.");
-		if(!Array.isArray(router)) {
-			closer = router.closer;
-			router = router.router;
-		}
-		else {
-			closer = [];
-			router.forEach(function(i, v) {
-				if(typeof v !== "object")
-					throw new TypeError("router has to be of type 'function', 'object' or arrays of such.");
-				router[i] = v.router;
-				closer.push(v.closer);
-			});
-		}
+		closer = router.closer;
+		router = router.router;
 	}
 
-	router = fallthroughCall(router, "Invalid router.");
-	closer = fallthroughCall(closer, "Invalid closer.");
+	router = router == null ? function() {} : router;
+	closer = closer == null ? function() {} : closer;
 
 	object = Binding.bind(object, router, closer);
 
@@ -42,6 +22,7 @@ function owe(object, router, closer) {
 }
 
 owe.serve = helpers.serve;
+owe.chain = helpers.chain;
 owe.State = require("./State");
 
 module.exports = owe;

@@ -7,8 +7,10 @@ describe("Binding", function() {
 
 	describe(".isBound()", function() {
 		it("should return true for objects that were bound", function() {
-			var boundObject = Binding.bind(null, function() {}, function() {});
+			var boundObject = Binding.bind(null, function() {}, function() {}),
+				boundFunction = Binding.bind(function() {}, function() {}, function() {});
 			expect(Binding.isBound(boundObject)).to.be(true);
+			expect(Binding.isBound(boundFunction)).to.be(true);
 		});
 
 		it("should return false for everything that was not bound", function() {
