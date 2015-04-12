@@ -401,8 +401,48 @@ function testRouter(routerGenerator) {
 					expect(result).to.be(o.props[key]);
 				}));
 
+			promises.push(api.route("f").route("bar").then(function(result) {
+				expect(result).to.be(o.props.f.bar);
+			}));
+
 			return Promise.all(promises);
 		});
+
+		it("closer: should map functions to be a closer", function() {
+
+			"use strict";
+
+			var router = routerGenerator({
+				mapFunctions: "closer"
+			});
+
+			var o = {
+					props: {
+						a: 42,
+						b: "test",
+						c: false,
+						d: Symbol("foo"),
+						e: function() {},
+						f: {
+							bar: "baz"
+						}
+					},
+					closer: function(key) {
+						return this.props[key];
+					}
+				},
+				api = owe.api(o, router, closer).route("closer");
+
+			var promises = [];
+
+			for(let key in o.props)
+				promises.push(api.close(key).then(function(result) {
+					expect(result).to.be(o.props[key]);
+				}));
+
+			return Promise.all(promises);
+		});
+
 	});
 
 	describe("filters", function() {
