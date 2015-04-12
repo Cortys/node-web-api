@@ -11,7 +11,7 @@ var types = Object.freeze({
 function Binding(object, router, closer, type) {
 
 	if(!(this instanceof Binding))
-		return new Binding(object, router, closer, type);
+		return Binding.bind(object, router, closer, type);
 
 	if(typeof type !== "symbol")
 		type = types.normal;
@@ -21,7 +21,7 @@ function Binding(object, router, closer, type) {
 
 	if(typeof object !== "object" && typeof object !== "function")
 		throw new TypeError("Only objects and functions can be bound. Got '" + object + "'.");
-	if(Binding.isBound(object) && type === types.normal)
+	if(Binding.isBound(object) && type !== types.rebind && type !== types.clone)
 		throw new Error("Object '" + object + "' is already bound.");
 
 	if(typeof router === "function" && typeof closer === "function") {
@@ -35,13 +35,6 @@ function Binding(object, router, closer, type) {
 	else
 		throw new TypeError("Bindings require a router and a closer function or another binding to copy.");
 
-	var target = type === types.clone ? Object.create(object) : object;
-
-	if(!(Binding.key in target))
-		Object.defineProperty(target, Binding.key, {
-			writable: true
-		});
-
 	Object.defineProperties(this, {
 		target: {
 			value: object
@@ -50,10 +43,6 @@ function Binding(object, router, closer, type) {
 			value: type
 		}
 	});
-
-	target[Binding.key] = this;
-
-	return target;
 }
 
 function traverse(type) {
@@ -79,10 +68,22 @@ Binding.key = Symbol("binding");
 Binding.types = types;
 
 Binding.isBound = function isBound(object) {
-	return (typeof object === "object" || typeof object === "function") && object !== null && this.key in object && object[this.key] instanceof this;
+	return(typeof object === "object" || typeof object === "function") && object !== null && this.key in object && object[this.key] instanceof this;
 };
 
-Binding.bind = Binding;
+Binding.bind = function bind(object, router, closer, type) {
+
+	var binding = new Binding(object, router, closer, type);
+
+	var target = binding.type === types.clone ? Object.create(binding.target) : binding.target;
+
+	Object.defineProperty(target, Binding.key, {
+		configurable: true,
+		value: binding
+	});
+
+	return target;
+};
 
 if(State.setBinding)
 	State.setBinding(Binding);

@@ -35,7 +35,6 @@ describe("Binding", function() {
 
 	describe(".call() or .bind()", function() {
 		it("can be called directly or by calling Binding.bind", function() {
-			expect(Binding).to.be(Binding.bind);
 			expect(Binding.isBound(Binding({}, function() {}, function() {}))).to.be.ok();
 			expect(Binding.isBound(Binding.bind({}, function() {}, function() {}))).to.be.ok();
 		});
