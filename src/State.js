@@ -45,7 +45,7 @@ State.prototype = Object.freeze(Object.create(null, {
 	setValue: {
 		value: function setValue(valueDescriptor) {
 			if(typeof valueDescriptor !== "object" || valueDescriptor == null)
-				throw new TypeError("State valueDescriptor has to be an value.");
+				throw new TypeError("State valueDescriptor has to be an object.");
 			valueDescriptor.enumerable = true;
 			return Object.freeze(Object.create(this, {
 				value: valueDescriptor,

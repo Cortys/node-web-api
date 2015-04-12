@@ -25,21 +25,38 @@ function router(options) {
 	if(options.deep && options.maxDepth > 0 && isFinite(options.maxDepth))
 		options.maxDepth = Math.floor(options.maxDepth);
 
-	var baseRouter = function(caller, destination) {
+	var baseRouter = function baseRouter(destination, caller) {
+
 		return tools.handle.call(this, options, caller, destination);
 	};
 
-	baseRouter[reduceDepthKey] = function reduceDepth() {
+	baseRouter[reduceDepthKey] = !options.deep || options.maxDepth === Infinity ? (function() {
 
-		var that = this;
+		var result = function servedRouter(destination) {
+				return baseRouter.call(this, destination, servedRouter);
+			},
+			innerResult = function servedRouter(destination) {
+				return baseRouter.call(this, destination, result);
+			};
 
-		if(options.deep && this[currentDepthKey] <= 0)
+		result[reduceDepthKey] = innerResult[reduceDepthKey] = function reduceDepth() {
+			return innerResult;
+		};
+
+		result[currentDepthKey] = innerResult[currentDepthKey] = Infinity;
+
+		return function reduceDepth() {
+			return result;
+		};
+	}()) : function reduceDepth() {
+
+		if(this[currentDepthKey] <= 0)
 			return function servedRouter() {
 				throw new Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
 			};
 
 		var result = function servedRouter(destination) {
-			return baseRouter.call(this, that, destination);
+			return baseRouter.call(this, destination, servedRouter);
 		};
 
 		result[reduceDepthKey] = reduceDepth;
@@ -62,14 +79,11 @@ function router(options) {
 var noDestination = Symbol("noDestination"),
 	isRoot = Symbol("isRoot"),
 	currentDepthKey = Symbol("currentDepth"),
-	depthReductionPossible = Symbol("depthReductionPossible"),
 	reduceDepthKey = Symbol("reduceDepth");
 
 var tools = {
 
 	handle: function handle(options, router, destination) {
-		if(typeof this.value !== "object" && typeof this.value !== "function" || this.value === null)
-			return Promise.reject(TypeError(`Router expected 'object' or 'function' but got '${this.value === null ? "null" : typeof this.value}'.`));
 
 		var that = this.value,
 			location = this.location,
@@ -77,6 +91,10 @@ var tools = {
 			writable, target;
 
 		if(destination !== noDestination) {
+
+			if(typeof this.value !== "object" && typeof this.value !== "function" || this.value === null)
+				return Promise.reject(new TypeError(`Router expected object or function but got '${typeof this.value === "symbol" ? "[symbol]" : this.value}'.`));
+
 			writable = true;
 			target = filter(this, destination, options.filter).then(function(result) {
 
@@ -101,15 +119,18 @@ var tools = {
 					if(options.mapFunctions && writable) {
 						writable = false;
 						// If functions should be mapped to being a router:
-						if(options.mapFunctions === "router")
+						if(options.mapFunctions === "router") {
+							let func = value;
 							value = Binding.bind(null, function generatedRouter(destination) {
-
 								var state = this;
 
-								return Promise.resolve(value.call(that, destination)).then(function(result) {
-									return router.call(state.setValue(result), noDestination);
+								return Promise.resolve(func.call(that, destination)).then(function(result) {
+									return router.call(state.setValue({
+										value: result
+									}), noDestination);
 								});
-							}, function() {});
+							}, binding.closer);
+						}
 						else if(options.mapFunctions === "closer")
 							value = Binding.bind(null, function() {}, value.bind(that));
 						else if(options.mapFunctions === "call")

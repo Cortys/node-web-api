@@ -72,6 +72,14 @@ Api.prototype = {
 		}).catch(errorHandlers.close.bind(this, data));
 	},
 
+	then: function then(success, fail) {
+		return this.close().then(success, fail);
+	},
+
+	catch: function(fail) {
+		return this.close().catch(fail);
+	},
+
 	get object() {
 		return this[boundObject];
 	}

@@ -68,7 +68,7 @@ describe("Api", function() {
 					expect(err.data).to.be("d");
 					expect(err.message).to.be("d not found.");
 				}),
-				api.close().then(function() {
+				api.then(function() {
 					expect().fail("This request should have thrown.");
 				}, function(err) {
 					expect(err.type).to.be("close");
@@ -88,7 +88,7 @@ describe("Api", function() {
 						}
 					});
 					throw Object.freeze(error);
-				})).close().then(function() {
+				})).then(function() {
 					expect().fail("This request should have thrown.");
 				}, function(err) {
 					expect(err).to.be(error);

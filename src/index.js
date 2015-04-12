@@ -16,10 +16,15 @@ function owe(object, router, closer) {
 	router = router == null ? function() {} : router;
 	closer = closer == null ? function() {} : closer;
 
-	object = Binding.bind(object, router, closer);
+	return Binding.bind(object, router, closer);
+}
+
+owe.api = function(object, router, closer) {
+	if(!Binding.isBound(object))
+		object = owe(object, router, closer);
 
 	return new Api(object);
-}
+};
 
 owe.serve = helpers.serve;
 owe.chain = helpers.chain;

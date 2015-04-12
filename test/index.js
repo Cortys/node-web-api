@@ -5,7 +5,7 @@ var a = {
 	b: "Adam Smith",
 	c: function(a) {
 		var s = "Alex Anderson " + a;
-		return owe(null, undefined, function() {
+		return owe.api(null, undefined, function() {
 			return s;
 		}).object;
 	},
@@ -20,7 +20,7 @@ var a = {
 
 console.log(a);
 
-var api = owe(a, owe.serve({
+var api = owe.api(a, owe.serve({
 	router: {
 		mapFunctions: "router",
 		deep: true,
@@ -33,13 +33,13 @@ var api = owe(a, owe.serve({
 	}
 }));
 
-api.close().then(function(data) {
+api.then(function(data) {
 	console.log("(1)", data);
 }, function(err) {
 	console.error("(1)", err.stack);
 });
 
-api.route("c").route("is pretty amazing.").close().then(function(data) {
+api.route("c").route("is pretty amazing.").then(function(data) {
 	console.log("(2)", data);
 }, function(err) {
 	console.error("(2)", err.stack);
