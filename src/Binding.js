@@ -8,16 +8,13 @@ var types = Object.freeze({
 	rebind: Symbol("rebind")
 });
 
-function Binding(object, router, closer, type) {
+function Binding(object, router, closer, type, clonedObject) {
 
 	if(!(this instanceof Binding))
-		return Binding.bind(object, router, closer, type);
+		return Binding.bind(object, router, closer, type, clonedObject);
 
 	if(typeof type !== "symbol")
 		type = types.normal;
-
-	if(object === null)
-		object = Object.create(null);
 
 	if(typeof object !== "object" && typeof object !== "function")
 		throw new TypeError("Only objects and functions can be bound. Got '" + object + "'.");
@@ -25,11 +22,20 @@ function Binding(object, router, closer, type) {
 		throw new Error("Object '" + object + "' is already bound.");
 
 	if(typeof router === "function" && typeof closer === "function") {
-		this.router = router;
+
+		let usedRouter = type === types.clone && clonedObject !== undefined ? function() {
+			return Promise.resolve(router.apply(this, arguments)).then(function(result) {
+				return result === object ? clonedObject : result;
+			});
+		} : router;
+
+		usedRouter[types.clone] = router;
+
+		this.router = usedRouter;
 		this.closer = closer;
 	}
 	else if(router instanceof Binding) {
-		this.router = router.router;
+		this.router = router.router[types.clone] || router.router;
 		this.closer = router.closer;
 	}
 	else
@@ -73,9 +79,8 @@ Binding.isBound = function isBound(object) {
 
 Binding.bind = function bind(object, router, closer, type) {
 
-	var binding = new Binding(object, router, closer, type);
-
-	var target = binding.type === types.clone ? Object.create(binding.target) : binding.target;
+	var target = object === null || type === types.clone ? Object.create(object) : object,
+		binding = new Binding(object, router, closer, type, target);
 
 	Object.defineProperty(target, Binding.key, {
 		configurable: true,

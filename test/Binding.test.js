@@ -82,10 +82,12 @@ describe("Binding", function() {
 			it("when 'clone': always binds to a prototypal descendant of the given object and returns it", function() {
 				var object = {};
 				expect(Binding.bind).withArgs(object, function() {}, function() {}).not.to.throwError();
+				expect(Binding.isBound(object)).to.be(true);
 				var clone;
 				expect(function() {
 					clone = Binding.bind(object, function() {}, function() {}, Binding.types.clone);
 				}).not.to.throwError();
+				expect(Binding.isBound(clone)).to.be(true);
 				expect(object.isPrototypeOf(clone)).to.be.ok();
 			});
 		});

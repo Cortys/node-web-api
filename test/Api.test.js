@@ -7,20 +7,21 @@ var owe = require("../src"),
 
 describe("Api", function() {
 
-	var object = Binding.bind({
+	var original = {
 			a: 1,
 			b: 2,
 			c: 3
-		}, function(a) {
+		},
+		object = Binding.bind(original, function(a) {
 			if(a)
 				return this.value;
 		}, function(key) {
 			expect(this).to.be.a(State);
-			expect(this.value).to.be(object);
+			expect(this.value).to.be(original);
 			if(!(key in this.value))
 				throw new Error(key + " not found.");
 			return this.value[key];
-		}),
+		}, Binding.types.clone),
 		api = new Api(object);
 
 	describe("#route()", function() {
@@ -98,9 +99,9 @@ describe("Api", function() {
 	});
 
 	describe("#object", function() {
-		it("should contain a promise to the bound object this api exposes", function() {
+		it("should contain a promise to the object this api exposes", function() {
 			return api.object.then(function(apiObject) {
-				expect(apiObject).to.be(object);
+				expect(apiObject).to.be(original);
 			});
 		});
 	});

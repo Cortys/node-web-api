@@ -2,9 +2,14 @@
 
 var Api = require("./Api"),
 	Binding = require("./Binding"),
+	State = require("./State"),
 	helpers = require("./helpers");
 
 function owe(object, router, closer) {
+
+	if(object instanceof Api)
+		throw new TypeError("Api objects cannot be exposed as an Api.");
+
 	// An object of the form { router:[function], closer:[function] } can be used as well:
 	if(router != null && typeof router === "object") {
 		if(closer !== undefined || Array.isArray(router))
@@ -28,6 +33,7 @@ owe.api = function(object, router, closer) {
 
 owe.serve = helpers.serve;
 owe.chain = helpers.chain;
-owe.State = require("./State");
+owe.State = State;
+owe.Binding = Binding;
 
 module.exports = owe;

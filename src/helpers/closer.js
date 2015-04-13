@@ -1,7 +1,6 @@
 "use strict";
 
-var Binding = require("../Binding"),
-	filter = require("./filter");
+var filter = require("./filter");
 
 function closer(options) {
 	if(typeof options !== "object" || options === null)

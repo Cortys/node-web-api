@@ -23,6 +23,7 @@ function Api(pObject, pPosition) {
 
 var errorHandled = Symbol("errorHandled"),
 	boundObject = Symbol("boundObject"),
+	object = Symbol("object"),
 	position = Symbol("position");
 
 var errorHandlers = {
@@ -81,7 +82,9 @@ Api.prototype = {
 	},
 
 	get object() {
-		return this[boundObject];
+		return this[object] || (this[object] = this[boundObject].then(function(object) {
+			return object[Binding.key].target;
+		}));
 	}
 };
 
