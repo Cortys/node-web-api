@@ -11,7 +11,7 @@ var types = Object.freeze({
 function Binding(object, router, closer, type, clonedObject) {
 
 	if(!(this instanceof Binding))
-		return Binding.bind(object, router, closer, type, clonedObject);
+		return Binding.bind(object, router, closer, type);
 
 	if(typeof type !== "symbol")
 		type = types.normal;
