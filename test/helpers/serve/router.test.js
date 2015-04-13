@@ -317,6 +317,24 @@ function testRouter(routerGenerator) {
 
 		describe("max depth", function() {
 
+			var o = {
+				foo: {
+					bar: {
+						baz: {
+							far: {
+								faz: {
+									boo: true
+								}
+							}
+						}
+					}
+				}
+			};
+
+			var routerA = routerGenerator({
+				deep: true,
+				maxDepth: -1
+			});
 		});
 	});
 
@@ -325,13 +343,14 @@ function testRouter(routerGenerator) {
 		it("direct: should map functions as they are", function() {
 
 			var router = routerGenerator({
-				mapFunctions: "direct"
+				mapFunctions: "direct",
+				mapRootFunction: true
 			});
 
-			var o = {
-					a: function() {}
-				},
+			var o = function() {},
 				api = owe.api(o, router, closer);
+
+			o.a = function() {};
 
 			return api.route("a").then(function(result) {
 				expect(result).to.be(o.a);
@@ -342,19 +361,22 @@ function testRouter(routerGenerator) {
 
 			var router = routerGenerator({
 				mapFunctions: "call",
+				mapRootFunction: true,
 				deep: true
 			});
 
-			var o = {
-					prop: "test",
-					a: function() {
-						return this.prop;
-					},
-					b: function() {
-						return {
-							foo: "bar"
-						};
-					}
+			var o = function() {
+					return {
+						prop: "test",
+						a: function() {
+							return this.prop;
+						},
+						b: function() {
+							return {
+								foo: "bar"
+							};
+						}
+					};
 				},
 				api = owe.api(o, router, closer);
 
@@ -374,6 +396,7 @@ function testRouter(routerGenerator) {
 
 			var router = routerGenerator({
 				mapFunctions: "router",
+				mapRootFunction: true,
 				deep: true
 			});
 
@@ -405,6 +428,10 @@ function testRouter(routerGenerator) {
 				expect(result).to.be(o.props.f.bar);
 			}));
 
+			promises.push(owe.api(o.router.bind(o), router, closer).route("f").route("bar").then(function(result) {
+				expect(result).to.be(o.props.f.bar);
+			}));
+
 			return Promise.all(promises);
 		});
 
@@ -413,7 +440,8 @@ function testRouter(routerGenerator) {
 			"use strict";
 
 			var router = routerGenerator({
-				mapFunctions: "closer"
+				mapFunctions: "closer",
+				mapRootFunction: true
 			});
 
 			var o = {
@@ -439,6 +467,14 @@ function testRouter(routerGenerator) {
 				promises.push(api.close(key).then(function(result) {
 					expect(result).to.be(o.props[key]);
 				}));
+
+			promises.push(owe.api(function() {}, router, closer).route("test").then(function() {
+				expect().fail("Routing a closer should not be possible.");
+			}, function(err) {
+				expect(err.type).to.be("route");
+				expect(err.location).to.eql(["test"]);
+				expect(err.message).to.be("'test' could not be routed.");
+			}));
 
 			return Promise.all(promises);
 		});

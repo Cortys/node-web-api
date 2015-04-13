@@ -16,7 +16,10 @@ function router(options) {
 		mapFunctions: options.mapFunctions || "member",
 		mapRootFunction: options.mapRootFunction || false,
 		filter: "filter" in options ? options.filter : true,
-		filterInverse: !!options.filterInverse || false
+		filterInverse: !!options.filterInverse || false,
+		output: typeof options.output === "function" ? options.output : function(value) {
+			return value;
+		}
 	};
 
 	if(isNaN(options.maxDepth) || options.maxDepth < 1)
@@ -45,6 +48,8 @@ function router(options) {
 
 		result[currentDepthKey] = innerResult[currentDepthKey] = Infinity;
 
+		result[isRoot] = true;
+
 		return function reduceDepth() {
 			return result;
 		};
@@ -63,13 +68,14 @@ function router(options) {
 
 		result[currentDepthKey] = this[currentDepthKey] - 1;
 
+		if(this === baseRouter)
+			result[isRoot] = true;
+
 		return result;
 	};
 
 	// Make depth of returned starting point 1 too big...
 	baseRouter[currentDepthKey] = options.maxDepth + 1;
-
-	baseRouter[isRoot] = true;
 
 	// ...because a version of it with reduced depth by 1 is returned here:
 	return baseRouter[reduceDepthKey]();
@@ -100,9 +106,10 @@ var tools = {
 
 				if(result !== options.filterInverse) {
 					if(options.mapFunctions && options.mapRootFunction && typeof that === "function" && router[isRoot]) {
-						writable = false;
-						if(options.mapFunctions === "router")
+						if(options.mapFunctions === "router") {
+							writable = false;
 							return that(destination);
+						}
 						if(options.mapFunctions === "closer")
 							throw new Error(`'${destination}' could not be routed.`);
 						if(options.mapFunctions === "call")
@@ -160,44 +167,50 @@ var tools = {
 			if(Binding.isBound(value))
 				return value;
 
-			// Case 3: Closable data was reached
-			var valueDescriptor = writable ? {
-				get: function() {
+			return Promise.resolve(options.output(value)).then(function(value) {
+
+				if(Binding.isBound(value))
 					return value;
-				},
-				set: function(newValue) {
-					that[destination] = newValue;
-					value = newValue;
-				}
-			} : {
-				value: value
-			};
 
-			// Case 4: Object, that should be traversed deeply
-
-			var targetValue, traversedRouter, type;
-
-			if((typeof value === "object" || typeof value === "function" && options.deepFunctions) && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
-				targetValue = value;
-				// Request a version of this router with reduced depth:
-				traversedRouter = router[reduceDepthKey]();
-				if(!options.deepen)
-					type = Binding.types.clone;
-			}
-			else {
-
-				let errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${location.concat([destination]).join("/")}' is an end point and cannot be routed.`;
-				traversedRouter = function servedRouter() {
-					throw new Error(errorMessage);
+				// Case 3: Closable data was reached
+				var valueDescriptor = writable ? {
+					get: function() {
+						return value;
+					},
+					set: function(newValue) {
+						that[destination] = newValue;
+						value = newValue;
+					}
+				} : {
+					value: value
 				};
 
-				targetValue = null;
-				type = Binding.types.normal;
-			}
+				// Case 4: Object, that should be traversed deeply
 
-			return Binding.bind(targetValue, traversedRouter, function closerPropagator(data) {
-				return binding.closer.call(this.modified ? this : this.setValue(valueDescriptor), data);
-			}, type);
+				var targetValue, traversedRouter, type;
+
+				if((typeof value === "object" || typeof value === "function" && options.deepFunctions) && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
+					targetValue = value;
+					// Request a version of this router with reduced depth:
+					traversedRouter = router[reduceDepthKey]();
+					if(!options.deepen)
+						type = Binding.types.clone;
+				}
+				else {
+					targetValue = null;
+
+					let errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${location.concat([destination]).join("/")}' is an end point and cannot be routed.`;
+					traversedRouter = function servedRouter() {
+						throw new Error(errorMessage);
+					};
+
+					type = Binding.types.normal;
+				}
+
+				return Binding.bind(targetValue, traversedRouter, function closerPropagator(data) {
+					return binding.closer.call(this.modified ? this : this.setValue(valueDescriptor), data);
+				}, type);
+			});
 		});
 	}
 };
