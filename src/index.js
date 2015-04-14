@@ -43,7 +43,7 @@ function owe(object, router, closer, type) {
 }
 
 owe.api = function(object, router, closer, type) {
-	if(!Binding.isBound(object))
+	if(!Binding.isBound(object) || arguments.length > 1)
 		object = owe(object, router, closer, type);
 
 	return new Api(object);

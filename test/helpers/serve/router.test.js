@@ -557,6 +557,63 @@ function testRouter(routerGenerator) {
 	});
 
 	describe("filters", function() {
+		var dest,
+			o = owe({
+				a: "John Doe",
+				b: "Adam Smith",
+				foo: [1, 2, 3.4],
+				baz: true
+			}, routerGenerator({
+				filter: filter
+			}), closer);
+
+		function filter(destination) {
+			expect(destination).to.be(dest);
+			expect(this.value).to.be(o);
+			expect(this.location).to.eql([]);
+
+			return destination.length == 1;
+		}
+
+		it("should filter with functions", function() {
+			return owe.api(o).route(dest = "a").then(function() {
+				return owe.api(o).route(dest = "b");
+			}).then(function() {
+				return owe.api(o).route(dest = "c");
+			}).then(function() {
+				expect().fail("c should not be routed.");
+			}, function(err) {
+				expect(err.type).to.be("route");
+				expect(err.message).to.be("'c' could not be routed.");
+				expect(err.location).to.eql(["c"]);
+
+				return owe.api(o).route(dest = "foo");
+			}).then(function() {
+				expect().fail("foo should not be routed.");
+			}, function(err) {
+				expect(err.type).to.be("route");
+				expect(err.message).to.be("'foo' could not be routed.");
+				expect(err.location).to.eql(["foo"]);
+
+				return owe.api(o).route(dest = "baz");
+			}).then(function() {
+				expect().fail("baz should not be routed.");
+			}, function(err) {
+				expect(err.type).to.be("route");
+				expect(err.message).to.be("'baz' could not be routed.");
+				expect(err.location).to.eql(["baz"]);
+			});
+		});
+
+		it("should invert if filterInverse is set", function() {
+			return owe.api(o, routerGenerator({
+				filter: false,
+				filterInverse: true
+			}), closer, true).route("a");
+		});
+	});
+
+	describe("output", function() {
 
 	});
 }
