@@ -331,9 +331,84 @@ function testRouter(routerGenerator) {
 				}
 			};
 
-			var routerA = routerGenerator({
-				deep: true,
-				maxDepth: -1
+			var apiA = owe.api(o, routerGenerator({
+					deep: true,
+					maxDepth: -Infinity
+				}), closer, true),
+				apiB = owe.api(o, routerGenerator({
+					deep: true,
+					maxDepth: 0
+				}), closer, true),
+				apiC = owe.api(o, routerGenerator({
+					deep: true,
+					maxDepth: "1"
+				}), closer, true),
+				apiD = owe.api(o, routerGenerator({
+					deep: true,
+					maxDepth: Math.PI
+				}), closer, true),
+				apiE = owe.api(o, routerGenerator({
+					deep: true,
+					maxDepth: "derp"
+				}), closer, true);
+
+			it("should forbid deep traversing for non-numeric or negative numbers", function() {
+				return Promise.all([
+					apiA.then(function(result) {
+						expect(result).to.be(o);
+					}),
+					apiA.route("foo").route("bar").then(function(result) {
+						expect().fail("Deep routing should not be allowed for apiA.");
+					}, function(err) {
+						expect(err.type).to.be("route");
+						expect(err.message).to.be("Object at position 'foo' is an end point and cannot be routed.");
+						expect(err.location).to.eql(["foo", "bar"]);
+					}),
+					apiB.route("foo").route("bar").then(function(result) {
+						expect().fail("Deep routing should not be allowed for apiB.");
+					}, function(err) {
+						expect(err.type).to.be("route");
+						expect(err.message).to.be("Object at position 'foo' is an end point and cannot be routed.");
+						expect(err.location).to.eql(["foo", "bar"]);
+					}),
+					apiE.route("foo").route("bar").then(function(result) {
+						expect().fail("Deep routing should not be allowed for apiE.");
+					}, function(err) {
+						expect(err.type).to.be("route");
+						expect(err.message).to.be("Object at position 'foo' is an end point and cannot be routed.");
+						expect(err.location).to.eql(["foo", "bar"]);
+					})
+				]);
+			});
+
+			it("should allow less or exactly maxDepth deep traversals", function() {
+				return Promise.all([
+					apiC.close(),
+					apiC.route("foo").close(),
+					apiC.route("foo").route("bar").close(),
+					apiC.route("foo").route("bar").route("baz").then(function(result) {
+						expect().fail("Deep routing should not be allowed for apiC after depth 1.");
+					}, function(err) {
+						expect(err.type).to.be("route");
+						expect(err.message).to.be("The maximum routing depth of 1 has been exceeded.");
+						expect(err.location).to.eql(["foo", "bar", "baz"]);
+					}),
+					apiD.close(),
+					apiD.route("foo").close(),
+					apiD.route("foo").route("bar").close(),
+					apiD.route("foo").route("bar").route("baz").close(),
+					apiD.route("foo").route("bar").route("baz").route("far").close()
+				]);
+			});
+
+			it("should floor(maxDepth) if maxDepth is not integer", function() {
+				return apiD.route("foo").route("bar").route("baz").route("far").route("faz").route("boo").then(function(result) {
+					expect().fail("Deep routing should not be allowed for apiD after depth 3.");
+				}, function(err) {
+					expect(err.type).to.be("route");
+					expect(err.message).to.be("The maximum routing depth of 3 has been exceeded.");
+					expect(err.location).to.eql(["foo", "bar", "baz", "far", "faz"]);
+				});
 			});
 		});
 	});

@@ -22,10 +22,9 @@ function router(options) {
 		}
 	};
 
-	if(isNaN(options.maxDepth) || options.maxDepth < 1)
+	if(Number.isNaN(options.maxDepth) || options.maxDepth < 1)
 		options.deep = false;
-
-	if(options.deep && options.maxDepth > 0 && isFinite(options.maxDepth))
+	else if(options.deep && options.maxDepth > 0 && Number.isFinite(options.maxDepth))
 		options.maxDepth = Math.floor(options.maxDepth);
 
 	var baseRouter = function baseRouter(destination, caller) {
