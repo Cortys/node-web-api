@@ -7,9 +7,6 @@ var Api = require("./Api"),
 
 function owe(object, router, closer, type) {
 
-	if(object instanceof Api)
-		throw new TypeError("Api objects cannot be exposed as an Api.");
-
 	// An object of the form { router:[function], closer:[function] } can be used as well:
 	if(router != null && typeof router === "object") {
 
