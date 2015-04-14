@@ -93,6 +93,37 @@ describe("Binding", function() {
 		});
 	});
 
+	describe(".unbind()", function() {
+		it("unbinds bound objects and returns them", function() {
+			var o = {};
+
+			var a = Binding.bind(o, function() {}, function() {});
+			expect(a).to.be(o);
+			expect(Binding.isBound(o)).to.be.ok();
+			var b = Binding.unbind(o);
+			expect(b).to.be(o);
+			expect(Binding.isBound(o)).not.to.be.ok();
+			var c = Binding.bind(o, function() {}, function() {});
+			expect(c).to.be(o);
+			expect(Binding.isBound(o)).to.be.ok();
+		});
+
+		it("just returns unbound objects and data", function() {
+
+			var o = Object.freeze({}),
+				f = function() {},
+				s = Symbol();
+
+			expect(Binding.unbind(o)).to.be(o);
+			expect(Binding.unbind(true)).to.be(true);
+			expect(Binding.unbind("test")).to.be("test");
+			expect(Binding.unbind(5.5)).to.be(5.5);
+			expect(Binding.unbind(s)).to.be(s);
+			expect(Binding.unbind(f)).to.be(f);
+		});
+
+	});
+
 	var object = {
 			the: "object"
 		},

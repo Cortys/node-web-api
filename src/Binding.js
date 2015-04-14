@@ -21,25 +21,23 @@ function Binding(object, router, closer, type, clonedObject) {
 	if(Binding.isBound(object) && type !== types.rebind && type !== types.clone)
 		throw new Error("Object '" + object + "' is already bound.");
 
-	if(typeof router === "function" && typeof closer === "function") {
-
-		let usedRouter = type === types.clone && clonedObject !== undefined ? function() {
-			return Promise.resolve(router.apply(this, arguments)).then(function(result) {
-				return result === object ? clonedObject : result;
-			});
-		} : router;
-
-		usedRouter[types.clone] = router;
-
-		this.router = usedRouter;
-		this.closer = closer;
+	if(router instanceof Binding) {
+		closer = router.closer;
+		router = router.router[types.clone] || router.router;
 	}
-	else if(router instanceof Binding) {
-		this.router = router.router[types.clone] || router.router;
-		this.closer = router.closer;
-	}
-	else
+	else if(typeof router !== "function" || typeof closer !== "function")
 		throw new TypeError("Bindings require a router and a closer function or another binding to copy.");
+
+	var usedRouter = type === types.clone && clonedObject !== undefined ? function() {
+		return Promise.resolve(router.apply(this, arguments)).then(function(result) {
+			return result === object ? clonedObject : result;
+		});
+	} : router;
+
+	usedRouter[types.clone] = router;
+
+	this.router = usedRouter;
+	this.closer = closer;
 
 	Object.defineProperties(this, {
 		target: {
@@ -88,6 +86,15 @@ Binding.bind = function bind(object, router, closer, type) {
 	});
 
 	return target;
+};
+
+Binding.unbind = function unbind(object) {
+
+	if(this.isBound(object))
+		delete object[Binding.key];
+
+	return object;
+
 };
 
 if(State.setBinding)
