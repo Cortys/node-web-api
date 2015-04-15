@@ -419,7 +419,7 @@ function testRouter(routerGenerator) {
 
 			var router = routerGenerator({
 				mapFunctions: "direct",
-				mapRootFunction: true
+				mapRootFunction: "direct"
 			});
 
 			var o = function() {},
@@ -436,7 +436,7 @@ function testRouter(routerGenerator) {
 
 			var router = routerGenerator({
 				mapFunctions: "call",
-				mapRootFunction: true,
+				mapRootFunction: "call",
 				deep: true
 			});
 
@@ -471,7 +471,7 @@ function testRouter(routerGenerator) {
 
 			var router = routerGenerator({
 				mapFunctions: "router",
-				mapRootFunction: true,
+				mapRootFunction: "router",
 				deep: true
 			});
 
@@ -516,7 +516,7 @@ function testRouter(routerGenerator) {
 
 			var router = routerGenerator({
 				mapFunctions: "closer",
-				mapRootFunction: true
+				mapRootFunction: "closer"
 			});
 
 			var o = {

@@ -104,14 +104,14 @@ var tools = {
 			target = filter(this, destination, options.filter).then(function(result) {
 
 				if(result !== options.filterInverse) {
-					if(options.mapFunctions && options.mapRootFunction && typeof that === "function" && router[isRoot]) {
-						if(options.mapFunctions === "router") {
+					if(options.mapRootFunction && typeof that === "function" && router[isRoot]) {
+						if(options.mapRootFunction === "router") {
 							writable = false;
 							return that(destination);
 						}
-						if(options.mapFunctions === "closer")
+						if(options.mapRootFunction === "closer")
 							throw new Error(`'${destination}' could not be routed.`);
-						if(options.mapFunctions === "call")
+						if(options.mapRootFunction === "call")
 							that = that();
 					}
 					if(destination in that)
