@@ -166,7 +166,7 @@ var tools = {
 			if(Binding.isBound(value))
 				return value;
 
-			return Promise.resolve(options.output(value)).then(function(value) {
+			return Promise.resolve(options.output.call(null, value)).then(function(value) {
 
 				if(Binding.isBound(value))
 					return value;

@@ -2,7 +2,7 @@ var expect = require("expect.js");
 
 var owe = require("../../../src"),
 	router = owe.serve.router,
-	Binding = require("../../../src/Binding");
+	Binding = owe.Binding;
 
 describe(".router", function() {
 	it("should return a function", function() {
@@ -614,7 +614,43 @@ function testRouter(routerGenerator) {
 	});
 
 	describe("output", function() {
+		it("should replace the output", function() {
+			var o = owe({
+				a: "John Doe",
+				b: "Adam Smith",
+				foo: [1, 2, 3.4],
+				baz: true
+			}, routerGenerator({
+				output: function(value) {
+					if(typeof value === "string")
+						return value.toUpperCase();
+					if(typeof value === "boolean")
+						throw "derp";
+					return {
+						value: value
+					};
+				}
+			}), closer);
 
+			return Promise.all([
+				owe.api(o).route("a").then(function(result) {
+					expect(result).to.be("JOHN DOE");
+				}),
+				owe.api(o).route("b").then(function(result) {
+					expect(result).to.be("ADAM SMITH");
+				}),
+				owe.api(o).route("foo").then(function(result) {
+					expect(result).to.eql({
+						value: o.foo
+					});
+				}),
+				owe.api(o).route("baz").then(function(result) {
+					expect().fail("baz should not be returned");
+				}, function(err) {
+					expect(err).to.be("derp");
+				})
+			]);
+		});
 	});
 }
 
