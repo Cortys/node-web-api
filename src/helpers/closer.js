@@ -39,18 +39,16 @@ function closer(options) {
 			if(typeof that.value === "function" && options.callFunctions)
 				return that.value(data);
 
-			var out = that.value;
-
 			if(data !== undefined)
 				return filter(that, data, options.writable).then(function(result) {
 					if(result !== options.writableInverse) {
 						tryWrite(that, "value", data);
-						return out;
+						return that.value;
 					}
 					throw new Error(`This route could not be closed with data '${data}'.`);
 				});
 
-			return out;
+			return that.value;
 
 		}).then(function(result) {
 			return options.output.call(that, result);
