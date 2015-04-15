@@ -29,19 +29,22 @@ function closer(options) {
 	}
 
 	return function servedCloser(data) {
+
+		var that = this;
+
 		return filter(this, this.value, options.filter).then(function(result) {
 			if(result === options.filterInverse)
 				throw new Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
 
-			if(typeof this.value === "function" && options.callFunctions)
-				return this.value(data);
+			if(typeof that.value === "function" && options.callFunctions)
+				return that.value(data);
 
-			var out = this.value;
+			var out = that.value;
 
 			if(data !== undefined)
-				return filter(this, data, options.writable).then(function(result) {
+				return filter(that, data, options.writable).then(function(result) {
 					if(result !== options.writableInverse) {
-						tryWrite(this, "value", data);
+						tryWrite(that, "value", data);
 						return out;
 					}
 					throw new Error(`This route could not be closed with data '${data}'.`);
@@ -50,7 +53,7 @@ function closer(options) {
 			return out;
 
 		}).then(function(result) {
-			return options.output.call(this, result);
+			return options.output.call(that, result);
 		});
 	};
 }

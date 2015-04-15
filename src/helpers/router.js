@@ -90,32 +90,33 @@ var tools = {
 
 	handle: function handle(options, router, destination) {
 
-		var that = this.value,
+		var that = this,
+			origin = this.value,
 			location = this.location,
 			binding = this.binding,
 			writable, target;
 
 		if(destination !== noDestination) {
 
-			if(typeof this.value !== "object" && typeof this.value !== "function" || this.value === null)
-				return Promise.reject(new TypeError(`Router expected object or function but got '${typeof this.value === "symbol" ? "[symbol]" : this.value}'.`));
+			if(typeof origin !== "object" && typeof origin !== "function" || origin === null)
+				return Promise.reject(new TypeError(`Router expected object or function but got '${typeof origin === "symbol" ? "[symbol]" : origin}'.`));
 
 			writable = true;
 			target = filter(this, destination, options.filter).then(function(result) {
 
 				if(result !== options.filterInverse) {
-					if(options.mapRootFunction && typeof that === "function" && router[isRoot]) {
+					if(options.mapRootFunction && typeof origin === "function" && router[isRoot]) {
 						if(options.mapRootFunction === "router") {
 							writable = false;
-							return that(destination);
+							return origin(destination);
 						}
 						if(options.mapRootFunction === "closer")
 							throw new Error(`'${destination}' could not be routed.`);
 						if(options.mapRootFunction === "call")
-							that = that();
+							origin = origin();
 					}
-					if(destination in that)
-						return that[destination];
+					if(destination in origin)
+						return origin[destination];
 				}
 				throw new Error(`'${destination}' could not be routed.`);
 			}).then(function(value) {
@@ -130,7 +131,7 @@ var tools = {
 							value = Binding.bind(null, function generatedRouter(destination) {
 								var state = this;
 
-								return Promise.resolve(func.call(that, destination)).then(function(result) {
+								return Promise.resolve(func.call(origin, destination)).then(function(result) {
 									return router.call(state.setValue({
 										value: result
 									}), noDestination);
@@ -138,12 +139,12 @@ var tools = {
 							}, binding.closer);
 						}
 						else if(options.mapFunctions === "closer")
-							value = Binding.bind(null, function() {}, value.bind(that));
+							value = Binding.bind(null, function() {}, value.bind(origin));
 						else if(options.mapFunctions === "call")
-							value = value.call(that);
+							value = value.call(origin);
 						else if(options.mapFunctions === "member") {
 							writable = true;
-							value = value.bind(that);
+							value = value.bind(origin);
 						}
 						else if(options.mapFunctions === "direct")
 							writable = true;
@@ -158,7 +159,7 @@ var tools = {
 		}
 		else {
 			writable = false;
-			target = Promise.resolve(that);
+			target = Promise.resolve(origin);
 		}
 
 		return target.then(function(value) {
@@ -166,7 +167,7 @@ var tools = {
 			if(Binding.isBound(value))
 				return value;
 
-			return Promise.resolve(options.output.call(null, value)).then(function(value) {
+			return Promise.resolve(options.output.call(that, value)).then(function(value) {
 
 				if(Binding.isBound(value))
 					return value;
@@ -177,14 +178,14 @@ var tools = {
 						return value;
 					},
 					set: function(newValue) {
-						that[destination] = newValue;
+						origin[destination] = newValue;
 						value = newValue;
 					}
 				} : {
 					value: value
 				};
 
-				// Case 4: Object, that should be traversed deeply
+				// Case 4: Object, origin should be traversed deeply
 
 				var targetValue, traversedRouter, type;
 

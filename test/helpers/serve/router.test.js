@@ -622,6 +622,10 @@ function testRouter(routerGenerator) {
 				baz: true
 			}, routerGenerator({
 				output: function(value) {
+
+					expect(this.value).to.be(o);
+					expect(this.location).to.eql([]);
+
 					if(typeof value === "string")
 						return value.toUpperCase();
 					if(typeof value === "boolean")
