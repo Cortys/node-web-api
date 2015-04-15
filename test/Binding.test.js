@@ -79,7 +79,7 @@ describe("Binding", function() {
 				expect(Binding.bind).withArgs(object, function() {}, function() {}, Binding.types.rebind).not.to.throwError();
 			});
 
-			it("when 'clone': always binds to a prototypal descendant of the given object and returns it", function() {
+			it("when 'clone': binds to a new object that behaves as if it were the original object in Apis", function() {
 				var object = {};
 				expect(Binding.bind).withArgs(object, function() {}, function() {}).not.to.throwError();
 				expect(Binding.isBound(object)).to.be(true);
@@ -88,7 +88,8 @@ describe("Binding", function() {
 					clone = Binding.bind(object, function() {}, function() {}, Binding.types.clone);
 				}).not.to.throwError();
 				expect(Binding.isBound(clone)).to.be(true);
-				expect(object.isPrototypeOf(clone)).to.be.ok();
+				expect(Object.getPrototypeOf(clone)).to.be(null);
+				expect(clone.object).to.be(object);
 			});
 		});
 	});

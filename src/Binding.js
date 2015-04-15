@@ -77,7 +77,11 @@ Binding.isBound = function isBound(object) {
 
 Binding.bind = function bind(object, router, closer, type) {
 
-	var target = object === null || type === types.clone ? Object.create(object) : object,
+	var target = object === null || type === types.clone ? Object.create(null, {
+			object: {
+				value: object
+			}
+		}) : object,
 		binding = new Binding(object, router, closer, type, target);
 
 	Object.defineProperty(target, Binding.key, {

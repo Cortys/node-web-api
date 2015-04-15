@@ -29,7 +29,7 @@ describe(".serve", function() {
 				}).router;
 			});
 		});
-		
+
 		describe(".closer", function() {
 			closerTest(function(options) {
 				return owe.serve({
