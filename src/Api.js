@@ -10,8 +10,6 @@ var Binding = require("./Binding");
  * @param {string[]} position - The stack of routes that led to this API pointer.
  */
 function Api(pObject, pPosition) {
-	if(pObject instanceof Api)
-		return pObject;
 
 	var pos = this[position] = (pPosition || []).slice(0);
 	this[boundObject] = Promise.resolve(pObject).then(function(object) {

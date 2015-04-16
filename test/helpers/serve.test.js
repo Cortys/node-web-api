@@ -22,6 +22,18 @@ describe(".serve", function() {
 
 	describe(".call() result", function() {
 
+		it("should contain empty router if mode = closer", function() {
+			expect(owe.serve({
+				mode: "closer"
+			}).router.toString()).to.eql(function() {}.toString());
+		});
+
+		it("should contain empty closer if mode = router", function() {
+			expect(owe.serve({
+				mode: "router"
+			}).closer.toString()).to.eql(function() {}.toString());
+		});
+
 		describe(".router", function() {
 			routerTest(function(options) {
 				return owe.serve({
