@@ -14,7 +14,9 @@ describe(".closer", function() {
 
 function testCloser(closerGenerator) {
 
-	var router = owe.serve.router();
+	var router = owe.serve.router({
+		mapFunctions: "direct"
+	});
 
 	describe("default", function() {
 
@@ -104,6 +106,83 @@ function testCloser(closerGenerator) {
 			});
 		});
 
+	});
+
+	describe("filter", function() {
+
+		var o = {
+			foo: "bar",
+			o: {},
+			a: [],
+			f: function test(input) {
+				return Promise.resolve(input + "!");
+			}
+		};
+
+		it("should filter with functions", function() {
+
+			var api = owe.api(o, router, closerGenerator({
+				filter: function(val) {
+					expect(o).to.have.property(this.location[this.location.length - 1]);
+					expect(this.location.length).to.eql(1);
+					expect(val).to.be(o[this.location[this.location.length - 1]]);
+
+					if(typeof val === "function" || typeof val === "string")
+						return true;
+				}
+			}), true);
+
+			return Promise.all([
+				api.route("f").close("test").then(function(result) {
+					expect(result).to.be("test!");
+				}),
+				api.route("foo").then(function(result) {
+					expect(result).to.be("bar");
+				}),
+				api.route("a").then(function() {
+					expect().fail("a should not be closable.");
+				}, function(err) {
+					expect(err.type).to.be("close");
+					expect(err.location).to.eql(["a"]);
+					expect(err.message).to.be("This route could not be closed.");
+				})
+			]);
+		});
+
+		it("should invert if filterInverse is set", function() {
+			return owe.api(o, router, closerGenerator({
+				filter: false,
+				filterInverse: true
+			}), true).route("o");
+		});
+
+	});
+
+	describe("output", function() {
+		it("should replace output", function() {
+			return owe.api({
+				test: "foo"
+			}, router, closerGenerator({
+				output: function(val) {
+					return val.toUpperCase();
+				}
+			})).route("test").then(function(result) {
+				expect(result).to.be("FOO");
+			});
+		});
+	});
+
+	describe("callFunctions", function() {
+		it("should allow returned functions if disabled", function() {
+			var o = function() {
+				return 42;
+			};
+			return owe.api(o, router, closerGenerator({
+				callFunctions: false
+			})).then(function(result) {
+				expect(result).to.be(o);
+			});
+		});
 	});
 
 }

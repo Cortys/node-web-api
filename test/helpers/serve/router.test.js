@@ -556,7 +556,7 @@ function testRouter(routerGenerator) {
 
 	});
 
-	describe("filters", function() {
+	describe("filter", function() {
 		var dest,
 			o = owe({
 				a: "John Doe",
