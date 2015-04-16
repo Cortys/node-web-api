@@ -72,7 +72,7 @@ Binding.key = Symbol("binding");
 Binding.types = types;
 
 Binding.isBound = function isBound(object) {
-	return(typeof object === "object" || typeof object === "function") && object !== null && this.key in object && object[this.key] instanceof this;
+	return(typeof object === "object" || typeof object === "function") && object !== null && Object.getOwnPropertyDescriptor(object, this.key) !== undefined && object[this.key] instanceof this;
 };
 
 Binding.bind = function bind(object, router, closer, type) {

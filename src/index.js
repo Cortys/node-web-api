@@ -48,6 +48,8 @@ owe.api = function(object, router, closer, type) {
 
 owe.serve = helpers.serve;
 owe.chain = helpers.chain;
+owe.reroute = helpers.reroute;
+
 owe.State = State;
 owe.Binding = Binding;
 
