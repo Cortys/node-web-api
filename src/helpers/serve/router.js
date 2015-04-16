@@ -1,7 +1,7 @@
 "use strict";
 
 var Binding = require("../../Binding"),
-	filter = require("../filter");
+	filter = require("./filter");
 
 function router(options) {
 	if(typeof options !== "object" || options === null)

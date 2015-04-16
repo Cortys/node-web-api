@@ -1,6 +1,6 @@
 "use strict";
 
-var filter = require("../filter");
+var filter = require("./filter");
 
 function closer(options) {
 	if(typeof options !== "object" || options === null)

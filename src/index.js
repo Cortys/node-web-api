@@ -52,5 +52,6 @@ owe.reroute = helpers.reroute;
 
 owe.State = State;
 owe.Binding = Binding;
+owe.isBound = Binding.isBound.bind(Binding); // kek.
 
 module.exports = owe;
