@@ -98,6 +98,12 @@ function chain(input, options) {
 
 		var i = 0;
 		for(let v of input) {
+
+			if(v == null) {
+				i++;
+				continue;
+			}
+
 			if(typeof v !== "function") {
 				result = Promise.reject(new TypeError(v + " at position " + i + " could not be used as a function for fallthrough."));
 				break;

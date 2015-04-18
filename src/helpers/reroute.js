@@ -10,8 +10,8 @@ function reroute(object, options) {
 	var mode = options.mode || "both";
 
 	return {
-		router: mode === "both" || mode === "router" ? reroute.router(object) : function() {},
-		closer: mode === "both" || mode === "closer" ? reroute.closer(object) : function() {}
+		router: mode === "both" || mode === "router" ? reroute.router(object) : undefined,
+		closer: mode === "both" || mode === "closer" ? reroute.closer(object) : undefined
 	};
 }
 

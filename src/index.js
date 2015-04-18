@@ -53,5 +53,8 @@ owe.reroute = helpers.reroute;
 owe.State = State;
 owe.Binding = Binding;
 owe.isBound = Binding.isBound.bind(Binding); // kek.
+owe.isApi = function(api) {
+	return api instanceof Api;
+};
 
 module.exports = owe;

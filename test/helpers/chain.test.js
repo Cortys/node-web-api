@@ -170,6 +170,26 @@ describe(".chain", function() {
 				});
 			});
 
+			it("should ignore undefined chain entries", function() {
+				return helpers.chain([
+					undefined,
+					function() {
+						throw "a";
+					},
+					undefined,
+					undefined,
+					function() {
+						throw "b";
+					},
+					undefined
+				])().then(function() {
+					expect().fail("This chain should reject.");
+				}, function(errs) {
+					expect(errs).to.be.an("array");
+					expect(errs).to.eql(["a", "b"]);
+				});
+			});
+
 			it("should pass given this to all functions", function() {
 				var f = helpers.chain([function(a) {
 						if(a)

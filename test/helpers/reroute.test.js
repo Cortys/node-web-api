@@ -40,13 +40,13 @@ describe(".reroute", function() {
 		it("should contain empty router if mode = closer", function() {
 			expect(owe.reroute({}, {
 				mode: "closer"
-			}).router.toString()).to.eql(function() {}.toString());
+			}).router).to.be(undefined);
 		});
 
 		it("should contain empty closer if mode = router", function() {
 			expect(owe.reroute({}, {
 				mode: "router"
-			}).closer.toString()).to.eql(function() {}.toString());
+			}).closer).to.be(undefined);
 		});
 
 		var rerouting = owe.reroute(o);
