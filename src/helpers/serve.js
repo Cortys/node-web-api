@@ -1,3 +1,5 @@
+"use strict";
+
 var serve = function serve(options) {
 	if(typeof options !== "object")
 		options = {};
