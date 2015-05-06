@@ -28,7 +28,6 @@ function router(options) {
 		options.maxDepth = Math.floor(options.maxDepth);
 
 	var baseRouter = function baseRouter(destination, caller) {
-
 		return tools.handle.call(this, options, caller, destination);
 	};
 
@@ -174,10 +173,10 @@ var tools = {
 
 				// Case 3: Closable data was reached
 				var valueDescriptor = writable ? {
-					get: function() {
+					get() {
 						return value;
 					},
-					set: function(newValue) {
+					set(newValue) {
 						origin[destination] = newValue;
 						value = newValue;
 					}

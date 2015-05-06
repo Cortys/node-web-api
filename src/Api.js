@@ -9,14 +9,47 @@ var Binding = require("./Binding");
  * @param {Object} object - An object this node should be bound to.
  * @param {string[]} position - The stack of routes that led to this API pointer.
  */
-function Api(pObject, pPosition) {
+class Api {
 
-	var pos = this[position] = (pPosition || []).slice(0);
-	this[boundObject] = Promise.resolve(pObject).then(function(object) {
-		if(!Binding.isBound(object))
-			throw new TypeError("Object at position '" + pos.join("/") + "' is not exposed.");
-		return object;
-	}).catch(errorHandlers.route.bind(null, pos));
+	constructor(pObject, pPosition) {
+		var pos = this[position] = (pPosition || []).slice(0);
+		this[boundObject] = Promise.resolve(pObject).then(function(object) {
+			if(!Binding.isBound(object))
+				throw new TypeError("Object at position '" + pos.join("/") + "' is not exposed.");
+			return object;
+		}).catch(errorHandlers.route.bind(null, pos));
+	}
+
+	route(destination) {
+		var that = this,
+			newPosition = this[position].concat([destination]);
+
+		return new Api(this[boundObject].then(function(object) {
+			return object[Binding.key].route(that[position], destination);
+		}), newPosition);
+	}
+
+	close(data) {
+		var that = this;
+		return this[boundObject].then(function(object) {
+			return object[Binding.key].close(that[position], data);
+		}).catch(errorHandlers.close.bind(this, data));
+	}
+
+	then(success, fail) {
+		return this.close().then(success, fail);
+	}
+
+	catch(fail) {
+		return this.close().catch(fail);
+	}
+
+	get object() {
+		return this[object] || (this[object] = this[boundObject].then(function(object) {
+			return object[Binding.key].target;
+		}));
+	}
+
 }
 
 var errorHandled = Symbol("errorHandled"),
@@ -25,7 +58,8 @@ var errorHandled = Symbol("errorHandled"),
 	position = Symbol("position");
 
 var errorHandlers = {
-	route: function route(position, err) {
+
+	route(position, err) {
 		try {
 			if(!(errorHandled in err)) {
 				err.type = "route";
@@ -37,7 +71,8 @@ var errorHandlers = {
 			throw err;
 		}
 	},
-	close: function close(data, err) {
+
+	close(data, err) {
 		try {
 			if(!(errorHandled in err)) {
 				err.type = "close";
@@ -49,40 +84,6 @@ var errorHandlers = {
 		finally {
 			throw err;
 		}
-	}
-};
-
-Api.prototype = {
-	constructor: Api,
-
-	route: function route(destination) {
-		var that = this,
-			newPosition = this[position].concat([destination]);
-
-		return new Api(this[boundObject].then(function(object) {
-			return object[Binding.key].route(that[position], destination);
-		}), newPosition);
-	},
-
-	close: function close(data) {
-		var that = this;
-		return this[boundObject].then(function(object) {
-			return object[Binding.key].close(that[position], data);
-		}).catch(errorHandlers.close.bind(this, data));
-	},
-
-	then: function then(success, fail) {
-		return this.close().then(success, fail);
-	},
-
-	catch: function(fail) {
-		return this.close().catch(fail);
-	},
-
-	get object() {
-		return this[object] || (this[object] = this[boundObject].then(function(object) {
-			return object[Binding.key].target;
-		}));
 	}
 };
 

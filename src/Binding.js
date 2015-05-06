@@ -8,45 +8,76 @@ var types = Object.freeze({
 	rebind: Symbol("rebind")
 });
 
-function Binding(object, router, closer, type, clonedObject) {
+class Binding {
 
-	if(!(this instanceof Binding))
-		return Binding.bind(object, router, closer, type);
+	constructor(object, router, closer, type, clonedObject) {
 
-	if(typeof type !== "symbol")
-		type = types.normal;
+		if(typeof type !== "symbol")
+			type = types.normal;
 
-	if(typeof object !== "object" && typeof object !== "function")
-		throw new TypeError("Only objects and functions can be bound. Got '" + object + "'.");
-	if(Binding.isBound(object) && type !== types.rebind && type !== types.clone)
-		throw new Error("Object '" + object + "' is already bound.");
+		if(typeof object !== "object" && typeof object !== "function")
+			throw new TypeError("Only objects and functions can be bound. Got '" + object + "'.");
+		if(Binding.isBound(object) && type !== types.rebind && type !== types.clone)
+			throw new Error("Object '" + object + "' is already bound.");
 
-	if(router instanceof Binding) {
-		closer = router.closer;
-		router = router.router[types.clone] || router.router;
-	}
-	else if(typeof router !== "function" || typeof closer !== "function")
-		throw new TypeError("Bindings require a router and a closer function or another binding to copy.");
-
-	var usedRouter = type === types.clone && clonedObject !== undefined ? function() {
-		return Promise.resolve(router.apply(this, arguments)).then(function(result) {
-			return result === object ? clonedObject : result;
-		});
-	} : router;
-
-	usedRouter[types.clone] = router;
-
-	this.router = usedRouter;
-	this.closer = closer;
-
-	Object.defineProperties(this, {
-		target: {
-			value: object
-		},
-		type: {
-			value: type
+		if(router instanceof Binding) {
+			closer = router.closer;
+			router = router.router[types.clone] || router.router;
 		}
-	});
+		else if(typeof router !== "function" || typeof closer !== "function")
+			throw new TypeError("Bindings require a router and a closer function or another binding to copy.");
+
+		var usedRouter = type === types.clone && clonedObject !== undefined ? function() {
+			return Promise.resolve(router.apply(this, arguments)).then(function(result) {
+				return result === object ? clonedObject : result;
+			});
+		} : router;
+
+		usedRouter[types.clone] = router;
+
+		this.router = usedRouter;
+		this.closer = closer;
+
+		Object.defineProperties(this, {
+			target: {
+				value: object
+			},
+			type: {
+				value: type
+			}
+		});
+	}
+
+	static isBound(object) {
+		return(typeof object === "object" || typeof object === "function") && object !== null && Object.getOwnPropertyDescriptor(object, this.key) !== undefined && object[this.key] instanceof this;
+	}
+
+	static bind(object, router, closer, type) {
+
+		var target = object === null || type === types.clone ? Object.create(null, {
+				object: {
+					value: object
+				}
+			}) : object,
+			binding = new this(object, router, closer, type, target);
+
+		Object.defineProperty(target, this.key, {
+			configurable: true,
+			value: binding
+		});
+
+		return target;
+	}
+
+	static unbind(object) {
+
+		if(this.isBound(object))
+			delete object[this.key];
+
+		return object;
+
+	}
+
 }
 
 function traverse(type) {
@@ -55,51 +86,27 @@ function traverse(type) {
 	};
 }
 
-Binding.prototype = {
-	constructor: Binding,
+Object.defineProperties(Binding.prototype, {
+	route: {
+		enumerable: false,
+		value: traverse("router")
+	},
+	close: {
+		enumerable: false,
+		value: traverse("closer")
+	}
+});
 
-	target: null,
-	router: null,
-	closer: null,
-	type: null,
-
-	route: traverse("router"),
-	close: traverse("closer")
-};
-
-Binding.key = Symbol("binding");
-
-Binding.types = types;
-
-Binding.isBound = function isBound(object) {
-	return(typeof object === "object" || typeof object === "function") && object !== null && Object.getOwnPropertyDescriptor(object, this.key) !== undefined && object[this.key] instanceof this;
-};
-
-Binding.bind = function bind(object, router, closer, type) {
-
-	var target = object === null || type === types.clone ? Object.create(null, {
-			object: {
-				value: object
-			}
-		}) : object,
-		binding = new Binding(object, router, closer, type, target);
-
-	Object.defineProperty(target, Binding.key, {
-		configurable: true,
-		value: binding
-	});
-
-	return target;
-};
-
-Binding.unbind = function unbind(object) {
-
-	if(this.isBound(object))
-		delete object[Binding.key];
-
-	return object;
-
-};
+Object.defineProperties(Binding, {
+	key: {
+		enumerable: false,
+		value: Symbol("binding")
+	},
+	types: {
+		enumerable: false,
+		value: types
+	}
+});
 
 if(State.setBinding)
 	State.setBinding(Binding);

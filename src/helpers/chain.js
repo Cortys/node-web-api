@@ -99,26 +99,24 @@ function chain(input, options) {
 		var i = 0;
 		for(let v of input) {
 
-			if(v == null) {
-				i++;
-				continue;
+			if(v != null) {
+
+				if(typeof v !== "function") {
+					result = Promise.reject(new TypeError(v + " at position " + i + " could not be used as a function for fallthrough."));
+					break;
+				}
+
+				if(!result)
+					result = Promise.resolve().then(function() {
+						return v.apply(that, args);
+					});
+				else
+					result = result.catch(function(err) {
+						handleErr.in(errs, err);
+						return v.apply(that, args);
+					});
 			}
-
-			if(typeof v !== "function") {
-				result = Promise.reject(new TypeError(v + " at position " + i + " could not be used as a function for fallthrough."));
-				break;
-			}
-
-			if(!result)
-				result = Promise.resolve().then(function() {
-					return v.apply(that, args);
-				});
-			else
-				result = result.catch(function(err) {
-					handleErr.in(errs, err);
-					return v.apply(that, args);
-				});
-
+			
 			i++;
 		}
 

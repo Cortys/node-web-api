@@ -3,65 +3,63 @@
 // Binding will be late bound, due to circular dependency between it and State.
 var Binding;
 
-function State(value, location, binding) {
-	if(!Array.isArray(location))
-		throw new TypeError("State location has to be an array.");
-	if(!Binding || !(binding instanceof Binding))
-		throw new TypeError("State binding has to be an instance of Binding.");
+class State {
 
-	Object.defineProperties(this, {
-		value: {
-			enumerable: true,
-			value: value
-		},
-		location: {
-			enumerable: true,
-			value: location.slice(0)
-		},
-		binding: {
-			enumerable: true,
-			value: binding
-		},
-		modified: {
-			value: false
-		}
-	});
+	constructor(value, location, binding) {
 
-	Object.freeze(this);
-}
+		if(!Array.isArray(location))
+			throw new TypeError("State location has to be an array.");
+		if(!Binding || !(binding instanceof Binding))
+			throw new TypeError("State binding has to be an instance of Binding.");
 
-State.prototype = Object.freeze(Object.create(null, {
+		Object.defineProperties(this, {
+			value: {
+				enumerable: true,
+				value: value
+			},
+			location: {
+				enumerable: true,
+				value: location.slice(0)
+			},
+			binding: {
+				enumerable: true,
+				value: binding
+			},
+			modified: {
+				value: false
+			}
+		});
 
-	toString: {
-		value: function toString() {
-			return typeof this.value.toString === "function" ? this.value.toString() : Object.prototype.toString.call(this.value);
-		}
-	},
-	valueOf: {
-		value: function valueOf() {
-			return typeof this.value.valueOf === "function" ? this.value.valueOf() : this.value;
-		}
-	},
-	setValue: {
-		value: function setValue(valueDescriptor) {
-			if(typeof valueDescriptor !== "object" || valueDescriptor == null)
-				throw new TypeError("State valueDescriptor has to be an object.");
-			valueDescriptor.enumerable = true;
-			return Object.freeze(Object.create(this, {
-				value: valueDescriptor,
-				modified: {
-					value: true
-				}
-			}));
-		}
+		Object.freeze(this);
 	}
-}));
 
-State.setBinding = function setBinding(val) {
-	if(Binding || typeof val !== "function")
-		throw new Error("Binding could not be set.");
-	Binding = val;
-	delete State.setBinding;
-};
+	static setBinding(val) {
+		if(Binding || typeof val !== "function")
+			throw new Error("Binding could not be set.");
+		Binding = val;
+		this.setBinding = undefined;
+	}
+
+	toString() {
+		return typeof this.value.toString === "function" ? this.value.toString() : Object.prototype.toString.call(this.value);
+	}
+
+	valueOf() {
+		return typeof this.value.valueOf === "function" ? this.value.valueOf() : this.value;
+	}
+
+	setValue(valueDescriptor) {
+		if(typeof valueDescriptor !== "object" || valueDescriptor == null)
+			throw new TypeError("State valueDescriptor has to be an object.");
+		valueDescriptor.enumerable = true;
+		return Object.freeze(Object.create(this, {
+			value: valueDescriptor,
+			modified: {
+				value: true
+			}
+		}));
+	}
+
+}
 
 module.exports = State;

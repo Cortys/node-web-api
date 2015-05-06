@@ -33,33 +33,35 @@ describe("Binding", function() {
 		});
 	});
 
-	describe(".call() or .bind()", function() {
-		it("can be called directly or by calling Binding.bind", function() {
-			expect(Binding.isBound(Binding({}, function() {}, function() {}))).to.be.ok();
+	describe(".bind()", function() {
+
+		var bindingFunction = Binding.bind.bind(Binding);
+
+		it("can be used to bind to an object by calling bind", function() {
 			expect(Binding.isBound(Binding.bind({}, function() {}, function() {}))).to.be.ok();
 		});
 
 		it("only binds objects, functions and null", function() {
-			expect(Binding.bind).withArgs(undefined, function() {}, function() {}).to.throwError();
-			expect(Binding.bind).withArgs("test", function() {}, function() {}).to.throwError();
-			expect(Binding.bind).withArgs(false, function() {}, function() {}).to.throwError();
-			expect(Binding.bind).withArgs(Symbol("test"), function() {}, function() {}).to.throwError();
+			expect(bindingFunction).withArgs(undefined, function() {}, function() {}).to.throwError();
+			expect(bindingFunction).withArgs("test", function() {}, function() {}).to.throwError();
+			expect(bindingFunction).withArgs(false, function() {}, function() {}).to.throwError();
+			expect(bindingFunction).withArgs(Symbol("test"), function() {}, function() {}).to.throwError();
 
-			expect(Binding.bind).withArgs(null, function() {}, function() {}).not.to.throwError();
-			expect(Binding.bind).withArgs(function() {}, function() {}, function() {}).not.to.throwError();
-			expect(Binding.bind).withArgs({}, function() {}, function() {}).not.to.throwError();
-			expect(Binding.bind).withArgs([], function() {}, function() {}).not.to.throwError();
+			expect(bindingFunction).withArgs(null, function() {}, function() {}).not.to.throwError();
+			expect(bindingFunction).withArgs(function() {}, function() {}, function() {}).not.to.throwError();
+			expect(bindingFunction).withArgs({}, function() {}, function() {}).not.to.throwError();
+			expect(bindingFunction).withArgs([], function() {}, function() {}).not.to.throwError();
 		});
 
 		it("requires a router and a closer function", function() {
-			expect(Binding.bind).withArgs({}).to.throwError();
-			expect(Binding.bind).withArgs({}, function() {}).to.throwError();
-			expect(Binding.bind).withArgs({}, undefined, function() {}).to.throwError();
-			expect(Binding.bind).withArgs({}, [], []).to.throwError();
-			expect(Binding.bind).withArgs({}, {}, {}).to.throwError();
-			expect(Binding.bind).withArgs({}, "a", "b").to.throwError();
-			expect(Binding.bind).withArgs({}, true, true).to.throwError();
-			expect(Binding.bind).withArgs({}, 4, 11).to.throwError();
+			expect(bindingFunction).withArgs({}).to.throwError();
+			expect(bindingFunction).withArgs({}, function() {}).to.throwError();
+			expect(bindingFunction).withArgs({}, undefined, function() {}).to.throwError();
+			expect(bindingFunction).withArgs({}, [], []).to.throwError();
+			expect(bindingFunction).withArgs({}, {}, {}).to.throwError();
+			expect(bindingFunction).withArgs({}, "a", "b").to.throwError();
+			expect(bindingFunction).withArgs({}, true, true).to.throwError();
+			expect(bindingFunction).withArgs({}, 4, 11).to.throwError();
 		});
 
 		describe("type parameter", function() {
@@ -69,19 +71,19 @@ describe("Binding", function() {
 
 			it("when 'normal': only accepts unbound objects", function() {
 				var object = {};
-				expect(Binding.bind).withArgs(object, function() {}, function() {}).not.to.throwError();
-				expect(Binding.bind).withArgs(object, function() {}, function() {}).to.throwError();
+				expect(bindingFunction).withArgs(object, function() {}, function() {}).not.to.throwError();
+				expect(bindingFunction).withArgs(object, function() {}, function() {}).to.throwError();
 			});
 
 			it("when 'rebind': accepts all objects and rebinds them if neccessary", function() {
 				var object = {};
-				expect(Binding.bind).withArgs(object, function() {}, function() {}, Binding.types.rebind).not.to.throwError();
-				expect(Binding.bind).withArgs(object, function() {}, function() {}, Binding.types.rebind).not.to.throwError();
+				expect(bindingFunction).withArgs(object, function() {}, function() {}, Binding.types.rebind).not.to.throwError();
+				expect(bindingFunction).withArgs(object, function() {}, function() {}, Binding.types.rebind).not.to.throwError();
 			});
 
 			it("when 'clone': binds to a new object that behaves as if it were the original object in Apis", function() {
 				var object = {};
-				expect(Binding.bind).withArgs(object, function() {}, function() {}).not.to.throwError();
+				expect(bindingFunction).withArgs(object, function() {}, function() {}).not.to.throwError();
 				expect(Binding.isBound(object)).to.be(true);
 				var clone;
 				expect(function() {
