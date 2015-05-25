@@ -11,8 +11,11 @@ var Binding = require("./Binding");
  */
 class Api {
 
-	constructor(pObject, pPosition) {
+	constructor(pObject, pPosition, pOrigin) {
 		var pos = this[position] = (pPosition || []).slice(0);
+
+		this[origin] = pOrigin;
+
 		this[boundObject] = Promise.resolve(pObject).then(function(object) {
 			if(!Binding.isBound(object))
 				throw new TypeError("Object at position '" + pos.join("/") + "' is not exposed.");
@@ -35,7 +38,7 @@ class Api {
 
 		return new Api(this[boundObject].then(function(object) {
 			return object[Binding.key].route(that[position], that[origin], destination);
-		}), newPosition);
+		}), newPosition, this[origin]);
 	}
 
 	close(data) {

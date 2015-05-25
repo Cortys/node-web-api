@@ -13,8 +13,11 @@ describe("Api", function() {
 			c: 3
 		},
 		object = Binding.bind(original, function(a) {
-			if(a)
-				return this.value;
+
+			expect(this).to.be.a(State);
+			expect(this.value).to.be(original);
+
+			return a && this.value;
 		}, function(key) {
 			expect(this).to.be.a(State);
 			expect(this.value).to.be(original);
@@ -94,6 +97,36 @@ describe("Api", function() {
 				}, function(err) {
 					expect(err).to.be(error);
 				})
+			]);
+		});
+	});
+
+	describe("#origin()", function() {
+
+		var api = new Api(Binding.bind(original, function(a) {
+			expect(this).to.be.a(State);
+			expect(this.value).to.be(original);
+			expect(["test", "foo"]).to.contain(this.origin);
+
+			return a && this.value;
+		}, function(key) {
+			expect(this).to.be.a(State);
+			expect(this.value).to.be(original);
+			expect(this.origin).to.be("test");
+
+			if(!(key in this.value))
+				throw new Error(key + " not found.");
+			return this.value[key];
+		}, Binding.types.clone)).origin("test");
+
+		it("should return an Api", function() {
+			expect(api.origin("test")).to.be.an(Api);
+		});
+		it("should hand given origin to all close() and route() calls from that point on", function() {
+			return Promise.all([
+				api.close("a"),
+				api.route(true).close("b"),
+				api.origin("foo").route(true).route(true).origin("test").close("c")
 			]);
 		});
 	});
