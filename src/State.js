@@ -5,7 +5,7 @@ var Binding;
 
 class State {
 
-	constructor(value, location, binding) {
+	constructor(value, location, origin, binding) {
 
 		if(!Array.isArray(location))
 			throw new TypeError("State location has to be an array.");
@@ -20,6 +20,10 @@ class State {
 			location: {
 				enumerable: true,
 				value: location.slice(0)
+			},
+			origin: {
+				enumerable: true,
+				value: origin
 			},
 			binding: {
 				enumerable: true,

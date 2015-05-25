@@ -48,44 +48,44 @@ function chain(input, options) {
 
 	if(options.errors === "all")
 		handleErr = {
-			in: function(errs, err) {
+			in(errs, err) {
 				errs.push(err);
 			},
-			out: function(errs) {
+			out(errs) {
 				return errs;
 			}
 		};
 	else if(options.errors === "last")
 		handleErr = {
-			in: function(errs, err) {
+			in(errs, err) {
 				errs.length = 1;
 				errs[0] = err;
 			},
-			out: function(errs) {
+			out(errs) {
 				return errs[0];
 			}
 		};
 	else if(options.errors === "first")
 		handleErr = {
-			in: function(errs, err) {
+			in(errs, err) {
 				if(errs.length === 0)
 					errs[0] = err;
 			},
-			out: function(errs) {
+			out(errs) {
 				return errs[0];
 			}
 		};
 	else if(typeof options.errors === "function")
 		handleErr = {
-			in: function(errs, err) {
+			in(errs, err) {
 				errs.push(err);
 			},
 			out: options.errors.bind(null)
 		};
 	else
 		handleErr = {
-			in: function() {},
-			out: function() {
+			in() {},
+			out() {
 				return options.errors;
 			}
 		};
@@ -116,7 +116,7 @@ function chain(input, options) {
 						return v.apply(that, args);
 					});
 			}
-			
+
 			i++;
 		}
 

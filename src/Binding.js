@@ -81,29 +81,25 @@ class Binding {
 }
 
 function traverse(type) {
-	return function(location, data) {
-		return this[type].call(new State(this.target, location, this), data);
+	return function(location, origin, data) {
+		return this[type].call(new State(this.target, location, origin, this), data);
 	};
 }
 
 Object.defineProperties(Binding.prototype, {
 	route: {
-		enumerable: false,
 		value: traverse("router")
 	},
 	close: {
-		enumerable: false,
 		value: traverse("closer")
 	}
 });
 
 Object.defineProperties(Binding, {
 	key: {
-		enumerable: false,
 		value: Symbol("binding")
 	},
 	types: {
-		enumerable: false,
 		value: types
 	}
 });

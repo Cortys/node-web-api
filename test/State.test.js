@@ -17,10 +17,9 @@ describe("State", function() {
 			}
 		},
 		location = ["location", "of", "this", "state"],
-		binding, state;
-
-	binding = Binding.bind(null, function() {}, function() {})[Binding.key];
-	state = new State(value, location, binding);
+		origin = {},
+		binding = Binding.bind(null, function() {}, function() {})[Binding.key],
+		state = new State(value, location, origin, binding);
 
 	it("should be frozen", function() {
 		expect(Object.isFrozen(state)).to.be.ok();
@@ -56,6 +55,16 @@ describe("State", function() {
 		it("should be read-only", function() {
 			state.location = ["something", "else"];
 			expect(state.location).to.eql(location);
+		});
+	});
+
+	describe("#origin", function() {
+		it("should contain the assigned origin", function() {
+			expect(state.origin).to.eql(origin);
+		});
+		it("should be read-only", function() {
+			state.origin = "derp";
+			expect(state.origin).to.eql(origin);
 		});
 	});
 

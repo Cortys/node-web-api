@@ -20,19 +20,28 @@ class Api {
 		}).catch(errorHandlers.route.bind(null, pos));
 	}
 
+	origin(source) {
+
+		var clone = Object.create(this);
+
+		clone[origin] = source;
+
+		return clone;
+	}
+
 	route(destination) {
 		var that = this,
 			newPosition = this[position].concat([destination]);
 
 		return new Api(this[boundObject].then(function(object) {
-			return object[Binding.key].route(that[position], destination);
+			return object[Binding.key].route(that[position], that[origin], destination);
 		}), newPosition);
 	}
 
 	close(data) {
 		var that = this;
 		return this[boundObject].then(function(object) {
-			return object[Binding.key].close(that[position], data);
+			return object[Binding.key].close(that[position], that[origin], data);
 		}).catch(errorHandlers.close.bind(this, data));
 	}
 
@@ -55,7 +64,8 @@ class Api {
 var errorHandled = Symbol("errorHandled"),
 	boundObject = Symbol("boundObject"),
 	object = Symbol("object"),
-	position = Symbol("position");
+	position = Symbol("position"),
+	origin = Symbol("origin");
 
 var errorHandlers = {
 

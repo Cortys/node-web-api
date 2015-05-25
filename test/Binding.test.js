@@ -132,11 +132,13 @@ describe("Binding", function() {
 		},
 		location = ["a", "b", "c"],
 		data = "ein test",
-		router = function(data) {
+		origin = {},
+		router = function(pData) {
 			expect(this.value).to.be(object);
 			expect(this.location).to.eql(location);
 			expect(this.binding).to.be(binding);
-			expect(data).to.be(data);
+			expect(this.origin).to.be(origin);
+			expect(data).to.be(pData);
 			return "result";
 		},
 		closer = router,
@@ -183,13 +185,13 @@ describe("Binding", function() {
 
 	describe("#route()", function() {
 		it("should call .router() bound to a State with the given location and the given data as parameter", function() {
-			expect(binding.route(location, data)).to.be("result");
+			expect(binding.route(location, origin, data)).to.be("result");
 		});
 	});
 
 	describe("#close()", function() {
 		it("should call .closer() bound to a State with the given location and the given data as parameter", function() {
-			expect(binding.close(location, data)).to.be("result");
+			expect(binding.close(location, origin, data)).to.be("result");
 		});
 	});
 
