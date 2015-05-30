@@ -1,6 +1,6 @@
 "use strict";
 
-var Binding = require("../../Binding"),
+var Binding = require("owe-core").Binding,
 	filter = require("./filter");
 
 function router(options) {

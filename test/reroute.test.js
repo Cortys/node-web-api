@@ -1,6 +1,6 @@
 var expect = require("expect.js");
 
-var owe = require("../../src");
+var owe = require("../src");
 
 describe(".reroute", function() {
 

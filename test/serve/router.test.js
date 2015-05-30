@@ -1,6 +1,6 @@
 var expect = require("expect.js");
 
-var owe = require("../../../src"),
+var owe = require("owe-core"),
 	router = owe.serve.router,
 	Binding = owe.Binding;
 

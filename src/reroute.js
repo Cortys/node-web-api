@@ -1,6 +1,6 @@
 "use strict";
 
-var Binding = require("../Binding");
+var Binding = require("owe-core").Binding;
 
 function reroute(object, options) {
 	if(typeof object !== "object" && typeof object !== "function" || object === null)

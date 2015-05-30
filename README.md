@@ -1,5 +1,7 @@
 # ![owe.js](logo.png)
 
+[![npm version](https://badge.fury.io/js/owe.js.svg)](http://badge.fury.io/js/owe.js)
+
 **O**bject **W**eb **E**xposer.
 
 A Node.js/io.js wrapper for protocol independent web API exposal. owe.js is the core of the runnr.js client-server interaction layer.

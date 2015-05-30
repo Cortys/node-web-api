@@ -1,26 +1,25 @@
 var expect = require("expect.js");
 
-var owe = require("../../src"),
-	helpers = require("../../src/helpers");
+var owe = require("../src");
 
 describe(".chain", function() {
 
 	it("should throw for non iterable values", function() {
-		expect(helpers.chain).withArgs(true).to.throwError();
-		expect(helpers.chain).withArgs(1).to.throwError();
-		expect(helpers.chain).withArgs({}).to.throwError();
-		expect(helpers.chain).withArgs("test").to.throwError();
-		expect(helpers.chain).withArgs(Symbol()).to.throwError();
-		expect(helpers.chain).withArgs(function() {}).to.throwError();
+		expect(owe.chain).withArgs(true).to.throwError();
+		expect(owe.chain).withArgs(1).to.throwError();
+		expect(owe.chain).withArgs({}).to.throwError();
+		expect(owe.chain).withArgs("test").to.throwError();
+		expect(owe.chain).withArgs(Symbol()).to.throwError();
+		expect(owe.chain).withArgs(function() {}).to.throwError();
 	});
 
 	describe("function mode", function() {
 
 		it("should return a function", function() {
-			expect(helpers.chain(new Set())).to.be.a("function");
-			expect(helpers.chain([])).to.be.a("function");
-			expect(helpers.chain(new Map())).to.be.a("function");
-			expect(helpers.chain(function*() {
+			expect(owe.chain(new Set())).to.be.a("function");
+			expect(owe.chain([])).to.be.a("function");
+			expect(owe.chain(new Map())).to.be.a("function");
+			expect(owe.chain(function*() {
 				yield 1;
 				yield 2;
 				yield 3;
@@ -29,7 +28,7 @@ describe(".chain", function() {
 
 		describe("errors option", function() {
 			it("all: should throw all errors as array of errors", function() {
-				return helpers.chain([function() {
+				return owe.chain([function() {
 					throw "a";
 				}, function() {
 					throw "b";
@@ -43,7 +42,7 @@ describe(".chain", function() {
 			});
 
 			it("first: should throw first thrown error", function() {
-				return helpers.chain([function() {
+				return owe.chain([function() {
 					throw "a";
 				}, function() {
 					throw "b";
@@ -57,7 +56,7 @@ describe(".chain", function() {
 			});
 
 			it("last: should throw last thrown error", function() {
-				return helpers.chain([function() {
+				return owe.chain([function() {
 					throw "a";
 				}, function() {
 					throw "b";
@@ -74,7 +73,7 @@ describe(".chain", function() {
 
 				var error = new Error("test");
 
-				return helpers.chain([function() {
+				return owe.chain([function() {
 					throw "a";
 				}, function() {
 					throw "b";
@@ -89,7 +88,7 @@ describe(".chain", function() {
 
 			it("[function]: should pass array of errors to given function and use its return as error", function() {
 
-				return helpers.chain([function() {
+				return owe.chain([function() {
 					throw "a";
 				}, function() {
 					throw "b";
@@ -112,15 +111,15 @@ describe(".chain", function() {
 
 		describe(".call() result", function() {
 			it("should be a Promise", function() {
-				expect(helpers.chain([])()).to.be.a(Promise);
-				expect(helpers.chain(new Map())()).to.be.a(Promise);
-				expect(helpers.chain(new Set())()).to.be.a(Promise);
-				expect(helpers.chain(function*() {
+				expect(owe.chain([])()).to.be.a(Promise);
+				expect(owe.chain(new Map())()).to.be.a(Promise);
+				expect(owe.chain(new Set())()).to.be.a(Promise);
+				expect(owe.chain(function*() {
 					yield 1;
 					yield 2;
 					yield 3;
 				}())()).to.be.a(Promise);
-				expect(helpers.chain([function() {}, "test"])()).to.be.a(Promise);
+				expect(owe.chain([function() {}, "test"])()).to.be.a(Promise);
 			});
 
 			it("should return first successful function return", function() {
@@ -140,7 +139,7 @@ describe(".chain", function() {
 				}];
 
 				return Promise.all([
-					helpers.chain([function() {
+					owe.chain([function() {
 						return 1;
 					}, function() {
 						return 2;
@@ -149,20 +148,20 @@ describe(".chain", function() {
 					}, function() {
 						expect().fail("chain should be successful.");
 					}),
-					helpers.chain(arr)("test", "ING").then(function(result) {
+					owe.chain(arr)("test", "ING").then(function(result) {
 						expect(result).to.be("TESTING");
 					}),
-					helpers.chain(arr)(1, 1).then(function(result) {
+					owe.chain(arr)(1, 1).then(function(result) {
 						expect(result).to.be(Math.PI + 1);
 					}),
-					helpers.chain(arr)(arr).then(function(result) {
+					owe.chain(arr)(arr).then(function(result) {
 						expect(result).to.be(arr);
 					})
 				]);
 			});
 
 			it("should reject if no function was given", function() {
-				return helpers.chain([])().then(function() {
+				return owe.chain([])().then(function() {
 					expect().fail("Empty chains should reject.");
 				}, function(errs) {
 					expect(errs).to.be.an("array");
@@ -171,7 +170,7 @@ describe(".chain", function() {
 			});
 
 			it("should ignore undefined chain entries", function() {
-				return helpers.chain([
+				return owe.chain([
 					undefined,
 					function() {
 						throw "a";
@@ -191,7 +190,7 @@ describe(".chain", function() {
 			});
 
 			it("should pass given this to all functions", function() {
-				var f = helpers.chain([function(a) {
+				var f = owe.chain([function(a) {
 						if(a)
 							throw new Error("test");
 						return this;
@@ -215,7 +214,7 @@ describe(".chain", function() {
 				var err1 = new Error("test 1"),
 					err2 = new Error("test 2");
 				return Promise.all([
-					helpers.chain([function() {
+					owe.chain([function() {
 						throw err1;
 					}])().then(function() {
 						expect().fail("This chain should reject.");
@@ -223,7 +222,7 @@ describe(".chain", function() {
 						expect(errs).to.be.an("array");
 						expect(errs[0]).to.be(err1);
 					}),
-					helpers.chain([function() {
+					owe.chain([function() {
 						throw err1;
 					}, function() {
 						throw err2;
@@ -242,7 +241,7 @@ describe(".chain", function() {
 	describe("object mode", function() {
 		it("should return an object with a function for each input key", function() {
 
-			var res = helpers.chain([{
+			var res = owe.chain([{
 				foo: "bar",
 				baz: true
 			}]);
@@ -256,7 +255,7 @@ describe(".chain", function() {
 		describe("[key].call() results", function() {
 
 			it("should return chained function for each key", function() {
-				var res = helpers.chain([{
+				var res = owe.chain([{
 					a: function a1() {
 						throw new Error("test");
 					},

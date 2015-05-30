@@ -1,6 +1,6 @@
 var expect = require("expect.js");
 
-var owe = require("../../../src"),
+var owe = require("owe-core"),
 	closer = owe.serve.closer;
 
 describe(".closer", function() {
