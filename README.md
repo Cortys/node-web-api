@@ -1,6 +1,6 @@
 # ![owe.js](logo.png)
 
-[![npm version](https://badge.fury.io/js/owe.js.svg)](http://badge.fury.io/js/owe.js)
+[![GitHub version](https://badge.fury.io/gh/runnr%2Fowe.js.svg)](http://badge.fury.io/gh/runnr%2Fowe.js) [![npm version](https://badge.fury.io/js/owe.js.svg)](http://badge.fury.io/js/owe.js)
 
 **O**bject **W**eb **E**xposer.
 
