@@ -1,6 +1,6 @@
 # ![owe.js](logo.png)
 
-[![GitHub version](https://badge.fury.io/gh/runnr%2Fowe.js.svg)](http://badge.fury.io/gh/runnr%2Fowe.js) [![npm version](https://badge.fury.io/js/owe.js.svg)](http://badge.fury.io/js/owe.js)
+[![npm](https://img.shields.io/npm/v/owe.js.svg)](https://www.npmjs.com/package/owe.js) [![Travis CI](https://api.travis-ci.org/runnr/owe.js.svg)](https://travis-ci.org/runnr/owe.js)
 
 **O**bject **W**eb **E**xposer.
 

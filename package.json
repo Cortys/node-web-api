@@ -1,6 +1,6 @@
 {
 	"name": "owe.js",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"description": "A Node.js wrapper for protocol independent web API exposal.",
 	"keywords": [
 		"api",
@@ -22,9 +22,10 @@
 	},
 	"main": "src/index.js",
 	"dependencies": {
-		"owe-core": "^0.3.0"
+		"owe-core": "^0.3.1"
 	},
 	"devDependencies": {
+		"mocha": "~2.2.5",
 		"gulp": "~3.8.11",
 		"gulp-mocha": "~2.0.0",
 		"expect.js": "~0.3.1"
