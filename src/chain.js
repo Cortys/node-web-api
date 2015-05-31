@@ -12,7 +12,7 @@ function chain(input, options) {
 
 	var firstVal;
 
-	if((typeof input === "object" || typeof input === "function") && input !== null && typeof input[Symbol.iterator] === "function") {
+	if((typeof input === "object" || typeof input === "function") && input !== null && Symbol.iterator in input) {
 
 		if(options.mode !== "function")
 			firstVal = input[Symbol.iterator]().next().value;
