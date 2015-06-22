@@ -98,10 +98,10 @@ var tools = {
 		if(destination !== noDestination) {
 
 			if(typeof origin !== "object" && typeof origin !== "function" || origin === null)
-				return Promise.reject(new TypeError(`Router expected object or function but got '${typeof origin === "symbol" ? "[symbol]" : origin}'.`));
+				throw new TypeError(`Router expected object or function but got '${typeof origin === "symbol" ? "[symbol]" : origin}'.`);
 
 			writable = true;
-			target = filter(this, destination, options.filter).then(function(result) {
+			target = Promise.resolve(filter(this, destination, options.filter, function(result) {
 
 				if(result !== options.filterInverse) {
 					if(options.mapRootFunction && typeof origin === "function" && router[isRoot]) {
@@ -118,7 +118,7 @@ var tools = {
 						return origin[destination];
 				}
 				throw new Error(`'${destination}' could not be routed.`);
-			}).then(function(value) {
+			})).then(function(value) {
 				// Case 1: Function (not bound)
 				if(typeof value === "function" && !Binding.isBound(value)) {
 					// If function mapping is enabled and value was retrieved as an object property (writable = true):

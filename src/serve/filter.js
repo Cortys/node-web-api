@@ -9,26 +9,28 @@
  * @param {any} filter - The filter
  */
 
-module.exports = function(target, input, filter) {
-	return Promise.resolve().then(function() {
-		if(typeof filter === "boolean")
-			return filter;
-		else if(typeof filter === "function")
-			return filter.call(target, input);
-		else if(filter instanceof RegExp)
-			return filter.test(input);
-		else if(filter instanceof Set)
-			return filter.has(input);
-		else if(filter instanceof Map)
-			return filter.get(input);
-		else if(Array.isArray(filter))
-			return filter.indexOf(input) !== -1;
-		else if(typeof filter === "object")
-			return filter[input];
-		return false;
-	}).then(function(result) {
-		return !!result;
-	}, function() {
-		return false;
-	});
+module.exports = function(target, input, filter, callback) {
+	var result = false;
+
+	if(typeof filter === "boolean")
+		result = filter;
+	else if(typeof filter === "function") {
+		return Promise.resolve(filter.call(target, input)).then(function(result) {
+			return callback(!!result);
+		}, function() {
+			return callback(false);
+		});
+	}
+	else if(filter instanceof RegExp)
+		result = filter.test(input);
+	else if(filter instanceof Set)
+		result = filter.has(input);
+	else if(filter instanceof Map)
+		result = !!filter.get(input);
+	else if(Array.isArray(filter))
+		result = filter.indexOf(input) !== -1;
+	else if(typeof filter === "object")
+		result = !!filter[input];
+
+	return callback(result);
 };
