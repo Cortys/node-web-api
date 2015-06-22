@@ -21,6 +21,7 @@ function rerouteGenerator(method, object) {
 	return function servedRerouter(data) {
 		if(!Binding.isBound(object))
 			throw new TypeError("Only bound objects can be a rerouting target.");
+
 		return object[Binding.key][method](this.location, this.origin, data);
 	};
 }

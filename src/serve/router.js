@@ -107,6 +107,7 @@ var tools = {
 					if(options.mapRootFunction && typeof origin === "function" && router[isRoot]) {
 						if(options.mapRootFunction === "router") {
 							writable = false;
+
 							return origin(destination);
 						}
 						if(options.mapRootFunction === "closer")
@@ -124,14 +125,16 @@ var tools = {
 					// If function mapping is enabled and value was retrieved as an object property (writable = true):
 					if(options.mapFunctions && writable) {
 						writable = false;
+
 						// If functions should be mapped to being a router:
 						if(options.mapFunctions === "router") {
 							let func = value;
+
 							value = Binding.bind(null, function generatedRouter(destination) {
-								var state = this;
+								var that = this;
 
 								return Promise.resolve(func.call(origin, destination)).then(function(result) {
-									return router.call(state.setValue({
+									return router.call(that.setValue({
 										value: result
 									}), noDestination);
 								});
@@ -153,6 +156,7 @@ var tools = {
 					else
 						throw new Error(`'${destination}' could not be routed.`);
 				}
+
 				return value;
 			});
 		}
@@ -190,6 +194,7 @@ var tools = {
 
 				if((typeof value === "object" || typeof value === "function" && options.deepFunctions) && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
 					targetValue = value;
+
 					// Request a version of this router with reduced depth:
 					traversedRouter = router[reduceDepthKey]();
 					if(!options.deepen)
@@ -199,6 +204,7 @@ var tools = {
 					targetValue = null;
 
 					let errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${location.concat([destination]).join("/")}' is an end point and cannot be routed.`;
+
 					traversedRouter = function servedRouter() {
 						throw new Error(errorMessage);
 					};

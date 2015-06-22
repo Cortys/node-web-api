@@ -97,6 +97,7 @@ function chain(input, options) {
 			args = arguments;
 
 		var i = 0;
+
 		for(let v of input) {
 
 			if(v != null) {
@@ -113,6 +114,7 @@ function chain(input, options) {
 				else
 					result = result.catch(function(err) {
 						handleErr.in(errs, err);
+
 						return v.apply(that, args);
 					});
 			}

@@ -80,6 +80,7 @@ function testRouter(routerGenerator) {
 					test: function() {
 						if(arguments.length)
 							return arguments.length;
+
 						return this;
 					}
 				},
@@ -306,6 +307,7 @@ function testRouter(routerGenerator) {
 
 					// non-object types cannot be deepened:
 					expect(Binding.isBound(o.foo.bar.fuz)).to.be(false);
+
 					// buz-function is routed to its .bind(o.foo) result and thus not deepened:
 					expect(Binding.isBound(o.foo.buz)).to.be(false);
 
@@ -630,6 +632,7 @@ function testRouter(routerGenerator) {
 						return value.toUpperCase();
 					if(typeof value === "boolean")
 						throw "derp";
+
 					return {
 						value: value
 					};

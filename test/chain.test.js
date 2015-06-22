@@ -99,6 +99,7 @@ describe(".chain", function() {
 
 						expect(this).to.eql(null);
 						errs.push("c");
+
 						return errs;
 					}
 				})().then(function() {
@@ -129,10 +130,12 @@ describe(".chain", function() {
 				}, function(a, b) {
 					if(typeof a !== "string")
 						throw new Error(typeof a + " nope.");
+
 					return a.toUpperCase() + b;
 				}, function(a, b) {
 					if(typeof a !== "number")
 						throw new Error(typeof a + " nope.");
+
 					return a * Math.PI + b;
 				}, function(a) {
 					return a;
@@ -193,6 +196,7 @@ describe(".chain", function() {
 				var f = owe.chain([function(a) {
 						if(a)
 							throw new Error("test");
+
 						return this;
 					}, function() {
 						return {
@@ -200,6 +204,7 @@ describe(".chain", function() {
 						};
 					}]),
 					o = {};
+
 				return Promise.all([
 					f.call(o).then(function(result) {
 						expect(result).to.be(o);
@@ -213,6 +218,7 @@ describe(".chain", function() {
 			it("should reject if all functions threw", function() {
 				var err1 = new Error("test 1"),
 					err2 = new Error("test 2");
+
 				return Promise.all([
 					owe.chain([function() {
 						throw err1;

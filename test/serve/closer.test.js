@@ -86,6 +86,7 @@ function testCloser(closerGenerator) {
 					},
 					set foo(val) {
 						foo = val;
+
 						return 42;
 					}
 				},
@@ -177,6 +178,7 @@ function testCloser(closerGenerator) {
 			var o = function() {
 				return 42;
 			};
+
 			return owe.api(o, router, closerGenerator({
 				callFunctions: false
 			})).then(function(result) {
