@@ -1,6 +1,6 @@
 {
 	"name": "owe.js",
-	"version": "0.4.2",
+	"version": "0.5.1",
 	"description": "A Node.js wrapper for protocol independent web API exposal.",
 	"keywords": [
 		"api",
@@ -22,10 +22,7 @@
 	},
 	"main": "src/index.js",
 	"dependencies": {
-		"owe-core": "^0.4"
-	},
-	"peerDependencies": {
-		"owe-core": "^0.4"
+		"owe-core": "^0.5"
 	},
 	"devDependencies": {
 		"mocha": "2.2.5",

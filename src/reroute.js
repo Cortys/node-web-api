@@ -1,6 +1,6 @@
 "use strict";
 
-var Binding = require("owe-core").Binding;
+const Binding = require("owe-core").Binding;
 
 function reroute(object, options) {
 	if(typeof object !== "object" && typeof object !== "function" || object === null)
@@ -9,7 +9,7 @@ function reroute(object, options) {
 	if(typeof options !== "object" || options === null)
 		options = {};
 
-	var mode = options.mode || "both";
+	const mode = options.mode || "both";
 
 	return {
 		router: mode === "both" || mode === "router" ? reroute.router(object) : undefined,
@@ -19,10 +19,13 @@ function reroute(object, options) {
 
 function rerouteGenerator(method, object) {
 	return function servedRerouter(data) {
-		if(!Binding.isBound(object))
+
+		const binding = Binding.getBinding(object);
+
+		if(!binding)
 			throw new TypeError("Only bound objects can be a rerouting target.");
 
-		return object[Binding.key][method](this.location, this.origin, data);
+		return binding[method](this.location, this.origin, data);
 	};
 }
 

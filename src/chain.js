@@ -24,7 +24,7 @@ function chain(input, options) {
 		throw new TypeError("Chain input has to be iterable.");
 
 	if(options.mode === "object") {
-		var result = {};
+		const result = {};
 
 		for(let key of Object.keys(firstVal)) {
 
@@ -91,12 +91,12 @@ function chain(input, options) {
 		};
 
 	return function servedChain() {
-		var that = this,
-			result,
+		const that = this,
 			errs = [],
 			args = arguments;
 
-		var i = 0;
+		var i = 0,
+			result;
 
 		for(let v of input) {
 

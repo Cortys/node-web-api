@@ -1,10 +1,10 @@
-var expect = require("expect.js");
+const expect = require("expect.js");
 
-var owe = require("../src");
+const owe = require("../src");
 
 describe(".reroute", function() {
 
-	var o = owe({
+	const o = owe({
 		param: "crazy"
 	}, function(destination) {
 
@@ -24,7 +24,7 @@ describe(".reroute", function() {
 
 	it("should return an object with a router and a closer function", function() {
 
-		var result = owe.reroute({});
+		const result = owe.reroute({});
 
 		expect(result).to.be.an("object");
 		expect(result.router).to.be.a("function");
@@ -49,10 +49,10 @@ describe(".reroute", function() {
 			}).closer).to.be(undefined);
 		});
 
-		var rerouting = owe.reroute(o);
+		const rerouting = owe.reroute(o);
 
 		describe(".router", function() {
-			var dummy = owe({}, rerouting.router, function() {});
+			const dummy = owe({}, rerouting.router, function() {});
 
 			it("should return routing result of the rerouting target", function() {
 				return owe.api(dummy).route("foo").route("hello").close("WORLD").then(function(result) {
@@ -65,7 +65,7 @@ describe(".reroute", function() {
 
 		describe(".closer", function() {
 
-			var dummy = owe({}, function() {}, rerouting.closer);
+			const dummy = owe({}, function() {}, rerouting.closer);
 
 			it("should return closing result of the rerouting target", function() {
 				return owe.api(dummy).close("STUFF").then(function(result) {

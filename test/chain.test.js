@@ -1,6 +1,6 @@
-var expect = require("expect.js");
+const expect = require("expect.js");
 
-var owe = require("../src");
+const owe = require("../src");
 
 describe(".chain", function() {
 
@@ -71,7 +71,7 @@ describe(".chain", function() {
 
 			it("[data]: should always throw given data", function() {
 
-				var error = new Error("test");
+				const error = new Error("test");
 
 				return owe.chain([function() {
 					throw "a";
@@ -125,7 +125,7 @@ describe(".chain", function() {
 
 			it("should return first successful function return", function() {
 
-				var arr = [function() {
+				const arr = [function() {
 					throw new Error("test 1");
 				}, function(a, b) {
 					if(typeof a !== "string")
@@ -193,7 +193,7 @@ describe(".chain", function() {
 			});
 
 			it("should pass given this to all functions", function() {
-				var f = owe.chain([function(a) {
+				const f = owe.chain([function(a) {
 						if(a)
 							throw new Error("test");
 
@@ -216,7 +216,7 @@ describe(".chain", function() {
 			});
 
 			it("should reject if all functions threw", function() {
-				var err1 = new Error("test 1"),
+				const err1 = new Error("test 1"),
 					err2 = new Error("test 2");
 
 				return Promise.all([
@@ -247,7 +247,7 @@ describe(".chain", function() {
 	describe("object mode", function() {
 		it("should return an object with a function for each input key", function() {
 
-			var res = owe.chain([{
+			const res = owe.chain([{
 				foo: "bar",
 				baz: true
 			}]);
@@ -261,7 +261,7 @@ describe(".chain", function() {
 		describe("[key].call() results", function() {
 
 			it("should return chained function for each key", function() {
-				var res = owe.chain([{
+				const res = owe.chain([{
 					a: function a1() {
 						throw new Error("test");
 					},

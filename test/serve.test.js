@@ -1,12 +1,12 @@
-var expect = require("expect.js");
+const expect = require("expect.js");
 
-var owe = require("../src");
+const owe = require("../src");
 
 describe(".serve", function() {
 
 	it("should return an object with a router and a closer function", function() {
 
-		var result = owe.serve();
+		const result = owe.serve();
 
 		expect(result).to.be.an("object");
 		expect(result.router).to.be.a("function");
@@ -17,7 +17,7 @@ describe(".serve", function() {
 		expect(owe).withArgs(null, owe.serve()).not.to.throwError();
 	});
 
-	var routerTest = require("./serve/router.test.js"),
+	const routerTest = require("./serve/router.test.js"),
 		closerTest = require("./serve/closer.test.js");
 
 	describe(".call() result", function() {

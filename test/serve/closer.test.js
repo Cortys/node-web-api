@@ -1,6 +1,6 @@
-var expect = require("expect.js");
+const expect = require("expect.js");
 
-var owe = require("owe-core"),
+const owe = require("owe-core"),
 	closer = owe.serve.closer;
 
 describe(".closer", function() {
@@ -14,13 +14,13 @@ describe(".closer", function() {
 
 function testCloser(closerGenerator) {
 
-	var router = owe.serve.router({
+	const router = owe.serve.router({
 		mapFunctions: "direct"
 	});
 
 	describe("default", function() {
 
-		var o = owe({
+		const o = owe({
 			foo: "bar",
 			o: {},
 			a: [],
@@ -64,7 +64,7 @@ function testCloser(closerGenerator) {
 	describe("writable", function() {
 
 		it("should write object properties if enabled", function() {
-			var o = {
+			const o = {
 					foo: "bar"
 				},
 				api = owe.api(o, router, closerGenerator({
@@ -79,8 +79,10 @@ function testCloser(closerGenerator) {
 		});
 
 		it("should pass State and data of close to writable if it is a filter function", function() {
-			var foo = "bar",
-				o = {
+
+			var foo = "bar";
+
+			const o = {
 					get foo() {
 						return foo;
 					},
@@ -111,7 +113,7 @@ function testCloser(closerGenerator) {
 
 	describe("filter", function() {
 
-		var o = {
+		const o = {
 			foo: "bar",
 			o: {},
 			a: [],
@@ -122,7 +124,7 @@ function testCloser(closerGenerator) {
 
 		it("should filter with functions", function() {
 
-			var api = owe.api(o, router, closerGenerator({
+			const api = owe.api(o, router, closerGenerator({
 				filter: function(val) {
 					expect(o).to.have.property(this.location[this.location.length - 1]);
 					expect(this.location.length).to.eql(1);
@@ -175,7 +177,7 @@ function testCloser(closerGenerator) {
 
 	describe("callFunctions", function() {
 		it("should allow returned functions if disabled", function() {
-			var o = function() {
+			const o = function() {
 				return 42;
 			};
 

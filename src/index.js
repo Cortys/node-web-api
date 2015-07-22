@@ -1,6 +1,6 @@
 "use strict";
 
-var owe = require("owe-core");
+const owe = require("owe-core");
 
 // Extend core with basic helper functions:
 

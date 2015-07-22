@@ -1,6 +1,6 @@
 "use strict";
 
-var filter = require("./filter");
+const filter = require("./filter");
 
 function closer(options) {
 	if(typeof options !== "object" || options === null)
@@ -30,7 +30,7 @@ function closer(options) {
 
 	return function servedCloser(data) {
 
-		var that = this;
+		const that = this;
 
 		return Promise.resolve(filter(this, this.value, options.filter, function(result) {
 			if(result === options.filterInverse)

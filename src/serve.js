@@ -1,10 +1,10 @@
 "use strict";
 
-var serve = function serve(options) {
+const serve = function serve(options) {
 	if(typeof options !== "object")
 		options = {};
 
-	var mode = options.mode || "both";
+	const mode = options.mode || "both";
 
 	return {
 		router: mode === "both" || mode === "router" ? serve.router(options.router) : undefined,

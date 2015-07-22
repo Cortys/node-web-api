@@ -1,6 +1,6 @@
-var expect = require("expect.js");
+const expect = require("expect.js");
 
-var owe = require("owe-core"),
+const owe = require("owe-core"),
 	router = owe.serve.router,
 	Binding = owe.Binding;
 
@@ -15,17 +15,17 @@ describe(".router", function() {
 
 function testRouter(routerGenerator) {
 
-	var closer = function() {
+	const closer = function() {
 		return this.value; // Just output the given input.
 	};
 
 	describe("default", function() {
 
-		var router = routerGenerator();
+		const router = routerGenerator();
 
 		it("should route functions at root as objects", function() {
 
-			var f = function(a) {
+			const f = function(a) {
 					return "test";
 				},
 				api = owe.api(f, router, closer);
@@ -39,7 +39,7 @@ function testRouter(routerGenerator) {
 
 		it("should route objects as objects", function() {
 
-			var api = owe.api({
+			const api = owe.api({
 				path: "Hello World!"
 			}, router, closer);
 
@@ -51,7 +51,7 @@ function testRouter(routerGenerator) {
 
 		it("should not traverse objects deeply", function() {
 
-			var o = {
+			const o = {
 					foo: {
 						bar: {
 							baz: 42
@@ -76,7 +76,7 @@ function testRouter(routerGenerator) {
 		});
 
 		it("should output member functions bound to the object they came from", function() {
-			var o = {
+			const o = {
 					test: function() {
 						if(arguments.length)
 							return arguments.length;
@@ -101,7 +101,7 @@ function testRouter(routerGenerator) {
 			if(options.objects)
 				it("should traverse normal objects", function() {
 
-					var o = {
+					const o = {
 							foo: {
 								bar: {
 									baz: Symbol("test")
@@ -126,7 +126,7 @@ function testRouter(routerGenerator) {
 			if(options.arrays)
 				it("should not traverse arrays", function() {
 
-					var o = {
+					const o = {
 							foo: [1, 2, 3.4, [5, 6]]
 						},
 						api = owe.api(o, router, closer).route("foo");
@@ -147,7 +147,7 @@ function testRouter(routerGenerator) {
 
 			if(options.functions)
 				it("should not traverse functions", function() {
-					var o = {
+					const o = {
 							f: function() {}
 						},
 						api = owe.api(o, router, closer);
@@ -165,7 +165,7 @@ function testRouter(routerGenerator) {
 
 			if(options.deepen)
 				it("should not deepen objects", function() {
-					var o = {
+					const o = {
 							foo: {
 								bar: {
 									baz: Symbol("test")
@@ -184,7 +184,7 @@ function testRouter(routerGenerator) {
 		}
 
 		describe("default", function() {
-			var router = routerGenerator({
+			const router = routerGenerator({
 				deep: true
 			});
 
@@ -197,7 +197,7 @@ function testRouter(routerGenerator) {
 		});
 
 		describe("deep arrays", function() {
-			var router = routerGenerator({
+			const router = routerGenerator({
 				deep: true,
 				deepArrays: true
 			});
@@ -210,7 +210,7 @@ function testRouter(routerGenerator) {
 
 			it("should traverse arrays", function() {
 
-				var o = {
+				const o = {
 						foo: [1, 2, 3.4, [5, 6]]
 					},
 					api = owe.api(o, router, closer).route("foo");
@@ -231,7 +231,7 @@ function testRouter(routerGenerator) {
 		});
 
 		describe("deep functions", function() {
-			var router = routerGenerator({
+			const router = routerGenerator({
 				deep: true,
 				deepFunctions: true,
 				mapFunctions: "direct"
@@ -244,7 +244,7 @@ function testRouter(routerGenerator) {
 			});
 
 			it("should traverse functions", function() {
-				var o = function o() {},
+				const o = function o() {},
 					api = owe.api(o, router, closer);
 
 				o.f = function a() {};
@@ -271,7 +271,7 @@ function testRouter(routerGenerator) {
 		});
 
 		describe("deepen objects", function() {
-			var router = routerGenerator({
+			const router = routerGenerator({
 				deep: true,
 				deepen: true,
 				deepFunctions: true,
@@ -283,7 +283,7 @@ function testRouter(routerGenerator) {
 			});
 
 			it("should deepen objects", function() {
-				var o = {
+				const o = {
 						foo: {
 							bar: {
 								baz: ["a", "b", "c"],
@@ -319,7 +319,7 @@ function testRouter(routerGenerator) {
 
 		describe("max depth", function() {
 
-			var o = {
+			const o = {
 				foo: {
 					bar: {
 						baz: {
@@ -333,7 +333,7 @@ function testRouter(routerGenerator) {
 				}
 			};
 
-			var apiA = owe.api(o, routerGenerator({
+			const apiA = owe.api(o, routerGenerator({
 					deep: true,
 					maxDepth: -Infinity
 				}), closer, true),
@@ -419,12 +419,12 @@ function testRouter(routerGenerator) {
 
 		it("direct: should map functions as they are", function() {
 
-			var router = routerGenerator({
+			const router = routerGenerator({
 				mapFunctions: "direct",
 				mapRootFunction: "direct"
 			});
 
-			var o = function() {},
+			const o = function() {},
 				api = owe.api(o, router, closer);
 
 			o.a = function() {};
@@ -436,13 +436,13 @@ function testRouter(routerGenerator) {
 
 		it("call: should map functions to their .call() result", function() {
 
-			var router = routerGenerator({
+			const router = routerGenerator({
 				mapFunctions: "call",
 				mapRootFunction: "call",
 				deep: true
 			});
 
-			var o = function() {
+			const o = function() {
 					return {
 						prop: "test",
 						a: function() {
@@ -471,13 +471,13 @@ function testRouter(routerGenerator) {
 
 			"use strict";
 
-			var router = routerGenerator({
+			const router = routerGenerator({
 				mapFunctions: "router",
 				mapRootFunction: "router",
 				deep: true
 			});
 
-			var o = {
+			const o = {
 					props: {
 						a: 42,
 						b: "test",
@@ -494,7 +494,7 @@ function testRouter(routerGenerator) {
 				},
 				api = owe.api(o, router, closer).route("router");
 
-			var promises = [];
+			const promises = [];
 
 			for(let key in o.props)
 				promises.push(api.route(key).then(function(result) {
@@ -516,12 +516,12 @@ function testRouter(routerGenerator) {
 
 			"use strict";
 
-			var router = routerGenerator({
+			const router = routerGenerator({
 				mapFunctions: "closer",
 				mapRootFunction: "closer"
 			});
 
-			var o = {
+			const o = {
 					props: {
 						a: 42,
 						b: "test",
@@ -538,7 +538,7 @@ function testRouter(routerGenerator) {
 				},
 				api = owe.api(o, router, closer).route("closer");
 
-			var promises = [];
+			const promises = [];
 
 			for(let key in o.props)
 				promises.push(api.close(key).then(function(result) {
@@ -559,15 +559,16 @@ function testRouter(routerGenerator) {
 	});
 
 	describe("filter", function() {
-		var dest,
-			o = owe({
-				a: "John Doe",
-				b: "Adam Smith",
-				foo: [1, 2, 3.4],
-				baz: true
-			}, routerGenerator({
-				filter: filter
-			}), closer);
+		const o = owe({
+			a: "John Doe",
+			b: "Adam Smith",
+			foo: [1, 2, 3.4],
+			baz: true
+		}, routerGenerator({
+			filter: filter
+		}), closer);
+
+		var dest;
 
 		function filter(destination) {
 			expect(destination).to.be(dest);
@@ -617,7 +618,7 @@ function testRouter(routerGenerator) {
 
 	describe("output", function() {
 		it("should replace the output", function() {
-			var o = owe({
+			const o = owe({
 				a: "John Doe",
 				b: "Adam Smith",
 				foo: [1, 2, 3.4],
