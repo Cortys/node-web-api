@@ -110,6 +110,78 @@ describe(".chain", function() {
 			});
 		});
 
+		describe("removeNonErrors option", function() {
+			it("errors = all: should remove all empty errors from the output errors", function() {
+				return owe.chain([function() {
+					throw "a";
+				}, function() {
+					throw undefined;
+				}, function() {
+					throw "b";
+				}], {
+					errors: "all",
+					removeNonErrors: true
+				})().then(function() {
+					expect().fail("This chain should reject.");
+				}, function(errs) {
+					expect(errs).to.eql(["a", "b"]);
+				});
+			});
+
+			it("errors = first: should return the first not-null error", function() {
+				return owe.chain([function() {
+					throw undefined;
+				}, function() {
+					throw "a";
+				}, function() {
+					throw "b";
+				}], {
+					errors: "first",
+					removeNonErrors: true
+				})().then(function() {
+					expect().fail("This chain should reject.");
+				}, function(errs) {
+					expect(errs).to.be("a");
+				});
+			});
+
+			it("errors = last: should return the last not-null error", function() {
+				return owe.chain([function() {
+					throw "a";
+				}, function() {
+					throw undefined;
+				}, function() {
+					throw "b";
+				}], {
+					errors: "last",
+					removeNonErrors: true
+				})().then(function() {
+					expect().fail("This chain should reject.");
+				}, function(errs) {
+					expect(errs).to.be("b");
+				});
+			});
+
+			it("errors = [function]: should remove all empty errors from the errors that go into the function", function() {
+				return owe.chain([function() {
+					throw "a";
+				}, function() {
+					throw "b";
+				}, function() {
+					throw undefined;
+				}], {
+					errors(errs) {
+						return errs;
+					},
+					removeNonErrors: true
+				})().then(function() {
+					expect().fail("This chain should reject.");
+				}, function(errs) {
+					expect(errs).to.eql(["a", "b"]);
+				});
+			});
+		});
+
 		describe(".call() result", function() {
 			it("should be a Promise", function() {
 				expect(owe.chain([])()).to.be.a(Promise);

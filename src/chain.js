@@ -11,7 +11,7 @@ function chain(input, options) {
 		removeNonErrors: options.removeNonErrors || false
 	};
 
-	var firstVal;
+	let firstVal;
 
 	if((typeof input === "object" || typeof input === "function") && input !== null && Symbol.iterator in input) {
 
@@ -29,7 +29,7 @@ function chain(input, options) {
 
 		for(let key of Object.keys(firstVal)) {
 
-			let generator = function*() {
+			const generator = function*() {
 				for(let val of input)
 					yield typeof val === "object" && val !== null && val[key] || undefined;
 			};
@@ -38,14 +38,15 @@ function chain(input, options) {
 
 			result[key] = chain(generator, {
 				mode: "function",
-				errors: options.errors
+				errors: options.errors,
+				removeNonErrors: options.removeNonErrors
 			});
 		}
 
 		return result;
 	}
 
-	var handleErr;
+	let handleErr;
 
 	if(options.errors === "all")
 		handleErr = {
@@ -100,7 +101,7 @@ function chain(input, options) {
 			errs = [],
 			args = arguments;
 
-		var i = 0,
+		let i = 0,
 			result;
 
 		for(let v of input) {
@@ -108,7 +109,7 @@ function chain(input, options) {
 			if(v != null) {
 
 				if(typeof v !== "function") {
-					result = Promise.reject(new TypeError(v + " at position " + i + " could not be used as a function for fallthrough."));
+					result = Promise.reject(new TypeError(`${v} at position ${i} could not be used as a function for fallthrough.`));
 					break;
 				}
 
