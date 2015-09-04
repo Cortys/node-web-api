@@ -7,7 +7,8 @@ function chain(input, options) {
 
 	options = {
 		mode: options.mode || "auto",
-		errors: options.errors || "all"
+		errors: options.errors || "all",
+		removeNonErrors: options.removeNonErrors || false
 	};
 
 	var firstVal;
@@ -49,7 +50,8 @@ function chain(input, options) {
 	if(options.errors === "all")
 		handleErr = {
 			in(errs, err) {
-				errs.push(err);
+				if(err != null || !options.removeNonErrors)
+					errs.push(err);
 			},
 			out(errs) {
 				return errs;
@@ -58,8 +60,10 @@ function chain(input, options) {
 	else if(options.errors === "last")
 		handleErr = {
 			in(errs, err) {
-				errs.length = 1;
-				errs[0] = err;
+				if(err != null || !options.removeNonErrors) {
+					errs.length = 1;
+					errs[0] = err;
+				}
 			},
 			out(errs) {
 				return errs[0];
@@ -68,7 +72,7 @@ function chain(input, options) {
 	else if(options.errors === "first")
 		handleErr = {
 			in(errs, err) {
-				if(errs.length === 0)
+				if(errs.length === 0 && (err != null || !options.removeNonErrors))
 					errs[0] = err;
 			},
 			out(errs) {
@@ -78,7 +82,8 @@ function chain(input, options) {
 	else if(typeof options.errors === "function")
 		handleErr = {
 			in(errs, err) {
-				errs.push(err);
+				if(err != null || !options.removeNonErrors)
+					errs.push(err);
 			},
 			out: options.errors.bind(null)
 		};

@@ -9,9 +9,85 @@ const noDestination = Symbol("noDestination"),
 	currentDepthKey = Symbol("currentDepth"),
 	reduceDepthKey = Symbol("reduceDepth");
 
+function router(options) {
+	if(typeof options !== "object" || options === null)
+		options = {};
+
+	options = {
+		deep: options.deep || false,
+		deepArrays: options.deepArrays || false,
+		deepFunctions: options.deepFunctions || false,
+		deepen: options.deepen || false,
+		maxDepth: "maxDepth" in options ? options.maxDepth * 1 : Infinity,
+		mapFunctions: options.mapFunctions || "member",
+		mapRootFunction: options.mapRootFunction || false,
+		filter: "filter" in options ? options.filter : true,
+		filterInverse: !!options.filterInverse || false,
+		output: typeof options.output === "function" ? options.output : function(value) {
+			return value;
+		}
+	};
+
+	if(Number.isNaN(options.maxDepth) || options.maxDepth < 1)
+		options.deep = false;
+	else if(options.deep && options.maxDepth > 0 && Number.isFinite(options.maxDepth))
+		options.maxDepth = Math.floor(options.maxDepth);
+
+	const baseRouter = function baseRouter(destination, caller) {
+		return tools.handle.call(this, options, caller, destination);
+	};
+
+	baseRouter[reduceDepthKey] = !options.deep || options.maxDepth === Infinity ? (function() {
+
+		const result = function servedRouter(destination) {
+				return baseRouter.call(this, destination, servedRouter);
+			},
+			innerResult = function servedRouter(destination) {
+				return baseRouter.call(this, destination, result);
+			};
+
+		result[reduceDepthKey] = innerResult[reduceDepthKey] = function reduceDepth() {
+			return innerResult;
+		};
+
+		result[currentDepthKey] = innerResult[currentDepthKey] = Infinity;
+
+		result[isRoot] = true;
+
+		return function reduceDepth() {
+			return result;
+		};
+	}()) : function reduceDepth() {
+
+		if(this[currentDepthKey] <= 0)
+			return function servedRouter() {
+				throw new Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
+			};
+
+		const result = function servedRouter(destination) {
+			return baseRouter.call(this, destination, servedRouter);
+		};
+
+		result[reduceDepthKey] = reduceDepth;
+
+		result[currentDepthKey] = this[currentDepthKey] - 1;
+
+		if(this === baseRouter)
+			result[isRoot] = true;
+
+		return result;
+	};
+
+	// Make depth of returned starting point 1 too big...
+	baseRouter[currentDepthKey] = options.maxDepth + 1;
+
+	// ...because a version of it with reduced depth by 1 is returned here:
+	return baseRouter[reduceDepthKey]();
+}
+
 const tools = {
 
-	handle: function handle(options, router, destination) {
+	handle(options, router, destination) {
 
 		const that = this,
 			location = this.location,
@@ -144,81 +220,5 @@ const tools = {
 		});
 	}
 };
-
-function router(options) {
-	if(typeof options !== "object" || options === null)
-		options = {};
-
-	options = {
-		deep: options.deep || false,
-		deepArrays: options.deepArrays || false,
-		deepFunctions: options.deepFunctions || false,
-		deepen: options.deepen || false,
-		maxDepth: "maxDepth" in options ? options.maxDepth * 1 : Infinity,
-		mapFunctions: options.mapFunctions || "member",
-		mapRootFunction: options.mapRootFunction || false,
-		filter: "filter" in options ? options.filter : true,
-		filterInverse: !!options.filterInverse || false,
-		output: typeof options.output === "function" ? options.output : function(value) {
-			return value;
-		}
-	};
-
-	if(Number.isNaN(options.maxDepth) || options.maxDepth < 1)
-		options.deep = false;
-	else if(options.deep && options.maxDepth > 0 && Number.isFinite(options.maxDepth))
-		options.maxDepth = Math.floor(options.maxDepth);
-
-	const baseRouter = function baseRouter(destination, caller) {
-		return tools.handle.call(this, options, caller, destination);
-	};
-
-	baseRouter[reduceDepthKey] = !options.deep || options.maxDepth === Infinity ? (function() {
-
-		const result = function servedRouter(destination) {
-				return baseRouter.call(this, destination, servedRouter);
-			},
-			innerResult = function servedRouter(destination) {
-				return baseRouter.call(this, destination, result);
-			};
-
-		result[reduceDepthKey] = innerResult[reduceDepthKey] = function reduceDepth() {
-			return innerResult;
-		};
-
-		result[currentDepthKey] = innerResult[currentDepthKey] = Infinity;
-
-		result[isRoot] = true;
-
-		return function reduceDepth() {
-			return result;
-		};
-	}()) : function reduceDepth() {
-
-		if(this[currentDepthKey] <= 0)
-			return function servedRouter() {
-				throw new Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
-			};
-
-		const result = function servedRouter(destination) {
-			return baseRouter.call(this, destination, servedRouter);
-		};
-
-		result[reduceDepthKey] = reduceDepth;
-
-		result[currentDepthKey] = this[currentDepthKey] - 1;
-
-		if(this === baseRouter)
-			result[isRoot] = true;
-
-		return result;
-	};
-
-	// Make depth of returned starting point 1 too big...
-	baseRouter[currentDepthKey] = options.maxDepth + 1;
-
-	// ...because a version of it with reduced depth by 1 is returned here:
-	return baseRouter[reduceDepthKey]();
-}
 
 module.exports = router;
