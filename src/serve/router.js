@@ -1,13 +1,14 @@
 "use strict";
 
-const Binding = require("owe-core").Binding,
-	filter = require("./filter");
+const Binding = require("owe-core").Binding;
+const filter = require("./filter");
+const exposed = require("../exposed");
 
 // Symbols:
-const noDestination = Symbol("noDestination"),
-	isRoot = Symbol("isRoot"),
-	currentDepthKey = Symbol("currentDepth"),
-	reduceDepthKey = Symbol("reduceDepth");
+const noDestination = Symbol("noDestination");
+const isRoot = Symbol("isRoot");
+const currentDepthKey = Symbol("currentDepth");
+const reduceDepthKey = Symbol("reduceDepth");
 
 function router(options) {
 	if(typeof options !== "object" || options === null)
@@ -61,7 +62,7 @@ function router(options) {
 
 		if(this[currentDepthKey] <= 0)
 			return function servedRouter() {
-				throw new Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
+				throw new exposed.Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
 			};
 
 		const result = function servedRouter(destination) {
@@ -112,14 +113,14 @@ const tools = {
 							return origin(destination);
 						}
 						if(options.mapRootFunction === "closer")
-							throw new Error(`'${destination}' could not be routed.`);
+							throw new exposed.Error(`'${destination}' could not be routed.`);
 						if(options.mapRootFunction === "call")
 							origin = origin();
 					}
 					if(destination in origin)
 						return origin[destination];
 				}
-				throw new Error(`'${destination}' could not be routed.`);
+				throw new exposed.Error(`'${destination}' could not be routed.`);
 			})).then(function(value) {
 				// Case 1: Function (not bound)
 				if(typeof value === "function" && !Binding.isBound(value)) {
@@ -152,10 +153,10 @@ const tools = {
 						else if(options.mapFunctions === "direct")
 							writable = true;
 						else
-							throw new Error(`'${destination}' could not be routed.`);
+							throw new exposed.Error(`'${destination}' could not be routed.`);
 					}
 					else
-						throw new Error(`'${destination}' could not be routed.`);
+						throw new exposed.Error(`'${destination}' could not be routed.`);
 				}
 
 				return value;
@@ -207,7 +208,7 @@ const tools = {
 					let errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${location.concat([destination]).join("/")}' is an end point and cannot be routed.`;
 
 					traversedRouter = function servedRouter() {
-						throw new Error(errorMessage);
+						throw new exposed.Error(errorMessage);
 					};
 
 					type = Binding.types.normal;

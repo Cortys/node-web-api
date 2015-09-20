@@ -1,6 +1,7 @@
 "use strict";
 
 const filter = require("./filter");
+const exposed = require("../exposed");
 
 function closer(options) {
 	if(typeof options !== "object" || options === null)
@@ -24,7 +25,7 @@ function closer(options) {
 			object[key] = data;
 		}
 		catch(err) {
-			throw new Error(`This route could not be closed with data '${data}'.`);
+			throw new exposed.Error(`This route could not be closed with data '${data}'.`);
 		}
 	}
 
@@ -34,7 +35,7 @@ function closer(options) {
 
 		return Promise.resolve(filter(this, this.value, options.filter, function(result) {
 			if(result === options.filterInverse)
-				throw new Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
+				throw new exposed.Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
 
 			if(typeof that.value === "function" && options.callFunctions)
 				return that.value(data);
@@ -46,7 +47,7 @@ function closer(options) {
 
 						return that.value;
 					}
-					throw new Error(`This route could not be closed with data '${data}'.`);
+					throw new exposed.Error(`This route could not be closed with data '${data}'.`);
 				});
 
 			return that.value;
