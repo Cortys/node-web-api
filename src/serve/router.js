@@ -90,11 +90,10 @@ const tools = {
 
 	handle(options, router, destination) {
 
-		const that = this,
-			location = this.location,
-			binding = this.binding;
+		const location = this.location;
+		const binding = this.binding;
 
-		var origin = this.value,
+		let origin = this.value,
 			writable, target;
 
 		if(destination !== noDestination) {
@@ -103,7 +102,7 @@ const tools = {
 				throw new TypeError(`Router expected object or function but got '${typeof origin === "symbol" ? "[symbol]" : origin}'.`);
 
 			writable = true;
-			target = Promise.resolve(filter(this, destination, options.filter, function(result) {
+			target = Promise.resolve(filter(this, destination, options.filter, result => {
 
 				if(result !== options.filterInverse) {
 					if(options.mapRootFunction && typeof origin === "function" && router[isRoot]) {
@@ -121,7 +120,7 @@ const tools = {
 						return origin[destination];
 				}
 				throw new exposed.Error(`'${destination}' could not be routed.`);
-			})).then(function(value) {
+			})).then(value => {
 				// Case 1: Function (not bound)
 				if(typeof value === "function" && !Binding.isBound(value)) {
 					// If function mapping is enabled and value was retrieved as an object property (writable = true):
@@ -133,10 +132,8 @@ const tools = {
 							let func = value;
 
 							value = Binding.bind(null, function generatedRouter(destination) {
-								const that = this;
-
-								return Promise.resolve(func.call(origin, destination)).then(function(result) {
-									return router.call(that.setValue({
+								return Promise.resolve(func.call(origin, destination)).then(result => {
+									return router.call(this.setValue({
 										value: result
 									}), noDestination);
 								});
@@ -167,12 +164,12 @@ const tools = {
 			target = Promise.resolve(origin);
 		}
 
-		return target.then(function(value) {
+		return target.then(value => {
 			// Case 2: Bound object (could be a function)
 			if(Binding.isBound(value))
 				return value;
 
-			return Promise.resolve(options.output.call(that, value)).then(function(value) {
+			return Promise.resolve(options.output.call(this, value)).then(value => {
 
 				if(Binding.isBound(value))
 					return value;
@@ -192,7 +189,7 @@ const tools = {
 
 				// Case 4: Object, origin should be traversed deeply
 
-				var targetValue, traversedRouter, type;
+				let targetValue, traversedRouter, type;
 
 				if((typeof value === "object" || typeof value === "function" && options.deepFunctions) && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
 					targetValue = value;

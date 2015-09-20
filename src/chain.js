@@ -97,9 +97,8 @@ function chain(input, options) {
 		};
 
 	return function servedChain() {
-		const that = this,
-			errs = [],
-			args = arguments;
+		const errs = [];
+		const args = arguments;
 
 		let i = 0,
 			result;
@@ -114,14 +113,12 @@ function chain(input, options) {
 				}
 
 				if(!result)
-					result = Promise.resolve().then(function() {
-						return v.apply(that, args);
-					});
+					result = Promise.resolve().then(() => v.apply(this, args));
 				else
-					result = result.catch(function(err) {
+					result = result.catch(err => {
 						handleErr.in(errs, err);
 
-						return v.apply(that, args);
+						return v.apply(this, args);
 					});
 			}
 

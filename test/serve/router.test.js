@@ -1,3 +1,7 @@
+/* jshint mocha: true */
+
+"use strict";
+
 const expect = require("expect.js");
 
 const owe = require("owe-core"),
@@ -568,7 +572,7 @@ function testRouter(routerGenerator) {
 			filter: filter
 		}), closer);
 
-		var dest;
+		let dest;
 
 		function filter(destination) {
 			expect(destination).to.be(dest);

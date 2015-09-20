@@ -1,3 +1,7 @@
+/* jshint mocha: true */
+
+"use strict";
+
 const expect = require("expect.js");
 
 const owe = require("owe-core"),
@@ -80,7 +84,7 @@ function testCloser(closerGenerator) {
 
 		it("should pass State and data of close to writable if it is a filter function", function() {
 
-			var foo = "bar";
+			let foo = "bar";
 
 			const o = {
 					get foo() {

@@ -10,16 +10,13 @@
  */
 
 module.exports = function(target, input, filter, callback) {
-	var result = false;
+	let result = false;
 
 	if(typeof filter === "boolean")
 		result = filter;
 	else if(typeof filter === "function") {
-		return Promise.resolve(filter.call(target, input)).then(function(result) {
-			return callback(!!result);
-		}, function() {
-			return callback(false);
-		});
+		return Promise.resolve(filter.call(target, input))
+			.then(result => callback(!!result), () => callback(false));
 	}
 	else if(filter instanceof RegExp)
 		result = filter.test(input);

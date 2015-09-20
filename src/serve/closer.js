@@ -15,9 +15,7 @@ function closer(options) {
 		},
 		filterInverse: !!options.filterInverse || false,
 		callFunctions: "callFunctions" in options ? options.callFunctions : true,
-		output: typeof options.output === "function" ? options.output : function(value) {
-			return value;
-		}
+		output: typeof options.output === "function" ? options.output : value => value
 	};
 
 	function tryWrite(object, key, data) {
@@ -30,31 +28,26 @@ function closer(options) {
 	}
 
 	return function servedCloser(data) {
-
-		const that = this;
-
-		return Promise.resolve(filter(this, this.value, options.filter, function(result) {
+		return Promise.resolve(filter(this, this.value, options.filter, result => {
 			if(result === options.filterInverse)
 				throw new exposed.Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
 
-			if(typeof that.value === "function" && options.callFunctions)
-				return that.value(data);
+			if(typeof this.value === "function" && options.callFunctions)
+				return this.value(data);
 
 			if(data !== undefined)
-				return filter(that, data, options.writable, function(result) {
+				return filter(this, data, options.writable, result => {
 					if(result !== options.writableInverse) {
-						tryWrite(that, "value", data);
+						tryWrite(this, "value", data);
 
-						return that.value;
+						return this.value;
 					}
 					throw new exposed.Error(`This route could not be closed with data '${data}'.`);
 				});
 
-			return that.value;
+			return this.value;
 
-		})).then(function(result) {
-			return options.output.call(that, result);
-		});
+		})).then(result => options.output.call(this, result));
 	};
 }
 

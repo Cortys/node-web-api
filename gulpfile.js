@@ -1,12 +1,24 @@
-var gulp = require("gulp"),
-	mocha = require("gulp-mocha");
+"use strict";
+
+const gulp = require("gulp");
+const mocha = require("gulp-mocha");
+const jscs = require("gulp-jscs");
+const runSequence = require("run-sequence");
+
+gulp.task("jscs", function() {
+	return gulp.src(["src/*.js", "test/*.test.js"]).pipe(jscs());
+});
 
 gulp.task("mocha", function() {
 	return gulp.src(["test/*.test.js"]).pipe(mocha());
 });
 
-gulp.task("watch-mocha", function() {
-	gulp.watch(["src/**", "test/**"], ["mocha"]);
+gulp.task("test", function(callback) {
+	runSequence("mocha", "jscs", callback);
 });
 
-gulp.task("default", ["mocha", "watch-mocha"]);
+gulp.task("watch", function() {
+	gulp.watch(["src/**", "test/**"], ["test"]);
+});
+
+gulp.task("default", ["watch", "test"]);
