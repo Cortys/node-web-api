@@ -2,9 +2,9 @@
 
 const owe = require("owe-core");
 
-function expose(obj) {
+function expose(obj, val) {
 	return owe.resource(obj, {
-		expose: true
+		expose: val === undefined ? true : val
 	});
 }
 

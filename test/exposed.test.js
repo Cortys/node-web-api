@@ -13,6 +13,10 @@ function isExposed(o) {
 
 describe(".exposed", function() {
 
+	it("should be aliased to .expose", function() {
+		expect(exposed).to.be(owe.expose);
+	});
+
 	it("should expose given objects when called", function() {
 		const o = {};
 		const f = function() {};
@@ -25,6 +29,22 @@ describe(".exposed", function() {
 		expect(isExposed(o)).to.be.ok();
 		expect(isExposed(f)).to.be.ok();
 		expect(isExposed(e)).to.be.ok();
+	});
+
+	it("should expose given objects with data when called with data", function() {
+		const o = {};
+		const f = function() {};
+		const e = new Error();
+
+		const data = Symbol("unique");
+
+		expect(exposed(o, data)).to.be(o);
+		expect(exposed(f, data)).to.be(f);
+		expect(exposed(e, data)).to.be(e);
+
+		expect(isExposed(o)).to.be(data);
+		expect(isExposed(f)).to.be(data);
+		expect(isExposed(e)).to.be(data);
 	});
 
 	describe(".Error instance", function() {

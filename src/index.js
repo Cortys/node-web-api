@@ -14,6 +14,6 @@ owe.reroute = require("./reroute");
 owe.chain = require("./chain");
 
 // Contains aliases for the default errors, exposing its message:
-owe.exposed = require("./exposed");
+owe.exposed = owe.expose = require("./exposed");
 
 module.exports = owe;
