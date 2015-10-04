@@ -12,6 +12,9 @@
 module.exports = function(target, input, filter, callback) {
 	let result = false;
 
+	if(!callback)
+		callback = result => result;
+
 	if(typeof filter === "boolean")
 		result = filter;
 	else if(typeof filter === "function") {

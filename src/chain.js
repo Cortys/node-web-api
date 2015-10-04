@@ -108,7 +108,7 @@ function chain(input, options) {
 			if(v != null) {
 
 				if(typeof v !== "function") {
-					result = Promise.reject(new TypeError(`${v} at position ${i} could not be used as a function for fallthrough.`));
+					result = Promise.reject(new TypeError(`'${v}' at position ${i} could not be used as a function for fallthrough.`));
 					break;
 				}
 

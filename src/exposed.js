@@ -23,5 +23,9 @@ module.exports = Object.assign(expose, {
 	TypeError: subclassError(TypeError),
 	ReferenceError: subclassError(ReferenceError),
 	RangeError: subclassError(RangeError),
-	SyntaxError: subclassError(SyntaxError)
+	SyntaxError: subclassError(SyntaxError),
+
+	is(object) {
+		return !!owe.resource(object).expose;
+	}
 });

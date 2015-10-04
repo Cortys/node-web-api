@@ -47,6 +47,33 @@ describe(".exposed", function() {
 		expect(isExposed(e)).to.be(data);
 	});
 
+	describe(".is", function() {
+
+		it("should be aliased to .isExposed", function() {
+			expect(exposed.is).to.be(owe.isExposed);
+		});
+
+		it("should return true when given an exposed object", function() {
+			const o = exposed({});
+			const f = exposed(function() {});
+			const e = exposed(new Error());
+
+			expect(exposed.is(o)).to.be(true);
+			expect(exposed.is(f)).to.be(true);
+			expect(exposed.is(e)).to.be(true);
+		});
+
+		it("should return false when given a non exposed object", function() {
+			const o = {};
+			const f = function() {};
+			const e = new Error();
+
+			expect(exposed.is(o)).to.be(false);
+			expect(exposed.is(f)).to.be(false);
+			expect(exposed.is(e)).to.be(false);
+		});
+	});
+
 	describe(".Error instance", function() {
 		const err = new exposed.Error();
 

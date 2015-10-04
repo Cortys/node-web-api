@@ -6,7 +6,7 @@ const jscs = require("gulp-jscs");
 const runSequence = require("run-sequence");
 
 gulp.task("jscs", function() {
-	return gulp.src(["src/*.js", "test/*.test.js"]).pipe(jscs());
+	return gulp.src(["src/**/*.js", "test/**/*.test.js"]).pipe(jscs());
 });
 
 gulp.task("mocha", function() {

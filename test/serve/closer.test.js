@@ -19,6 +19,7 @@ describe(".closer", function() {
 function testCloser(closerGenerator) {
 
 	const router = owe.serve.router({
+		writable: true,
 		mapFunctions: "direct"
 	});
 
@@ -38,7 +39,7 @@ function testCloser(closerGenerator) {
 				expect().fail("foo should not be closable with data.");
 			}, function(err) {
 				expect(err.type).to.be("close");
-				expect(err.message).to.be("This route could not be closed with data 'baz'.");
+				expect(err.message).to.be("This route could not be closed with the given data.");
 				expect(o.foo).to.be("bar");
 			});
 		});
@@ -69,12 +70,14 @@ function testCloser(closerGenerator) {
 
 		it("should write object properties if enabled", function() {
 			const o = {
-					foo: "bar"
-				},
-				api = owe.api(o, router, closerGenerator({
-					writable: false,
-					writableInverse: true
-				}));
+				foo: "bar"
+			};
+			const api = owe.api(o, router, closerGenerator({
+				writable: false,
+				writableInverse: true
+			}));
+
+			expect(o.foo).to.be("bar");
 
 			return api.route("foo").close("baz").then(function(result) {
 				expect(result).to.be("baz");

@@ -16,4 +16,6 @@ owe.chain = require("./chain");
 // Contains aliases for the default errors, exposing its message:
 owe.exposed = owe.expose = require("./exposed");
 
+owe.isExposed = owe.exposed.is;
+
 module.exports = owe;

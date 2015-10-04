@@ -19,7 +19,12 @@ describe(".router", function() {
 
 function testRouter(routerGenerator) {
 
-	const closer = function() {
+	const closer = function(value) {
+
+		// Change the value if another one was given:
+		if(value !== undefined)
+			this.value = value;
+
 		return this.value; // Just output the given input.
 	};
 
@@ -473,8 +478,6 @@ function testRouter(routerGenerator) {
 
 		it("router: should map functions to be a router", function() {
 
-			"use strict";
-
 			const router = routerGenerator({
 				mapFunctions: "router",
 				mapRootFunction: "router",
@@ -517,8 +520,6 @@ function testRouter(routerGenerator) {
 		});
 
 		it("closer: should map functions to be a closer", function() {
-
-			"use strict";
 
 			const router = routerGenerator({
 				mapFunctions: "closer",
@@ -563,24 +564,23 @@ function testRouter(routerGenerator) {
 	});
 
 	describe("filter", function() {
+
+		let dest;
+
 		const o = owe({
 			a: "John Doe",
 			b: "Adam Smith",
 			foo: [1, 2, 3.4],
 			baz: true
 		}, routerGenerator({
-			filter: filter
+			filter(destination) {
+				expect(destination).to.be(dest);
+				expect(this.value).to.be(o);
+				expect(this.location).to.eql([]);
+
+				return destination.length == 1;
+			}
 		}), closer);
-
-		let dest;
-
-		function filter(destination) {
-			expect(destination).to.be(dest);
-			expect(this.value).to.be(o);
-			expect(this.location).to.eql([]);
-
-			return destination.length == 1;
-		}
 
 		it("should filter with functions", function() {
 			return owe.api(o).route(dest = "a").then(function() {
@@ -617,6 +617,46 @@ function testRouter(routerGenerator) {
 				filter: false,
 				filterInverse: true
 			}), closer, true).route("a");
+		});
+	});
+
+	describe("writable", function() {
+		const o = owe({
+			a: "John Doe",
+			A: "Adam Smith"
+		}, routerGenerator({
+			writable(destination) {
+				expect(this.value).to.be(o);
+				expect(this.location).to.eql([]);
+
+				return destination.toLowerCase() === destination;
+			},
+			filter: true
+		}), closer);
+
+		it("should filter with functions", function() {
+			return owe.api(o).route("a").close("X").then(function(val) {
+				expect(val).to.be("X");
+				expect(o.a).to.be("X");
+
+				return owe.api(o).route("A").close("Y");
+			}).then(function() {
+				expect().fail("A should not be writable.");
+			}, function(err) {
+				expect(o.a).to.be("X");
+				expect(err.type).to.be("close");
+				expect(err.location).to.eql(["A"]);
+			});
+		});
+
+		it("should invert if writableInverse is set", function() {
+			return owe.api(o, routerGenerator({
+				writable: false,
+				writableInverse: true
+			}), closer, true).route("a").close("Z").then(function(val) {
+				expect(val).to.be("Z");
+				expect(o.a).to.be("Z");
+			});
 		});
 	});
 

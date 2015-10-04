@@ -24,9 +24,9 @@ function router(options) {
 		mapRootFunction: options.mapRootFunction || false,
 		filter: "filter" in options ? options.filter : true,
 		filterInverse: !!options.filterInverse || false,
-		output: typeof options.output === "function" ? options.output : function(value) {
-			return value;
-		}
+		writable: options.writable || false,
+		writableInverse: options.writableInverse || false,
+		output: typeof options.output === "function" ? options.output : value => value
 	};
 
 	if(Number.isNaN(options.maxDepth) || options.maxDepth < 1)
@@ -102,7 +102,7 @@ const tools = {
 				throw new TypeError(`Router expected object or function but got '${typeof origin === "symbol" ? "[symbol]" : origin}'.`);
 
 			writable = true;
-			target = Promise.resolve(filter(this, destination, options.filter, result => {
+			target = Promise.resolve(filter(this, destination, options.filter)).then(result => {
 
 				if(result !== options.filterInverse) {
 					if(options.mapRootFunction && typeof origin === "function" && router[isRoot]) {
@@ -120,7 +120,7 @@ const tools = {
 						return origin[destination];
 				}
 				throw new exposed.Error(`'${destination}' could not be routed.`);
-			})).then(value => {
+			}).then(value => {
 				// Case 1: Function (not bound)
 				if(typeof value === "function" && !Binding.isBound(value)) {
 					// If function mapping is enabled and value was retrieved as an object property (writable = true):
@@ -169,7 +169,13 @@ const tools = {
 			if(Binding.isBound(value))
 				return value;
 
-			return Promise.resolve(options.output.call(this, value)).then(value => {
+			return Promise.all([
+				options.output.call(this, value),
+				writable && filter(this, destination, options.writable)
+			]).then(res => {
+
+				let value = res[0];
+				const writable = res[1] !== options.writableInverse;
 
 				if(Binding.isBound(value))
 					return value;
@@ -184,7 +190,7 @@ const tools = {
 						value = newValue;
 					}
 				} : {
-					value: value
+					value
 				};
 
 				// Case 4: Object, origin should be traversed deeply

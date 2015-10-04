@@ -23,14 +23,18 @@ function closer(options) {
 			object[key] = data;
 		}
 		catch(err) {
-			throw new exposed.Error(`This route could not be closed with data '${data}'.`);
+
+			if(exposed.is(err))
+				throw err;
+
+			throw new exposed.Error(`This route could not be closed with the given data.`);
 		}
 	}
 
 	return function servedCloser(data) {
-		return Promise.resolve(filter(this, this.value, options.filter, result => {
+		return Promise.resolve(filter(this, this.value, options.filter)).then(result => {
 			if(result === options.filterInverse)
-				throw new exposed.Error("This route could not be closed" + (data !== undefined ? ` with data '${data}'.` : "."));
+				throw new exposed.Error("This route could not be closed" + (data !== undefined ? ` with the given data.` : "."));
 
 			if(typeof this.value === "function" && options.callFunctions)
 				return this.value(data);
@@ -42,12 +46,12 @@ function closer(options) {
 
 						return this.value;
 					}
-					throw new exposed.Error(`This route could not be closed with data '${data}'.`);
+					throw new exposed.Error(`This route could not be closed with the given data.`);
 				});
 
 			return this.value;
 
-		})).then(result => options.output.call(this, result));
+		}).then(result => options.output.call(this, result));
 	};
 }
 
