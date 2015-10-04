@@ -187,7 +187,7 @@ const tools = {
 					},
 					set(newValue) {
 						origin[destination] = newValue;
-						value = newValue;
+						value = origin[destination];
 					}
 				} : {
 					value
