@@ -1,5 +1,5 @@
 {
-	"name": "owe",
+	"name": "owe.js",
 	"version": "0.6.4",
 	"description": "A Node.js wrapper for protocol independent web API exposal.",
 	"keywords": [
