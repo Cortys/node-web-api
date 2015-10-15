@@ -7,7 +7,7 @@ const expect = require("expect.js");
 const owe = require("../src");
 const exposed = owe.exposed;
 
-function isExposed(o) {
+function exposedValue(o) {
 	return owe.resource(o).expose;
 }
 
@@ -26,9 +26,9 @@ describe(".exposed", function() {
 		expect(exposed(f)).to.be(f);
 		expect(exposed(e)).to.be(e);
 
-		expect(isExposed(o)).to.be.ok();
-		expect(isExposed(f)).to.be.ok();
-		expect(isExposed(e)).to.be.ok();
+		expect(exposedValue(o)).to.be.ok();
+		expect(exposedValue(f)).to.be.ok();
+		expect(exposedValue(e)).to.be.ok();
 	});
 
 	it("should expose given objects with data when called with data", function() {
@@ -42,9 +42,9 @@ describe(".exposed", function() {
 		expect(exposed(f, data)).to.be(f);
 		expect(exposed(e, data)).to.be(e);
 
-		expect(isExposed(o)).to.be(data);
-		expect(isExposed(f)).to.be(data);
-		expect(isExposed(e)).to.be(data);
+		expect(exposedValue(o)).to.be(data);
+		expect(exposedValue(f)).to.be(data);
+		expect(exposedValue(e)).to.be(data);
 	});
 
 	describe(".is", function() {
@@ -74,6 +74,43 @@ describe(".exposed", function() {
 		});
 	});
 
+	describe(".properties", function() {
+		it("should expose the given properties of an object", function() {
+			const o = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: 4
+			};
+
+			exposed.properties(o, ["b", "d"]);
+
+			expect(exposedValue(o)).to.eql({
+				b: 2,
+				d: 4
+			});
+		});
+
+		it("should expose and map object properties when given a map", function() {
+			const o = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: 4
+			};
+
+			exposed.properties(o, new Map([
+				["b", "a"],
+				["d", "c"]
+			]));
+
+			expect(exposedValue(o)).to.eql({
+				a: 2,
+				c: 4
+			});
+		});
+	});
+
 	describe(".Error instance", function() {
 		const err = new exposed.Error();
 
@@ -82,7 +119,7 @@ describe(".exposed", function() {
 		});
 
 		it("should be exposed", function() {
-			expect(isExposed(err)).to.be.ok();
+			expect(exposedValue(err)).to.be.ok();
 		});
 	});
 
@@ -94,7 +131,7 @@ describe(".exposed", function() {
 		});
 
 		it("should be exposed", function() {
-			expect(isExposed(err)).to.be.ok();
+			expect(exposedValue(err)).to.be.ok();
 		});
 	});
 
@@ -106,7 +143,7 @@ describe(".exposed", function() {
 		});
 
 		it("should be exposed", function() {
-			expect(isExposed(err)).to.be.ok();
+			expect(exposedValue(err)).to.be.ok();
 		});
 	});
 
@@ -118,7 +155,7 @@ describe(".exposed", function() {
 		});
 
 		it("should be exposed", function() {
-			expect(isExposed(err)).to.be.ok();
+			expect(exposedValue(err)).to.be.ok();
 		});
 	});
 
@@ -130,7 +167,7 @@ describe(".exposed", function() {
 		});
 
 		it("should be exposed", function() {
-			expect(isExposed(err)).to.be.ok();
+			expect(exposedValue(err)).to.be.ok();
 		});
 	});
 });
