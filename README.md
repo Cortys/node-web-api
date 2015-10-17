@@ -1,6 +1,6 @@
 # ![owe.js](logo.png)
 
-[![npm](https://img.shields.io/npm/v/owe.js.svg)](https://www.npmjs.com/package/owe.js) [![Travis CI](https://api.travis-ci.org/runnr/owe.js.svg)](https://travis-ci.org/runnr/owe)
+[![npm](https://img.shields.io/npm/v/owe.js.svg)](https://www.npmjs.com/package/owe.js) [![Travis CI](https://api.travis-ci.org/runnr/owe.svg)](https://travis-ci.org/runnr/owe)
 
 **O**bject **W**eb **E**xposer.
 
