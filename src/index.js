@@ -13,7 +13,10 @@ owe.reroute = require("./reroute");
 // Chains multiple router and/or closer functions to one fallthrough function:
 owe.chain = require("./chain");
 
-// Contains aliases for the default errors, exposing its message:
+// Switches between multiple given router and/or closer functions:
+owe.switch = require("./switch");
+
+// Sets exposal value for objects, contains exposed aliases for the default errors, exposes object subsets by keys:
 owe.exposed = owe.expose = require("./exposed");
 
 owe.isExposed = owe.exposed.is;
