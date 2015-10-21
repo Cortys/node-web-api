@@ -8,7 +8,7 @@ function chain(input, options) {
 	options = {
 		mode: options.mode || "auto",
 		errors: options.errors || "all",
-		removeNonErrors: options.removeNonErrors || false
+		removeNonErrors: options.removeNonErrors || true
 	};
 
 	let firstVal;
@@ -27,10 +27,10 @@ function chain(input, options) {
 	if(options.mode === "object") {
 		const result = {};
 
-		for(let key of Object.keys(firstVal)) {
+		for(const key of Object.keys(firstVal)) {
 
 			const generator = function*() {
-				for(let val of input)
+				for(const val of input)
 					yield typeof val === "object" && val !== null && val[key] || undefined;
 			};
 
@@ -104,9 +104,7 @@ function chain(input, options) {
 			result;
 
 		for(let v of input) {
-
 			if(v != null) {
-
 				if(typeof v !== "function") {
 					result = Promise.reject(new TypeError(`'${v}' at position ${i} could not be used as a function for fallthrough.`));
 					break;
@@ -121,7 +119,6 @@ function chain(input, options) {
 						return v.apply(this, args);
 					});
 			}
-
 			i++;
 		}
 
