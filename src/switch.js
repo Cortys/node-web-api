@@ -9,8 +9,9 @@ function oweSwitch(switcher, cases) {
 	if(cases && typeof cases === "object") {
 		const firstCase = cases[Object.keys(cases)[0]];
 		const objectMode = firstCase && typeof firstCase === "object";
+		const keys = Object.keys(firstCase);
 
-		if(objectMode) {
+		if(objectMode && keys.length > 0) {
 			const switcherGenerator = key => oweSwitch(function(input) {
 				const val = cases[switcher.call(this, input)];
 
@@ -18,7 +19,7 @@ function oweSwitch(switcher, cases) {
 			});
 			const res = {};
 
-			for(const key of Object.keys(firstCase))
+			for(const key of keys)
 				Object.defineProperty(res, key, typeof firstCase[key] === "function" ? {
 					enumerable: true,
 					value: switcherGenerator(key)
