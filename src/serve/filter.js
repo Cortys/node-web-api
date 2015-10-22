@@ -9,7 +9,7 @@
  * @param {any} filter - The filter
  */
 
-module.exports = function(target, input, filter, callback) {
+module.exports = function filterTool(target, input, filter, callback) {
 	let result = false;
 
 	if(!callback)
@@ -19,7 +19,8 @@ module.exports = function(target, input, filter, callback) {
 		result = filter;
 	else if(typeof filter === "function") {
 		return Promise.resolve(filter.call(target, input))
-			.then(result => callback(!!result), () => callback(false));
+			.then(result => filterTool(target, input, result))
+			.then(callback, () => callback(false));
 	}
 	else if(filter instanceof RegExp)
 		result = filter.test(input);

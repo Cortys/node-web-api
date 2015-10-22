@@ -19,7 +19,13 @@ function oweSwitch(switcher, cases) {
 			const res = {};
 
 			for(const key of Object.keys(firstCase))
-				res[key] = switcherGenerator(key);
+				Object.defineProperty(res, key, typeof firstCase[key] === "function" ? {
+					enumerable: true,
+					value: switcherGenerator(key)
+				} : {
+					enumerable: true,
+					get: switcherGenerator(key)
+				});
 
 			return res;
 		}
@@ -35,7 +41,7 @@ function oweSwitch(switcher, cases) {
 		let res = switcher.call(this, input);
 
 		if(typeof res !== "function")
-			return;
+			return res;
 
 		return res.call(this, input);
 	};

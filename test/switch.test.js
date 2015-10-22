@@ -43,7 +43,7 @@ describe(".switch", function() {
 		expect(oweSwitch.call(3, 4)).to.be("b34");
 	});
 
-	it("should return an object with functions if the given cases are objects", function() {
+	it("should return an object if the given cases are objects", function() {
 		const test = {
 			a: {
 				x(p) {
@@ -51,7 +51,8 @@ describe(".switch", function() {
 				},
 				y(p) {
 					return "ay" + this + p;
-				}
+				},
+				z: "az"
 			},
 			b: {
 				x(p) {
@@ -59,7 +60,8 @@ describe(".switch", function() {
 				},
 				y(p) {
 					return "by" + this + p;
-				}
+				},
+				z: "bz"
 			}
 		};
 		let s = false;
@@ -69,5 +71,7 @@ describe(".switch", function() {
 		expect(oweSwitch.y.call(1, 2)).to.be("by12");
 		expect(oweSwitch.y.call(3, 4)).to.be("ay34");
 		expect(oweSwitch.x.call(3, 4)).to.be("bx34");
+		expect(oweSwitch.z).to.be("az");
+		expect(oweSwitch.z).to.be("bz");
 	});
 });
