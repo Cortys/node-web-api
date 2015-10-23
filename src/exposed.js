@@ -4,7 +4,7 @@ const owe = require("owe-core");
 
 function expose(obj, val) {
 	return owe.resource(obj, {
-		expose: val === undefined ? true : val
+		expose: arguments.length === 1 ? true : val
 	});
 }
 
@@ -27,6 +27,10 @@ module.exports = Object.assign(expose, {
 
 	is(object) {
 		return !!owe.resource(object).expose;
+	},
+
+	value(object) {
+		return owe.resource(object).expose;
 	},
 
 	properties(obj, properties) {

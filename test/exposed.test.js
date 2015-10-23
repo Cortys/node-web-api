@@ -48,15 +48,14 @@ describe(".exposed", function() {
 	});
 
 	describe(".is", function() {
-
 		it("should be aliased to .isExposed", function() {
 			expect(exposed.is).to.be(owe.isExposed);
 		});
 
 		it("should return true when given an exposed object", function() {
 			const o = exposed({});
-			const f = exposed(function() {});
-			const e = exposed(new Error());
+			const f = exposed(function() {}, true);
+			const e = exposed(new Error(), "one");
 
 			expect(exposed.is(o)).to.be(true);
 			expect(exposed.is(f)).to.be(true);
@@ -71,6 +70,20 @@ describe(".exposed", function() {
 			expect(exposed.is(o)).to.be(false);
 			expect(exposed.is(f)).to.be(false);
 			expect(exposed.is(e)).to.be(false);
+		});
+	});
+
+	describe(".value", function() {
+		it("should return the exposed value", function() {
+			const o = exposed({});
+			const f = exposed(function() {}, {});
+			const e = exposed(new Error(), "one");
+			const n = {};
+
+			expect(exposed.value(o)).to.be(true);
+			expect(exposed.value(f)).to.eql({});
+			expect(exposed.value(e)).to.be("one");
+			expect(exposed.value(n)).to.be(undefined);
 		});
 	});
 
