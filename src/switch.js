@@ -12,8 +12,8 @@ function oweSwitch(switcher, cases, fallback) {
 		const keys = objectMode && Object.keys(firstCase);
 
 		if(keys && keys.length > 0) {
-			const switcherGenerator = key => oweSwitch(function(input) {
-				const caseKey = switcher.call(this, input);
+			const switcherGenerator = key => oweSwitch(function() {
+				const caseKey = switcher.apply(this, arguments);
 				const val = caseKey in cases ? cases[caseKey] : fallback;
 
 				return val && typeof val === "object" && val[key];
@@ -32,8 +32,8 @@ function oweSwitch(switcher, cases, fallback) {
 			return res;
 		}
 
-		return oweSwitch(function(input) {
-			const caseKey = switcher.call(this, input);
+		return oweSwitch(function() {
+			const caseKey = switcher.apply(this, arguments);
 
 			return caseKey in cases ? cases[caseKey] : fallback;
 		});
@@ -41,13 +41,13 @@ function oweSwitch(switcher, cases, fallback) {
 
 	/* Using fully customized switchers: */
 
-	return function servedSwitch(input) {
-		let res = switcher.call(this, input);
+	return function servedSwitch() {
+		let res = switcher.apply(this, arguments);
 
 		if(typeof res !== "function")
 			return res;
 
-		return res.call(this, input);
+		return res.apply(this, arguments);
 	};
 }
 
