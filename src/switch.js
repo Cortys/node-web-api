@@ -1,6 +1,6 @@
 "use strict";
 
-function oweSwitch(switcher, cases) {
+function oweSwitch(switcher, cases, fallback) {
 	if(typeof switcher !== "function")
 		throw new TypeError("A switcher has to be a function.");
 
@@ -9,11 +9,12 @@ function oweSwitch(switcher, cases) {
 	if(cases && typeof cases === "object") {
 		const firstCase = cases[Object.keys(cases)[0]];
 		const objectMode = firstCase && typeof firstCase === "object";
-		const keys = Object.keys(firstCase);
+		const keys = objectMode && Object.keys(firstCase);
 
-		if(objectMode && keys.length > 0) {
+		if(keys && keys.length > 0) {
 			const switcherGenerator = key => oweSwitch(function(input) {
-				const val = cases[switcher.call(this, input)];
+				const caseKey = switcher.call(this, input);
+				const val = caseKey in cases ? cases[caseKey] : fallback;
 
 				return val && typeof val === "object" && val[key];
 			});
@@ -32,7 +33,9 @@ function oweSwitch(switcher, cases) {
 		}
 
 		return oweSwitch(function(input) {
-			return cases[switcher.call(this, input)];
+			const caseKey = switcher.call(this, input);
+
+			return caseKey in cases ? cases[caseKey] : fallback;
 		});
 	}
 
