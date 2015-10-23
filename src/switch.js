@@ -42,12 +42,9 @@ function oweSwitch(switcher, cases, fallback) {
 	/* Using fully customized switchers: */
 
 	return function servedSwitch() {
-		let res = switcher.apply(this, arguments);
+		const res = switcher.apply(this, arguments);
 
-		if(typeof res !== "function")
-			return res;
-
-		return res.apply(this, arguments);
+		return typeof res === "function" ? res.apply(this, arguments) : res;
 	};
 }
 
