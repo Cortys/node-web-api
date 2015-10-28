@@ -103,7 +103,7 @@ function chain(input, options) {
 		let i = 0,
 			result;
 
-		for(let v of input) {
+		for(const v of input) {
 			if(v != null) {
 				if(typeof v !== "function") {
 					result = Promise.reject(new TypeError(`'${v}' at position ${i} could not be used as a function for fallthrough.`));
@@ -123,7 +123,7 @@ function chain(input, options) {
 		}
 
 		if(result)
-			return result.catch(function(err) {
+			return result.catch(err => {
 				handleErr.in(errs, err);
 				throw handleErr.out(errs);
 			});

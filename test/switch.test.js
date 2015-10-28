@@ -1,21 +1,18 @@
-/* jshint mocha: true */
-
 "use strict";
 
 const expect = require("expect.js");
 
 const owe = require("../src");
 
-describe(".switch", function() {
-
-	describe("without given cases", function() {
-		it("should behave like the function returned by switcher", function() {
+describe(".switch", () => {
+	describe("without given cases", () => {
+		it("should behave like the function returned by switcher", () => {
 			const test = {
 				a(p, q) {
-					return "a" + this + p + q;
+					return `a${this}${p}${q}`;
 				},
 				b(p, q) {
-					return "b" + this + p + q;
+					return `b${this}${p}${q}`;
 				}
 			};
 			let s = false;
@@ -27,7 +24,7 @@ describe(".switch", function() {
 			expect(oweSwitch.call(3, 4, 5)).to.be("b345");
 		});
 
-		it("should return the return value of switcher if it is not a function", function() {
+		it("should return the return value of switcher if it is not a function", () => {
 			const test = {
 				a: "x",
 				b: "y"
@@ -40,14 +37,14 @@ describe(".switch", function() {
 		});
 	});
 
-	describe("with given cases", function() {
-		it("should behave like the function stored for the key that was returned by the switcher", function() {
+	describe("with given cases", () => {
+		it("should behave like the function stored for the key that was returned by the switcher", () => {
 			const test = {
 				a(p, q) {
-					return "a" + this + p + q;
+					return `a${this}${p}${q}`;
 				},
 				b(p, q) {
-					return "b" + this + p + q;
+					return `b${this}${p}${q}`;
 				}
 			};
 			let s = false;
@@ -59,7 +56,7 @@ describe(".switch", function() {
 			expect(oweSwitch.call(3, 4, 5)).to.be("b345");
 		});
 
-		it("if the value of the key returned by the switcher is not a function, it should be returned", function() {
+		it("if the value of the key returned by the switcher is not a function, it should be returned", () => {
 			const test = {
 				a: "x",
 				b: "y"
@@ -71,23 +68,23 @@ describe(".switch", function() {
 			expect(oweSwitch()).to.be("y");
 		});
 
-		it("should return an object if the given cases are objects", function() {
+		it("should return an object if the given cases are objects", () => {
 			const test = {
 				a: {
 					x(p, q) {
-						return "ax" + this + p + q;
+						return `ax${this}${p}${q}`;
 					},
 					y(p, q) {
-						return "ay" + this + p + q;
+						return `ay${this}${p}${q}`;
 					},
 					z: "az"
 				},
 				b: {
 					x(p, q) {
-						return "bx" + this + p + q;
+						return `bx${this}${p}${q}`;
 					},
 					y(p, q) {
-						return "by" + this + p + q;
+						return `by${this}${p}${q}`;
 					},
 					z: "bz"
 				}
@@ -103,7 +100,7 @@ describe(".switch", function() {
 			expect(oweSwitch.z).to.be("bz");
 		});
 
-		it("should use the given fallback param if no case matches the switcher result", function() {
+		it("should use the given fallback param if no case matches the switcher result", () => {
 			const oweSwitch1 = owe.switch(() => "a", {}, word => `${word} works`);
 			const oweSwitch2 = owe.switch(() => "a", {}, "it works");
 

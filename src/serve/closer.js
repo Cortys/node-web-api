@@ -34,7 +34,7 @@ function closer(options) {
 	return function servedCloser(data) {
 		return Promise.resolve(filter(this, this.value, options.filter)).then(result => {
 			if(result === options.filterInverse)
-				throw new exposed.Error("This route could not be closed" + (data !== undefined ? ` with the given data.` : "."));
+				throw new exposed.Error(`This route could not be closed${data !== undefined ? " with the given data." : "."}`);
 
 			if(typeof this.value === "function" && options.callFunctions)
 				return this.value(data);

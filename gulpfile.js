@@ -2,22 +2,25 @@
 
 const gulp = require("gulp");
 const mocha = require("gulp-mocha");
-const jscs = require("gulp-jscs");
+const eslint = require("gulp-eslint");
 const runSequence = require("run-sequence");
 
-gulp.task("jscs", function() {
-	return gulp.src(["src/**/*.js", "test/**/*.test.js"]).pipe(jscs());
+gulp.task("eslint", () => {
+	return gulp.src(["src/**/*.js", "test/**/*.test.js"])
+		.pipe(eslint())
+		.pipe(eslint.format())
+		.pipe(eslint.failOnError());
 });
 
-gulp.task("mocha", function() {
+gulp.task("mocha", () => {
 	return gulp.src(["test/*.test.js"]).pipe(mocha());
 });
 
-gulp.task("test", function(callback) {
-	runSequence("mocha", "jscs", callback);
+gulp.task("test", callback => {
+	runSequence("mocha", "eslint", callback);
 });
 
-gulp.task("watch", function() {
+gulp.task("watch", () => {
 	gulp.watch(["src/**", "test/**"], ["test"]);
 });
 

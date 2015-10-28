@@ -25,7 +25,7 @@ function rerouteGenerator(method, object) {
 		if(!binding)
 			throw new TypeError("Only bound objects can be a rerouting target.");
 
-		return binding[method](this.location, this.origin, data);
+		return binding[method](this.route, this.origin, data);
 	};
 }
 

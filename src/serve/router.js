@@ -90,7 +90,7 @@ const tools = {
 
 	handle(options, router, destination) {
 
-		const location = this.location;
+		const route = this.route;
 		const binding = this.binding;
 
 		let origin = this.value,
@@ -129,7 +129,7 @@ const tools = {
 
 						// If functions should be mapped to being a router:
 						if(options.mapFunctions === "router") {
-							let func = value;
+							const func = value;
 
 							value = Binding.bind(null, function generatedRouter(destination) {
 								return Promise.resolve(func.call(origin, destination)).then(result => {
@@ -140,7 +140,7 @@ const tools = {
 							}, binding.closer);
 						}
 						else if(options.mapFunctions === "closer")
-							value = Binding.bind(null, function() {}, value.bind(origin));
+							value = Binding.bind(null, () => undefined, value.bind(origin));
 						else if(options.mapFunctions === "call")
 							value = value.call(origin);
 						else if(options.mapFunctions === "member") {
@@ -208,7 +208,7 @@ const tools = {
 				else {
 					targetValue = null;
 
-					let errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${location.concat([destination]).join("/")}' is an end point and cannot be routed.`;
+					const errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${route.concat([destination]).join("/")}' is an end point and cannot be routed.`;
 
 					traversedRouter = function servedRouter() {
 						throw new exposed.Error(errorMessage);

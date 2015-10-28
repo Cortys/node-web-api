@@ -1,5 +1,3 @@
-/* jshint mocha: true */
-
 "use strict";
 
 const expect = require("expect.js");
@@ -8,8 +6,8 @@ const owe = require("owe-core"),
 	router = owe.serve.router,
 	Binding = owe.Binding;
 
-describe(".router", function() {
-	it("should return a function", function() {
+describe(".router", () => {
+	it("should return a function", () => {
 		expect(router()).to.be.a("function");
 	});
 
@@ -28,38 +26,33 @@ function testRouter(routerGenerator) {
 		return this.value; // Just output the given input.
 	};
 
-	describe("default", function() {
-
+	describe("default", () => {
 		const router = routerGenerator();
 
-		it("should route functions at root as objects", function() {
-
-			const f = function(a) {
-					return "test";
-				},
+		it("should route functions at root as objects", () => {
+			const f = () => "test",
 				api = owe.api(f, router, closer);
 
 			f.path = 42;
 
-			return api.route("path").then(function(result) {
+			return api.route("path").then(result => {
 				expect(result).to.be(42);
 			});
 		});
 
-		it("should route objects as objects", function() {
+		it("should route objects as objects", () => {
 
 			const api = owe.api({
 				path: "Hello World!"
 			}, router, closer);
 
-			return api.route("path").then(function(result) {
+			return api.route("path").then(result => {
 				expect(result).to.be("Hello World!");
 			});
 
 		});
 
-		it("should not traverse objects deeply", function() {
-
+		it("should not traverse objects deeply", () => {
 			const o = {
 					foo: {
 						bar: {
@@ -70,32 +63,32 @@ function testRouter(routerGenerator) {
 				api = owe.api(o, router, closer);
 
 			return Promise.all([
-				api.route("foo").then(function(result) {
+				api.route("foo").then(result => {
 					expect(result).to.be(o.foo);
 				}),
-				api.route("foo").route("bar").route("baz").then(function() {
+				api.route("foo").route("bar").route("baz").then(() => {
 					expect().fail("Traversing into an object should be disabled.");
-				}, function(err) {
+				}, err => {
 					expect(err.message).to.be("Object at position 'foo' is an end point and cannot be routed.");
 					expect(err.type).to.be("route");
-					expect(err.location).to.eql(["foo", "bar"]);
+					expect(err.route).to.eql(["foo", "bar"]);
 				})
 			]);
 
 		});
 
-		it("should output member functions bound to the object they came from", function() {
+		it("should output member functions bound to the object they came from", () => {
 			const o = {
-					test: function() {
-						if(arguments.length)
-							return arguments.length;
+				test() {
+					if(arguments.length)
+						return arguments.length;
 
-						return this;
-					}
-				},
-				api = owe.api(o, router, closer);
+					return this;
+				}
+			};
+			const api = owe.api(o, router, closer);
 
-			return api.route("test").then(function(result) {
+			return api.route("test").then(result => {
 				expect(result(1, 2, 9, 4, null, 6, "7")).to.be(7);
 				expect(result()).to.be(o);
 			});
@@ -103,87 +96,87 @@ function testRouter(routerGenerator) {
 
 	});
 
-	describe("deep traversing", function() {
+	describe("deep traversing", () => {
 
 		function defaultRequirements(router, options) {
 
 			if(options.objects)
-				it("should traverse normal objects", function() {
+				it("should traverse normal objects", () => {
 
 					const o = {
-							foo: {
-								bar: {
-									baz: Symbol("test")
-								}
+						foo: {
+							bar: {
+								baz: Symbol("test")
 							}
-						},
-						api = owe.api(o, router, closer).route("foo");
+						}
+					};
+					const api = owe.api(o, router, closer).route("foo");
 
 					return Promise.all([
-						api.then(function(result) {
+						api.then(result => {
 							expect(result).to.be(o.foo);
 						}),
-						api.route("bar").then(function(result) {
+						api.route("bar").then(result => {
 							expect(result).to.be(o.foo.bar);
 						}),
-						api.route("bar").route("baz").then(function(result) {
+						api.route("bar").route("baz").then(result => {
 							expect(result).to.be(o.foo.bar.baz);
 						})
 					]);
 				});
 
 			if(options.arrays)
-				it("should not traverse arrays", function() {
+				it("should not traverse arrays", () => {
 
 					const o = {
-							foo: [1, 2, 3.4, [5, 6]]
-						},
-						api = owe.api(o, router, closer).route("foo");
+						foo: [1, 2, 3.4, [5, 6]]
+					};
+					const api = owe.api(o, router, closer).route("foo");
 
 					return Promise.all([
-						api.route(0).then(function() {
+						api.route(0).then(() => {
 							expect().fail("Arrays should not be traversed.");
-						}, function(err) {
+						}, err => {
 							expect(err.message).to.be("Object at position 'foo' is an end point and cannot be routed.");
 							expect(err.type).to.be("route");
-							expect(err.location).to.eql(["foo", 0]);
+							expect(err.route).to.eql(["foo", 0]);
 						}),
-						api.then(function(result) {
+						api.then(result => {
 							expect(result).to.be(o.foo);
 						})
 					]);
 				});
 
 			if(options.functions)
-				it("should not traverse functions", function() {
+				it("should not traverse functions", () => {
 					const o = {
-							f: function() {}
-						},
-						api = owe.api(o, router, closer);
+						f() {}
+					};
+					const api = owe.api(o, router, closer);
 
 					o.f.path = "test";
 
-					return api.route("f").route("path").then(function() {
+					return api.route("f").route("path").then(() => {
 						expect().fail("Functions should not be traversed.");
-					}, function(err) {
+					}, err => {
 						expect(err.message).to.be("Object at position 'f' is an end point and cannot be routed.");
 						expect(err.type).to.be("route");
-						expect(err.location).to.eql(["f", "path"]);
+						expect(err.route).to.eql(["f", "path"]);
 					});
 				});
 
 			if(options.deepen)
-				it("should not deepen objects", function() {
+				it("should not deepen objects", () => {
 					const o = {
-							foo: {
-								bar: {
-									baz: Symbol("test")
-								}
+						foo: {
+							bar: {
+								baz: Symbol("test")
 							}
-						},
-						api = owe.api(o, router, closer).route("foo").route("bar");
+						}
+					};
+					const api = owe.api(o, router, closer).route("foo").route("bar");
 
-					return api.route("baz").then(function(result) {
+					return api.route("baz").then(() => {
 						expect(Binding.isBound(o)).to.be(true);
 						expect(Binding.isBound(o.foo)).to.be(false);
 						expect(Binding.isBound(o.foo.bar)).to.be(false);
@@ -192,7 +185,7 @@ function testRouter(routerGenerator) {
 				});
 		}
 
-		describe("default", function() {
+		describe("default", () => {
 			const router = routerGenerator({
 				deep: true
 			});
@@ -205,7 +198,7 @@ function testRouter(routerGenerator) {
 			});
 		});
 
-		describe("deep arrays", function() {
+		describe("deep arrays", () => {
 			const router = routerGenerator({
 				deep: true,
 				deepArrays: true
@@ -217,21 +210,21 @@ function testRouter(routerGenerator) {
 				deepen: true
 			});
 
-			it("should traverse arrays", function() {
+			it("should traverse arrays", () => {
 
 				const o = {
-						foo: [1, 2, 3.4, [5, 6]]
-					},
-					api = owe.api(o, router, closer).route("foo");
+					foo: [1, 2, 3.4, [5, 6]]
+				};
+				const api = owe.api(o, router, closer).route("foo");
 
 				return Promise.all([
-					api.route(0).then(function(result) {
+					api.route(0).then(result => {
 						expect(result).to.be(o.foo[0]);
 					}),
-					api.route(1 + 2).route("0").then(function(result) {
+					api.route(1 + 2).route("0").then(result => {
 						expect(result).to.be(o.foo[3][0]);
 					}),
-					api.then(function(result) {
+					api.then(result => {
 						expect(result).to.be(o.foo);
 					})
 				]);
@@ -239,7 +232,7 @@ function testRouter(routerGenerator) {
 
 		});
 
-		describe("deep functions", function() {
+		describe("deep functions", () => {
 			const router = routerGenerator({
 				deep: true,
 				deepFunctions: true,
@@ -252,9 +245,9 @@ function testRouter(routerGenerator) {
 				deepen: true
 			});
 
-			it("should traverse functions", function() {
-				const o = function o() {},
-					api = owe.api(o, router, closer);
+			it("should traverse functions", () => {
+				const o = function o() {};
+				const api = owe.api(o, router, closer);
 
 				o.f = function a() {};
 
@@ -263,23 +256,23 @@ function testRouter(routerGenerator) {
 				o.f.g.h = 42;
 
 				return Promise.all([
-					api.then(function(result) {
+					api.then(result => {
 						expect(result).to.be(o);
 					}),
-					api.route("f").then(function(result) {
+					api.route("f").then(result => {
 						expect(result).to.be(o.f);
 					}),
-					api.route("f").route("g").then(function(result) {
+					api.route("f").route("g").then(result => {
 						expect(result).to.be(o.f.g);
 					}),
-					api.route("f").route("g").route("h").then(function(result) {
+					api.route("f").route("g").route("h").then(result => {
 						expect(result).to.be(o.f.g.h);
 					})
 				]);
 			});
 		});
 
-		describe("deepen objects", function() {
+		describe("deepen objects", () => {
 			const router = routerGenerator({
 				deep: true,
 				deepen: true,
@@ -291,24 +284,24 @@ function testRouter(routerGenerator) {
 				objects: true
 			});
 
-			it("should deepen objects", function() {
+			it("should deepen objects", () => {
 				const o = {
-						foo: {
-							bar: {
-								baz: ["a", "b", "c"],
-								fuz: 42
-							},
-							buz: function() {
-								return this;
-							}
+					foo: {
+						bar: {
+							baz: ["a", "b", "c"],
+							fuz: 42
+						},
+						buz() {
+							return this;
 						}
-					},
-					api = owe.api(o, router, closer).route("foo");
+					}
+				};
+				const api = owe.api(o, router, closer).route("foo");
 
 				return Promise.all([
 					api.route("bar").route("baz").route(1),
 					api.route("buz")
-				]).then(function(results) {
+				]).then(results => {
 					expect(Binding.isBound(o)).to.be(true);
 					expect(Binding.isBound(o.foo)).to.be(true);
 					expect(Binding.isBound(o.foo.bar)).to.be(true);
@@ -326,8 +319,7 @@ function testRouter(routerGenerator) {
 			});
 		});
 
-		describe("max depth", function() {
-
+		describe("max depth", () => {
 			const o = {
 				foo: {
 					bar: {
@@ -363,46 +355,46 @@ function testRouter(routerGenerator) {
 					maxDepth: "derp"
 				}), closer, true);
 
-			it("should forbid deep traversing for non-numeric or negative numbers", function() {
+			it("should forbid deep traversing for non-numeric or negative numbers", () => {
 				return Promise.all([
-					apiA.then(function(result) {
+					apiA.then(result => {
 						expect(result).to.be(o);
 					}),
-					apiA.route("foo").route("bar").then(function(result) {
+					apiA.route("foo").route("bar").then(() => {
 						expect().fail("Deep routing should not be allowed for apiA.");
-					}, function(err) {
+					}, err => {
 						expect(err.type).to.be("route");
 						expect(err.message).to.be("Object at position 'foo' is an end point and cannot be routed.");
-						expect(err.location).to.eql(["foo", "bar"]);
+						expect(err.route).to.eql(["foo", "bar"]);
 					}),
-					apiB.route("foo").route("bar").then(function(result) {
+					apiB.route("foo").route("bar").then(() => {
 						expect().fail("Deep routing should not be allowed for apiB.");
-					}, function(err) {
+					}, err => {
 						expect(err.type).to.be("route");
 						expect(err.message).to.be("Object at position 'foo' is an end point and cannot be routed.");
-						expect(err.location).to.eql(["foo", "bar"]);
+						expect(err.route).to.eql(["foo", "bar"]);
 					}),
-					apiE.route("foo").route("bar").then(function(result) {
+					apiE.route("foo").route("bar").then(() => {
 						expect().fail("Deep routing should not be allowed for apiE.");
-					}, function(err) {
+					}, err => {
 						expect(err.type).to.be("route");
 						expect(err.message).to.be("Object at position 'foo' is an end point and cannot be routed.");
-						expect(err.location).to.eql(["foo", "bar"]);
+						expect(err.route).to.eql(["foo", "bar"]);
 					})
 				]);
 			});
 
-			it("should allow less or exactly maxDepth deep traversals", function() {
+			it("should allow less or exactly maxDepth deep traversals", () => {
 				return Promise.all([
 					apiC.close(),
 					apiC.route("foo").close(),
 					apiC.route("foo").route("bar").close(),
-					apiC.route("foo").route("bar").route("baz").then(function(result) {
+					apiC.route("foo").route("bar").route("baz").then(() => {
 						expect().fail("Deep routing should not be allowed for apiC after depth 1.");
-					}, function(err) {
+					}, err => {
 						expect(err.type).to.be("route");
 						expect(err.message).to.be("The maximum routing depth of 1 has been exceeded.");
-						expect(err.location).to.eql(["foo", "bar", "baz"]);
+						expect(err.route).to.eql(["foo", "bar", "baz"]);
 					}),
 					apiD.close(),
 					apiD.route("foo").close(),
@@ -412,72 +404,67 @@ function testRouter(routerGenerator) {
 				]);
 			});
 
-			it("should floor(maxDepth) if maxDepth is not integer", function() {
-				return apiD.route("foo").route("bar").route("baz").route("far").route("faz").route("boo").then(function(result) {
+			it("should floor(maxDepth) if maxDepth is not integer", () => {
+				return apiD.route("foo").route("bar").route("baz").route("far").route("faz").route("boo").then(() => {
 					expect().fail("Deep routing should not be allowed for apiD after depth 3.");
-				}, function(err) {
+				}, err => {
 					expect(err.type).to.be("route");
 					expect(err.message).to.be("The maximum routing depth of 3 has been exceeded.");
-					expect(err.location).to.eql(["foo", "bar", "baz", "far", "faz"]);
+					expect(err.route).to.eql(["foo", "bar", "baz", "far", "faz"]);
 				});
 			});
 		});
 	});
 
-	describe("function mapping", function() {
+	describe("function mapping", () => {
 
-		it("direct: should map functions as they are", function() {
-
+		it("direct: should map functions as they are", () => {
 			const router = routerGenerator({
 				mapFunctions: "direct",
 				mapRootFunction: "direct"
 			});
 
-			const o = function() {},
-				api = owe.api(o, router, closer);
+			const o = () => {};
+			const api = owe.api(o, router, closer);
 
-			o.a = function() {};
+			o.a = () => {};
 
-			return api.route("a").then(function(result) {
+			return api.route("a").then(result => {
 				expect(result).to.be(o.a);
 			});
 		});
 
-		it("call: should map functions to their .call() result", function() {
-
+		it("call: should map functions to their .call() result", () => {
 			const router = routerGenerator({
 				mapFunctions: "call",
 				mapRootFunction: "call",
 				deep: true
 			});
 
-			const o = function() {
-					return {
-						prop: "test",
-						a: function() {
-							return this.prop;
-						},
-						b: function() {
-							return {
-								foo: "bar"
-							};
-						}
-					};
+			const o = () => ({
+				prop: "test",
+				a() {
+					return this.prop;
 				},
-				api = owe.api(o, router, closer);
+				b() {
+					return {
+						foo: "bar"
+					};
+				}
+			});
+			const api = owe.api(o, router, closer);
 
 			return Promise.all([
-				api.route("a").then(function(result) {
+				api.route("a").then(result => {
 					expect(result).to.be("test");
 				}),
-				api.route("b").route("foo").then(function(result) {
+				api.route("b").route("foo").then(result => {
 					expect(result).to.be("bar");
 				})
 			]);
 		});
 
-		it("router: should map functions to be a router", function() {
-
+		it("router: should map functions to be a router", () => {
 			const router = routerGenerator({
 				mapFunctions: "router",
 				mapRootFunction: "router",
@@ -485,76 +472,75 @@ function testRouter(routerGenerator) {
 			});
 
 			const o = {
-					props: {
-						a: 42,
-						b: "test",
-						c: false,
-						d: Symbol("foo"),
-						e: function() {},
-						f: {
-							bar: "baz"
-						}
-					},
-					router: function(key) {
-						return this.props[key];
+				props: {
+					a: 42,
+					b: "test",
+					c: false,
+					d: Symbol("foo"),
+					e() {},
+					f: {
+						bar: "baz"
 					}
 				},
-				api = owe.api(o, router, closer).route("router");
+				router(key) {
+					return this.props[key];
+				}
+			};
+			const api = owe.api(o, router, closer).route("router");
 
 			const promises = [];
 
-			for(let key in o.props)
-				promises.push(api.route(key).then(function(result) {
+			for(const key in o.props)
+				promises.push(api.route(key).then(result => {
 					expect(result).to.be(o.props[key]);
 				}));
 
-			promises.push(api.route("f").route("bar").then(function(result) {
+			promises.push(api.route("f").route("bar").then(result => {
 				expect(result).to.be(o.props.f.bar);
 			}));
 
-			promises.push(owe.api(o.router.bind(o), router, closer).route("f").route("bar").then(function(result) {
+			promises.push(owe.api(o.router.bind(o), router, closer).route("f").route("bar").then(result => {
 				expect(result).to.be(o.props.f.bar);
 			}));
 
 			return Promise.all(promises);
 		});
 
-		it("closer: should map functions to be a closer", function() {
-
+		it("closer: should map functions to be a closer", () => {
 			const router = routerGenerator({
 				mapFunctions: "closer",
 				mapRootFunction: "closer"
 			});
 
 			const o = {
-					props: {
-						a: 42,
-						b: "test",
-						c: false,
-						d: Symbol("foo"),
-						e: function() {},
-						f: {
-							bar: "baz"
-						}
-					},
-					closer: function(key) {
-						return this.props[key];
+				props: {
+					a: 42,
+					b: "test",
+					c: false,
+					d: Symbol("foo"),
+					e() {},
+					f: {
+						bar: "baz"
 					}
 				},
-				api = owe.api(o, router, closer).route("closer");
+				closer(key) {
+					return this.props[key];
+				}
+			};
+			const api = owe.api(o, router, closer).route("closer");
 
 			const promises = [];
 
-			for(let key in o.props)
-				promises.push(api.close(key).then(function(result) {
+			for(const key in o.props)
+				promises.push(api.close(key).then(result => {
 					expect(result).to.be(o.props[key]);
 				}));
 
-			promises.push(owe.api(function() {}, router, closer).route("test").then(function() {
+			promises.push(owe.api(() => {}, router, closer).route("test").then(() => {
 				expect().fail("Routing a closer should not be possible.");
-			}, function(err) {
+			}, err => {
 				expect(err.type).to.be("route");
-				expect(err.location).to.eql(["test"]);
+				expect(err.route).to.eql(["test"]);
 				expect(err.message).to.be("'test' could not be routed.");
 			}));
 
@@ -563,8 +549,7 @@ function testRouter(routerGenerator) {
 
 	});
 
-	describe("filter", function() {
-
+	describe("filter", () => {
 		let dest;
 
 		const o = owe({
@@ -576,43 +561,43 @@ function testRouter(routerGenerator) {
 			filter(destination) {
 				expect(destination).to.be(dest);
 				expect(this.value).to.be(o);
-				expect(this.location).to.eql([]);
+				expect(this.route).to.eql([]);
 
-				return destination.length == 1;
+				return destination.length === 1;
 			}
 		}), closer);
 
-		it("should filter with functions", function() {
-			return owe.api(o).route(dest = "a").then(function() {
+		it("should filter with functions", () => {
+			return owe.api(o).route(dest = "a").then(() => {
 				return owe.api(o).route(dest = "b");
-			}).then(function() {
+			}).then(() => {
 				return owe.api(o).route(dest = "c");
-			}).then(function() {
+			}).then(() => {
 				expect().fail("c should not be routed.");
-			}, function(err) {
+			}, err => {
 				expect(err.type).to.be("route");
 				expect(err.message).to.be("'c' could not be routed.");
-				expect(err.location).to.eql(["c"]);
+				expect(err.route).to.eql(["c"]);
 
 				return owe.api(o).route(dest = "foo");
-			}).then(function() {
+			}).then(() => {
 				expect().fail("foo should not be routed.");
-			}, function(err) {
+			}, err => {
 				expect(err.type).to.be("route");
 				expect(err.message).to.be("'foo' could not be routed.");
-				expect(err.location).to.eql(["foo"]);
+				expect(err.route).to.eql(["foo"]);
 
 				return owe.api(o).route(dest = "baz");
-			}).then(function() {
+			}).then(() => {
 				expect().fail("baz should not be routed.");
-			}, function(err) {
+			}, err => {
 				expect(err.type).to.be("route");
 				expect(err.message).to.be("'baz' could not be routed.");
-				expect(err.location).to.eql(["baz"]);
+				expect(err.route).to.eql(["baz"]);
 			});
 		});
 
-		it("should invert if filterInverse is set", function() {
+		it("should invert if filterInverse is set", () => {
 			return owe.api(o, routerGenerator({
 				filter: false,
 				filterInverse: true
@@ -620,85 +605,82 @@ function testRouter(routerGenerator) {
 		});
 	});
 
-	describe("writable", function() {
+	describe("writable", () => {
 		const o = owe({
 			a: "John Doe",
 			A: "Adam Smith"
 		}, routerGenerator({
 			writable(destination) {
 				expect(this.value).to.be(o);
-				expect(this.location).to.eql([]);
+				expect(this.route).to.eql([]);
 
 				return destination.toLowerCase() === destination;
 			},
 			filter: true
 		}), closer);
 
-		it("should filter with functions", function() {
-			return owe.api(o).route("a").close("X").then(function(val) {
+		it("should filter with functions", () => {
+			return owe.api(o).route("a").close("X").then(val => {
 				expect(val).to.be("X");
 				expect(o.a).to.be("X");
 
 				return owe.api(o).route("A").close("Y");
-			}).then(function() {
+			}).then(() => {
 				expect().fail("A should not be writable.");
-			}, function(err) {
+			}, err => {
 				expect(o.a).to.be("X");
 				expect(err.type).to.be("close");
-				expect(err.location).to.eql(["A"]);
+				expect(err.route).to.eql(["A"]);
 			});
 		});
 
-		it("should invert if writableInverse is set", function() {
+		it("should invert if writableInverse is set", () => {
 			return owe.api(o, routerGenerator({
 				writable: false,
 				writableInverse: true
-			}), closer, true).route("a").close("Z").then(function(val) {
+			}), closer, true).route("a").close("Z").then(val => {
 				expect(val).to.be("Z");
 				expect(o.a).to.be("Z");
 			});
 		});
 	});
 
-	describe("output", function() {
-		it("should replace the output", function() {
+	describe("output", () => {
+		it("should replace the output", () => {
 			const o = owe({
 				a: "John Doe",
 				b: "Adam Smith",
 				foo: [1, 2, 3.4],
 				baz: true
 			}, routerGenerator({
-				output: function(value) {
-
+				output(value) {
 					expect(this.value).to.be(o);
-					expect(this.location).to.eql([]);
+					expect(this.route).to.eql([]);
 
 					if(typeof value === "string")
 						return value.toUpperCase();
 					if(typeof value === "boolean")
 						throw "derp";
 
-					return {
-						value: value
-					};
+					return { value };
 				}
 			}), closer);
 
 			return Promise.all([
-				owe.api(o).route("a").then(function(result) {
+				owe.api(o).route("a").then(result => {
 					expect(result).to.be("JOHN DOE");
 				}),
-				owe.api(o).route("b").then(function(result) {
+				owe.api(o).route("b").then(result => {
 					expect(result).to.be("ADAM SMITH");
 				}),
-				owe.api(o).route("foo").then(function(result) {
+				owe.api(o).route("foo").then(result => {
 					expect(result).to.eql({
 						value: o.foo
 					});
 				}),
-				owe.api(o).route("baz").then(function(result) {
+				owe.api(o).route("baz").then(() => {
 					expect().fail("baz should not be returned");
-				}, function(err) {
+				}, err => {
 					expect(err).to.be("derp");
 				})
 			]);
