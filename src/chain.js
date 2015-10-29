@@ -7,7 +7,7 @@ function chain(input, options) {
 
 	options = {
 		mode: options.mode || "auto",
-		errors: options.errors || "all",
+		errors: options.errors || "last",
 		removeNonErrors: options.removeNonErrors || true
 	};
 

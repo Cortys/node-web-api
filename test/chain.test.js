@@ -224,9 +224,8 @@ describe(".chain", () => {
 			it("should reject if no function was given",
 				() => owe.chain([])().then(() => {
 					expect().fail("Empty chains should reject.");
-				}, errs => {
-					expect(errs).to.be.an("array");
-					expect(errs.length).to.be(1);
+				}, err => {
+					expect(err).to.be.an(Error);
 				}));
 
 			it("should ignore undefined chain entries",
@@ -243,9 +242,8 @@ describe(".chain", () => {
 					undefined
 				])().then(() => {
 					expect().fail("This chain should reject.");
-				}, errs => {
-					expect(errs).to.be.an("array");
-					expect(errs).to.eql(["a", "b"]);
+				}, err => {
+					expect(err).to.eql("b");
 				}));
 
 			it("should pass given this to all functions", () => {
@@ -280,20 +278,19 @@ describe(".chain", () => {
 						throw err1;
 					}])().then(() => {
 						expect().fail("This chain should reject.");
-					}, errs => {
-						expect(errs).to.be.an("array");
-						expect(errs[0]).to.be(err1);
+					}, err => {
+						expect(err).to.be(err1);
 					}),
 					owe.chain([() => {
 						throw err1;
 					}, () => {
-						throw err2;
-					}, () => {
 						throw err1;
+					}, () => {
+						throw err2;
 					}])().then(() => {
 						expect().fail("This chain should reject.");
-					}, errs => {
-						expect(errs).to.eql([err1, err2, err1]);
+					}, err => {
+						expect(err).to.eql(err2);
 					})
 				]);
 			});
