@@ -1,6 +1,6 @@
 "use strict";
 
-const filter = require("./filter");
+const filter = require("../filter");
 const exposed = require("../exposed");
 
 function closer(options) {
@@ -23,11 +23,10 @@ function closer(options) {
 			object[key] = data;
 		}
 		catch(err) {
-
 			if(exposed.is(err))
 				throw err;
 
-			throw new exposed.Error(`This route could not be closed with the given data.`);
+			throw new exposed.Error("This route could not be closed with the given data.");
 		}
 	}
 

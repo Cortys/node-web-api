@@ -62,7 +62,19 @@ function testCloser(closerGenerator) {
 	describe("writable", () => {
 		it("should write object properties if enabled", () => {
 			const o = {
-				foo: "bar"
+				foo: "bar",
+				get baz() {
+					return 1;
+				},
+				set baz(val) {
+					throw "err";
+				},
+				get qux() {
+					return 2;
+				},
+				set qux(val) {
+					throw new owe.exposed.Error("a");
+				}
 			};
 			const api = owe.api(o, router, closerGenerator({
 				writable: false,
@@ -71,10 +83,22 @@ function testCloser(closerGenerator) {
 
 			expect(o.foo).to.be("bar");
 
-			return api.route("foo").close("baz").then(result => {
-				expect(result).to.be("baz");
-				expect(o.foo).to.be("baz");
-			});
+			return Promise.all([
+				api.route("foo").close("baz").then(result => {
+					expect(result).to.be("baz");
+					expect(o.foo).to.be("baz");
+				}),
+				api.route("baz").close("x").then(() => {
+					expect().fail("Should not be closed.");
+				}, err => {
+					expect(err.message).to.be("This route could not be closed with the given data.");
+				}),
+				api.route("qux").close("x").then(() => {
+					expect().fail("Should not be closed.");
+				}, err => {
+					expect(err.message).to.be("a");
+				})
+			]);
 		});
 
 		it("should pass State and data of close to writable if it is a filter function", () => {
@@ -86,8 +110,6 @@ function testCloser(closerGenerator) {
 				},
 				set foo(val) {
 					foo = val;
-
-					return 42;
 				}
 			};
 			const api = owe.api(o, router, closerGenerator({

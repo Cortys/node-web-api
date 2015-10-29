@@ -5,6 +5,14 @@ const expect = require("expect.js");
 const owe = require("../src");
 
 describe(".switch", () => {
+	it("should always require a switcher function", () => {
+		expect(() => owe.switch(() => undefined)).not.to.throwError();
+		expect(() => owe.switch()).to.throwError();
+		expect(() => owe.switch({})).to.throwError();
+		expect(() => owe.switch("test")).to.throwError();
+		expect(() => owe.switch(123)).to.throwError();
+	});
+
 	describe("without given cases", () => {
 		it("should behave like the function returned by switcher", () => {
 			const test = {

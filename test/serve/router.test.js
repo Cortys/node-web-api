@@ -2,17 +2,22 @@
 
 const expect = require("expect.js");
 
-const owe = require("owe-core"),
-	router = owe.serve.router,
-	Binding = owe.Binding;
+const owe = require("owe-core");
+const router = owe.serve.router;
+const Binding = owe.Binding;
 
 describe(".router", () => {
 	it("should return a function", () => {
 		expect(router()).to.be.a("function");
 	});
 
-	testRouter(router);
+	it("should only accept objects or functions as State#value when called", () => {
+		expect(() => router().call({
+			value: "not an object"
+		})).to.throwError(new TypeError("Router expected object or function but got 'not an object'."));
+	});
 
+	testRouter(router);
 });
 
 function testRouter(routerGenerator) {
@@ -30,8 +35,8 @@ function testRouter(routerGenerator) {
 		const router = routerGenerator();
 
 		it("should route functions at root as objects", () => {
-			const f = () => "test",
-				api = owe.api(f, router, closer);
+			const f = () => "test";
+			const api = owe.api(f, router, closer);
 
 			f.path = 42;
 
@@ -41,7 +46,6 @@ function testRouter(routerGenerator) {
 		});
 
 		it("should route objects as objects", () => {
-
 			const api = owe.api({
 				path: "Hello World!"
 			}, router, closer);
@@ -54,13 +58,13 @@ function testRouter(routerGenerator) {
 
 		it("should not traverse objects deeply", () => {
 			const o = {
-					foo: {
-						bar: {
-							baz: 42
-						}
+				foo: {
+					bar: {
+						baz: 42
 					}
-				},
-				api = owe.api(o, router, closer);
+				}
+			};
+			const api = owe.api(o, router, closer);
 
 			return Promise.all([
 				api.route("foo").then(result => {
@@ -97,9 +101,7 @@ function testRouter(routerGenerator) {
 	});
 
 	describe("deep traversing", () => {
-
 		function defaultRequirements(router, options) {
-
 			if(options.objects)
 				it("should traverse normal objects", () => {
 
@@ -127,7 +129,6 @@ function testRouter(routerGenerator) {
 
 			if(options.arrays)
 				it("should not traverse arrays", () => {
-
 					const o = {
 						foo: [1, 2, 3.4, [5, 6]]
 					};
@@ -417,6 +418,34 @@ function testRouter(routerGenerator) {
 	});
 
 	describe("function mapping", () => {
+		it("disabled: should reject all functions", () => {
+			const router = routerGenerator({
+				mapFunctions: false
+			});
+			const router2 = routerGenerator({
+				mapFunctions: "none"
+			});
+
+			const api = owe.api({
+				a() {}
+			}, router, closer);
+			const api2 = owe.api({
+				a() {}
+			}, router2, closer);
+
+			return Promise.all([
+				api.route("a").then(() => {
+					expect().fail("Routing functions should not be allowed if mapFunctions is disabled.");
+				}, err => {
+					expect(err.message).to.be("'a' could not be routed.");
+				}),
+				api2.route("a").then(() => {
+					expect().fail("Routing functions should not be allowed if mapFunctions is disabled.");
+				}, err => {
+					expect(err.message).to.be("'a' could not be routed.");
+				})
+			]);
+		});
 
 		it("direct: should map functions as they are", () => {
 			const router = routerGenerator({

@@ -34,7 +34,7 @@ module.exports = Object.assign(expose, {
 	},
 
 	properties(obj, properties) {
-		if(!(Symbol.iterator in properties))
+		if(!properties || typeof properties !== "object" || !(Symbol.iterator in properties))
 			throw new TypeError("The properties to be exposed have to be iterable.");
 
 		return owe.resource(obj, Object.defineProperty({}, "expose", {

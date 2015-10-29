@@ -1,7 +1,7 @@
 "use strict";
 
 const Binding = require("owe-core").Binding;
-const filter = require("./filter");
+const filter = require("../filter");
 const exposed = require("../exposed");
 
 // Symbols:
@@ -20,7 +20,7 @@ function router(options) {
 		deepFunctions: options.deepFunctions || false,
 		deepen: options.deepen || false,
 		maxDepth: "maxDepth" in options ? options.maxDepth * 1 : Infinity,
-		mapFunctions: options.mapFunctions || "member",
+		mapFunctions: "mapFunctions" in options ? options.mapFunctions : "member",
 		mapRootFunction: options.mapRootFunction || false,
 		filter: "filter" in options ? options.filter : true,
 		filterInverse: !!options.filterInverse || false,
@@ -39,7 +39,6 @@ function router(options) {
 	};
 
 	baseRouter[reduceDepthKey] = !options.deep || options.maxDepth === Infinity ? (function() {
-
 		const result = function servedRouter(destination) {
 				return baseRouter.call(this, destination, servedRouter);
 			},
@@ -59,7 +58,6 @@ function router(options) {
 			return result;
 		};
 	}()) : function reduceDepth() {
-
 		if(this[currentDepthKey] <= 0)
 			return function servedRouter() {
 				throw new exposed.Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
@@ -89,7 +87,6 @@ function router(options) {
 const tools = {
 
 	handle(options, router, destination) {
-
 		const route = this.route;
 		const binding = this.binding;
 
@@ -97,7 +94,6 @@ const tools = {
 			writable, target;
 
 		if(destination !== noDestination) {
-
 			if(typeof origin !== "object" && typeof origin !== "function" || origin === null)
 				throw new TypeError(`Router expected object or function but got '${typeof origin === "symbol" ? "[symbol]" : origin}'.`);
 
