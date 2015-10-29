@@ -19,15 +19,23 @@ gulp.task("eslint", () => {
 		.pipe(eslint.failOnError());
 });
 
-gulp.task("mocha", ["cover"], () => {
-	return gulp.src(["test/*.test.js"])
-		.pipe(mocha())
-		.pipe(istanbul.writeReports())
-		.pipe(istanbul.enforceThresholds({
-			thresholds: {
-				global: 90
-			}
-		}));
+gulp.task("mocha", ["cover"], callback => {
+	gulp.src(["src/**/*.js"])
+		.pipe(istanbul())
+		.on("error", callback)
+		.pipe(istanbul.hookRequire())
+		.on("finish", () => {
+			gulp.src(["test/*.test.js"])
+				.pipe(mocha())
+				.on("error", callback)
+				.pipe(istanbul.writeReports())
+				.pipe(istanbul.enforceThresholds({
+					thresholds: {
+						global: 90
+					}
+				}))
+				.on("end", callback);
+		});
 });
 
 gulp.task("test", callback => {
