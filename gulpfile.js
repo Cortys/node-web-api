@@ -13,7 +13,7 @@ gulp.task("eslint", () => {
 		.pipe(eslint.failOnError());
 });
 
-gulp.task("mocha", ["cover"], callback => {
+gulp.task("mocha", callback => {
 	gulp.src(["src/**/*.js"])
 		.pipe(istanbul())
 		.on("error", callback)
