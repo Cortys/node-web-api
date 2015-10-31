@@ -1,6 +1,6 @@
 "use strict";
 
-const filter = require("../filter");
+const helpers = require("owe-helpers");
 const exposed = require("../exposed");
 
 function closer(options) {
@@ -31,7 +31,7 @@ function closer(options) {
 	}
 
 	return function servedCloser(data) {
-		return Promise.resolve(filter(this, this.value, options.filter)).then(result => {
+		return Promise.resolve(helpers.filter(this, this.value, options.filter)).then(result => {
 			if(result === options.filterInverse)
 				throw new exposed.Error(`This route could not be closed${data !== undefined ? " with the given data." : "."}`);
 
@@ -39,7 +39,7 @@ function closer(options) {
 				return this.value(data);
 
 			if(data !== undefined)
-				return filter(this, data, options.writable, result => {
+				return helpers.filter(this, data, options.writable, result => {
 					if(result !== options.writableInverse) {
 						tryWrite(this, "value", data);
 

@@ -108,6 +108,20 @@ describe(".switch", () => {
 			expect(oweSwitch.z).to.be("bz");
 		});
 
+		it("should throw if first case was an object and then switches to a non object", () => {
+			const test = {
+				a: {
+					x: 1
+				},
+				b: true
+			};
+			let s = false;
+			const oweSwitch = owe.switch(() => (s = !s) ? "a" : "b", test);
+
+			expect(oweSwitch.x).to.be(1);
+			expect(() => oweSwitch.x).to.throwError(new Error(`Case 'b' is not an object.`));
+		});
+
 		it("should use the given fallback param if no case matches the switcher result", () => {
 			const oweSwitch1 = owe.switch(() => "a", {}, word => `${word} works`);
 			const oweSwitch2 = owe.switch(() => "a", {}, "it works");

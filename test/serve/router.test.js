@@ -53,7 +53,6 @@ function testRouter(routerGenerator) {
 			return api.route("path").then(result => {
 				expect(result).to.be("Hello World!");
 			});
-
 		});
 
 		it("should not traverse objects deeply", () => {
@@ -78,7 +77,6 @@ function testRouter(routerGenerator) {
 					expect(err.route).to.eql(["foo", "bar"]);
 				})
 			]);
-
 		});
 
 		it("should output member functions bound to the object they came from", () => {
@@ -98,6 +96,29 @@ function testRouter(routerGenerator) {
 			});
 		});
 
+		it("should handle object with null prototype routes", () => {
+			return owe.api({}, router, closer).route({
+				__proto__: null
+			}).then(() => {
+				expect().fail("'[object Object]' should not be routed.");
+			}, err => {
+				expect(err.type).to.be("route");
+				expect(err.message).to.be("'[object Object]' could not be routed.");
+				expect(err.route).to.eql([{}]);
+			});
+		});
+
+		it("should handle symbol routes", () => {
+			const symb = Symbol("test");
+
+			return owe.api({}, router, closer).route(symb).then(() => {
+				expect().fail("'Symbol(test)' should not be routed.");
+			}, err => {
+				expect(err.type).to.be("route");
+				expect(err.message).to.be("'Symbol(test)' could not be routed.");
+				expect(err.route).to.eql([symb]);
+			});
+		});
 	});
 
 	describe("deep traversing", () => {
@@ -597,33 +618,43 @@ function testRouter(routerGenerator) {
 		}), closer);
 
 		it("should filter with functions", () => {
-			return owe.api(o).route(dest = "a").then(() => {
-				return owe.api(o).route(dest = "b");
-			}).then(() => {
-				return owe.api(o).route(dest = "c");
-			}).then(() => {
-				expect().fail("c should not be routed.");
-			}, err => {
-				expect(err.type).to.be("route");
-				expect(err.message).to.be("'c' could not be routed.");
-				expect(err.route).to.eql(["c"]);
+			const promises = [
+				() => owe.api(o).route(dest = "a"),
+				() => owe.api(o).route(dest = "b"),
+				() => owe.api(o).route(dest = "c").then(() => {
+					expect().fail("c should not be routed.");
+				}, err => {
+					expect(err.type).to.be("route");
+					expect(err.message).to.be("'c' could not be routed.");
+					expect(err.route).to.eql(["c"]);
+				}),
+				() => owe.api(o).route(dest = "foo").then(() => {
+					expect().fail("foo should not be routed.");
+				}, err => {
+					expect(err.type).to.be("route");
+					expect(err.message).to.be("'foo' could not be routed.");
+					expect(err.route).to.eql(["foo"]);
+				}),
+				() => owe.api(o).route(dest = "baz").then(() => {
+					expect().fail("baz should not be routed.");
+				}, err => {
+					expect(err.type).to.be("route");
+					expect(err.message).to.be("'baz' could not be routed.");
+					expect(err.route).to.eql(["baz"]);
+				})
+			];
 
-				return owe.api(o).route(dest = "foo");
-			}).then(() => {
-				expect().fail("foo should not be routed.");
-			}, err => {
-				expect(err.type).to.be("route");
-				expect(err.message).to.be("'foo' could not be routed.");
-				expect(err.route).to.eql(["foo"]);
+			let res;
 
-				return owe.api(o).route(dest = "baz");
-			}).then(() => {
-				expect().fail("baz should not be routed.");
-			}, err => {
-				expect(err.type).to.be("route");
-				expect(err.message).to.be("'baz' could not be routed.");
-				expect(err.route).to.eql(["baz"]);
-			});
+			for(const p of promises) {
+				if(!res) {
+					res = p();
+					continue;
+				}
+				res = res.then(p);
+			}
+
+			return res;
 		});
 
 		it("should invert if filterInverse is set", () => {

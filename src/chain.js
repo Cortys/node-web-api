@@ -1,5 +1,7 @@
 "use strict";
 
+const tag = require("owe-helpers").string.tag;
+
 function chain(input, options) {
 
 	if(typeof options !== "object" || options === null)
@@ -106,7 +108,7 @@ function chain(input, options) {
 		for(const v of input) {
 			if(v != null) {
 				if(typeof v !== "function") {
-					result = Promise.reject(new TypeError(`'${v}' at position ${i} could not be used as a function for fallthrough.`));
+					result = Promise.reject(new TypeError(tag`'${v}' at position ${i} could not be used as a function for fallthrough.`));
 					break;
 				}
 

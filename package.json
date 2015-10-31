@@ -1,6 +1,6 @@
 {
 	"name": "owe.js",
-	"version": "0.8.2",
+	"version": "0.9.0",
 	"description": "A Node.js wrapper for protocol independent web API exposal.",
 	"keywords": [
 		"api",
@@ -21,15 +21,15 @@
 		"url": "https://github.com/runnr/owe.js.git"
 	},
 	"engines": {
-		"node": "^4.0"
+		"node": ">=5.0"
 	},
 	"main": "src/index.js",
-	"peerDependencies": {
-		"owe-core": "^0.8"
+	"dependencies": {
+		"owe-core": "^0.9",
+		"owe-helpers": "^0.9"
 	},
 	"devDependencies": {
-		"owe-core": "^0.8",
-		"eslint": "1.7.3",
+		"eslint": "1.8.0",
 		"expect.js": "0.3.1",
 		"gulp": "3.9.0",
 		"gulp-eslint": "1.0.0",

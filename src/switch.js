@@ -16,17 +16,17 @@ function oweSwitch(switcher, cases, fallback) {
 				const caseKey = switcher.apply(this, arguments);
 				const val = caseKey in cases ? cases[caseKey] : fallback;
 
-				return val && typeof val === "object" && val[key];
+				if(!val || typeof val !== "object")
+					throw new Error(`Case '${caseKey}' is not an object.`);
+
+				return val[key];
 			});
 			const res = {};
 
 			for(const key of keys)
-				Object.defineProperty(res, key, typeof firstCase[key] === "function" ? {
+				Object.defineProperty(res, key, {
 					enumerable: true,
-					value: switcherGenerator(key)
-				} : {
-					enumerable: true,
-					get: switcherGenerator(key)
+					[typeof firstCase[key] === "function" ? "value" : "get"]: switcherGenerator(key)
 				});
 
 			return res;

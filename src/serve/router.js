@@ -1,7 +1,7 @@
 "use strict";
 
 const Binding = require("owe-core").Binding;
-const filter = require("../filter");
+const helpers = require("owe-helpers");
 const exposed = require("../exposed");
 
 // Symbols:
@@ -85,6 +85,14 @@ function router(options) {
 }
 
 const tools = {
+	safeInCheck(object, key) {
+		try {
+			return key in object;
+		}
+		catch(err) {
+			return false;
+		}
+	},
 
 	handle(options, router, destination) {
 		const route = this.route;
@@ -95,11 +103,10 @@ const tools = {
 
 		if(destination !== noDestination) {
 			if(typeof origin !== "object" && typeof origin !== "function" || origin === null)
-				throw new TypeError(`Router expected object or function but got '${typeof origin === "symbol" ? "[symbol]" : origin}'.`);
+				throw new TypeError(helpers.string.tag`Router expected object or function but got '${origin}'.`);
 
 			writable = true;
-			target = Promise.resolve(filter(this, destination, options.filter)).then(result => {
-
+			target = Promise.resolve(helpers.filter(this, destination, options.filter)).then(result => {
 				if(result !== options.filterInverse) {
 					if(options.mapRootFunction && typeof origin === "function" && router[isRoot]) {
 						if(options.mapRootFunction === "router") {
@@ -108,14 +115,15 @@ const tools = {
 							return origin(destination);
 						}
 						if(options.mapRootFunction === "closer")
-							throw new exposed.Error(`'${destination}' could not be routed.`);
+							throw new exposed.Error(helpers.string.tag`'${destination}' could not be routed.`);
 						if(options.mapRootFunction === "call")
 							origin = origin();
 					}
-					if(destination in origin)
+
+					if(tools.safeInCheck(origin, destination))
 						return origin[destination];
 				}
-				throw new exposed.Error(`'${destination}' could not be routed.`);
+				throw new exposed.Error(helpers.string.tag`'${destination}' could not be routed.`);
 			}).then(value => {
 				// Case 1: Function (not bound)
 				if(typeof value === "function" && !Binding.isBound(value)) {
@@ -146,10 +154,10 @@ const tools = {
 						else if(options.mapFunctions === "direct")
 							writable = true;
 						else
-							throw new exposed.Error(`'${destination}' could not be routed.`);
+							throw new exposed.Error(helpers.string.tag`'${destination}' could not be routed.`);
 					}
 					else
-						throw new exposed.Error(`'${destination}' could not be routed.`);
+						throw new exposed.Error(helpers.string.tag`'${destination}' could not be routed.`);
 				}
 
 				return value;
@@ -167,7 +175,7 @@ const tools = {
 
 			return Promise.all([
 				options.output.call(this, value),
-				writable && filter(this, destination, options.writable)
+				writable && helpers.filter(this, destination, options.writable)
 			]).then(res => {
 
 				let value = res[0];
@@ -185,9 +193,7 @@ const tools = {
 						origin[destination] = newValue;
 						value = origin[destination];
 					}
-				} : {
-					value
-				};
+				} : { value };
 
 				// Case 4: Object, origin should be traversed deeply
 
@@ -204,7 +210,9 @@ const tools = {
 				else {
 					targetValue = null;
 
-					const errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${route.concat([destination]).join("/")}' is an end point and cannot be routed.`;
+					const showRoute = (destination === noDestination ? route : [...route, destination])
+						.map(helpers.string.convert).join("/");
+					const errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${showRoute}' is an end point and cannot be routed.`;
 
 					traversedRouter = function servedRouter() {
 						throw new exposed.Error(errorMessage);
