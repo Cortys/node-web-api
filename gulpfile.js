@@ -6,12 +6,6 @@ const mocha = require("gulp-mocha");
 const eslint = require("gulp-eslint");
 const runSequence = require("run-sequence");
 
-gulp.task("cover", () => {
-	return gulp.src(["src/**/*.js"])
-		.pipe(istanbul())
-		.pipe(istanbul.hookRequire());
-});
-
 gulp.task("eslint", () => {
 	return gulp.src(["src/**/*.js", "test/**/*.test.js"])
 		.pipe(eslint())
@@ -39,7 +33,7 @@ gulp.task("mocha", ["cover"], callback => {
 });
 
 gulp.task("test", callback => {
-	runSequence("cover", "mocha", "eslint", callback);
+	runSequence("mocha", "eslint", callback);
 });
 
 gulp.task("watch", () => {
