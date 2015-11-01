@@ -31,6 +31,7 @@
 		"owe-core": "^0.9"
 	},
 	"devDependencies": {
+		"owe-core": "^0.9",
 		"eslint": "1.8.0",
 		"expect.js": "0.3.1",
 		"gulp": "3.9.0",
