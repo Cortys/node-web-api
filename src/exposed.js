@@ -3,8 +3,18 @@
 const owe = require("owe-core");
 
 function expose(obj, val) {
+	if(arguments.length === 1) {
+		if(obj instanceof Error)
+			Object.defineProperty(obj, "message", {
+				enumerable: true,
+				value: obj.message
+			});
+
+		val = obj;
+	}
+
 	return owe.resource(obj, {
-		expose: arguments.length === 1 ? true : val
+		expose: val
 	});
 }
 
@@ -26,7 +36,7 @@ module.exports = Object.assign(expose, {
 	SyntaxError: subclassError(SyntaxError),
 
 	is(object) {
-		return !!owe.resource(object).expose;
+		return "expose" in owe.resource(object);
 	},
 
 	value(object) {

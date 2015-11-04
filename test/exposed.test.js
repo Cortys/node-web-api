@@ -51,10 +51,12 @@ describe(".exposed", () => {
 
 		it("should return true when given an exposed object", () => {
 			const o = exposed({});
+			const o2 = exposed({}, undefined);
 			const f = exposed(() => undefined, true);
 			const e = exposed(new Error(), "one");
 
 			expect(exposed.is(o)).to.be(true);
+			expect(exposed.is(o2)).to.be(true);
 			expect(exposed.is(f)).to.be(true);
 			expect(exposed.is(e)).to.be(true);
 		});
@@ -75,11 +77,19 @@ describe(".exposed", () => {
 			const o = exposed({});
 			const f = exposed(() => undefined, {});
 			const e = exposed(new Error(), "one");
+			const e2 = exposed(new Error());
 			const n = {};
 
-			expect(exposed.value(o)).to.be(true);
+			expect(Object.getOwnPropertyDescriptor(e2, "message")).to.eql({
+				value: e2.message,
+				enumerable: true,
+				writable: false,
+				configurable: false
+			});
+			expect(exposed.value(o)).to.be(o);
 			expect(exposed.value(f)).to.eql({});
 			expect(exposed.value(e)).to.be("one");
+			expect(exposed.value(e2)).to.be(e2);
 			expect(exposed.value(n)).to.be(undefined);
 		});
 	});
