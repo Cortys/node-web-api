@@ -1,7 +1,7 @@
 "use strict";
 
 const helpers = require("owe-helpers");
-const exposed = require("../exposed");
+const exposed = require("owe-core").exposed;
 
 function closer(options) {
 	if(typeof options !== "object" || options === null)
@@ -23,7 +23,7 @@ function closer(options) {
 			object[key] = data;
 		}
 		catch(err) {
-			if(exposed.is(err))
+			if(exposed.isExposed(err))
 				throw err;
 
 			throw new exposed.Error("This route could not be closed with the given data.");

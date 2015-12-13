@@ -2,7 +2,7 @@
 
 const Binding = require("owe-core").Binding;
 const helpers = require("owe-helpers");
-const exposed = require("../exposed");
+const exposed = require("owe-core").exposed;
 
 // Symbols:
 const noDestination = Symbol("noDestination");
@@ -144,7 +144,9 @@ const tools = {
 							}, binding.closer);
 						}
 						else if(options.mapFunctions === "closer")
-							value = Binding.bind(null, () => undefined, value.bind(origin));
+							value = Binding.bind(null, destination => {
+								throw new exposed.Error(helpers.string.tag`'${destination}' could not be routed.`);
+							}, value.bind(origin));
 						else if(options.mapFunctions === "call")
 							value = value.call(origin);
 						else if(options.mapFunctions === "member") {

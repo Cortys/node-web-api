@@ -16,9 +16,4 @@ owe.chain = require("./chain");
 // Switches between multiple given router and/or closer functions:
 owe.switch = require("./switch");
 
-// Sets exposal value for objects, contains exposed aliases for the default errors, exposes object subsets by keys:
-owe.exposed = owe.expose = require("./exposed");
-
-owe.isExposed = owe.exposed.is;
-
 module.exports = owe;

@@ -594,6 +594,14 @@ function testRouter(routerGenerator) {
 				expect(err.message).to.be("'test' could not be routed.");
 			}));
 
+			promises.push(api.route("test").then(() => {
+				expect().fail("Routing a closer should not be possible.");
+			}, err => {
+				expect(err.type).to.be("route");
+				expect(err.route).to.eql(["closer", "test"]);
+				expect(err.message).to.be("'test' could not be routed.");
+			}));
+
 			return Promise.all(promises);
 		});
 

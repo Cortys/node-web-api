@@ -163,6 +163,13 @@ function testCloser(closerGenerator) {
 					expect(err.type).to.be("close");
 					expect(err.route).to.eql(["a"]);
 					expect(err.message).to.be("This route could not be closed.");
+				}),
+				api.route("a").close(null).then(() => {
+					expect().fail("a should not be closable.");
+				}, err => {
+					expect(err.type).to.be("close");
+					expect(err.route).to.eql(["a"]);
+					expect(err.message).to.be("This route could not be closed with the given data.");
 				})
 			]);
 		});

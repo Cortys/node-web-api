@@ -319,7 +319,7 @@ describe(".chain", () => {
 					b: function b1() {
 						throw new Error("test2");
 					}
-				}, {
+				}, {}, {
 					a: function a2() {
 						return this;
 					},
@@ -328,7 +328,7 @@ describe(".chain", () => {
 							o: this
 						};
 					}
-				}]);
+				}, {}]);
 
 				return Promise.all([
 					res.a().then(result => {
