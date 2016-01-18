@@ -1,4 +1,4 @@
-# ![owe.js](logo.png)
+<h1 align="center"><img src="logo.png" alt="owe.js" /></h1>
 
 [![npm](https://img.shields.io/npm/v/owe.js.svg)](https://www.npmjs.com/package/owe.js) [![Build Status](https://travis-ci.org/runnr/owe.svg?branch=master)](https://travis-ci.org/runnr/owe) [![Coverage Status](https://coveralls.io/repos/runnr/owe/badge.svg?branch=master&service=github)](https://coveralls.io/github/runnr/owe?branch=master) [![Dependency Status](https://david-dm.org/runnr/owe.svg)](https://david-dm.org/runnr/owe) [![peerDependency Status](https://david-dm.org/runnr/owe/peer-status.svg)](https://david-dm.org/runnr/owe#info=peerDependencies) [![devDependency Status](https://david-dm.org/runnr/owe/dev-status.svg)](https://david-dm.org/runnr/owe#info=devDependencies)
 

@@ -26,6 +26,7 @@ function router(options) {
 		filterInverse: !!options.filterInverse || false,
 		writable: options.writable || false,
 		writableInverse: options.writableInverse || false,
+		traversePrototype: options.traversePrototype || false,
 		output: typeof options.output === "function" ? options.output : value => value
 	};
 
@@ -85,9 +86,11 @@ function router(options) {
 }
 
 const tools = {
-	safeInCheck(object, key) {
+	safeInCheck(object, key, traversePrototype) {
 		try {
-			return key in object;
+			return traversePrototype
+				? key in object
+				: Object.prototype.hasOwnProperty.call(object, key);
 		}
 		catch(err) {
 			return false;
@@ -120,7 +123,7 @@ const tools = {
 							origin = origin();
 					}
 
-					if(tools.safeInCheck(origin, destination))
+					if(tools.safeInCheck(origin, destination, options.traversePrototype))
 						return origin[destination];
 				}
 				throw new exposed.Error(helpers.string.tag`'${destination}' could not be routed.`);

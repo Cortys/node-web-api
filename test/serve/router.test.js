@@ -21,9 +21,7 @@ describe(".router", () => {
 });
 
 function testRouter(routerGenerator) {
-
 	const closer = function(value) {
-
 		// Change the value if another one was given:
 		if(value !== undefined)
 			this.value = value;
@@ -96,6 +94,25 @@ function testRouter(routerGenerator) {
 			});
 		});
 
+		it("should not traverse object prototypes", () => {
+			const o = {
+				__proto__: {
+					a: "test"
+				}
+			};
+			const api = owe.api(o, router, closer);
+
+			expect(o.a).to.be("test");
+
+			return api.route("a").then(() => {
+				expect().fail("Object prototype should not be traversed.");
+			}, err => {
+				expect(err.type).to.be("route");
+				expect(err.message).to.be("'a' could not be routed.");
+				expect(err.route).to.eql(["a"]);
+			});
+		});
+
 		it("should handle object with null prototype routes", () => {
 			return owe.api({}, router, closer).route({
 				__proto__: null
@@ -118,6 +135,31 @@ function testRouter(routerGenerator) {
 				expect(err.message).to.be("'Symbol(test)' could not be routed.");
 				expect(err.route).to.eql([symb]);
 			});
+		});
+	});
+
+	describe("prototype traversing", () => {
+		const router = routerGenerator({
+			traversePrototype: true
+		});
+
+		it("should traverse object prototypes", () => {
+			const o = {
+				__proto__: {
+					a: "hello"
+				},
+
+				b: "world"
+			};
+			const api = owe.api(o, router, closer);
+
+			expect(o.a).to.be("hello");
+			expect(o.b).to.be("world");
+
+			return Promise.all([
+				api.route("a").then(result => expect(result).to.be("hello")),
+				api.route("b").then(result => expect(result).to.be("world"))
+			]);
 		});
 	});
 
