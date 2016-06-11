@@ -25,10 +25,10 @@
 	},
 	"main": "src/index.js",
 	"dependencies": {
-		"owe-helpers": "^0.9"
+		"owe-helpers": "0.11.x"
 	},
 	"peerDependencies": {
-		"owe-core": "^0.10"
+		"owe-core": "0.11.x"
 	},
 	"devDependencies": {
 		"expect.js": "0.3.1",

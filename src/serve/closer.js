@@ -4,18 +4,14 @@ const helpers = require("owe-helpers");
 const exposed = require("owe-core").exposed;
 
 function closer(options) {
-	if(typeof options !== "object" || options === null)
+	if(!options || typeof options !== "object")
 		options = {};
 
 	options = {
-		writable: options.writable || false,
-		writableInverse: options.writableInverse || false,
-		filter: "filter" in options ? options.filter : function() {
-			return typeof this.value !== "object" || Array.isArray(this.value);
-		},
-		filterInverse: !!options.filterInverse || false,
+		writable: "writable" in options ? options.writable : false,
+		filter: "filter" in options ? options.filter : value => typeof value !== "object" || Array.isArray(value),
 		callFunctions: "callFunctions" in options ? options.callFunctions : true,
-		output: typeof options.output === "function" ? options.output : value => value
+		output: "output" in options ? options.output : value => value
 	};
 
 	function tryWrite(object, key, data) {
@@ -30,27 +26,27 @@ function closer(options) {
 		}
 	}
 
-	return function servedCloser(data) {
-		return Promise.resolve(helpers.filter(this, this.value, options.filter)).then(result => {
-			if(result === options.filterInverse)
+	return function servedCloser(data, state) {
+		return helpers.filter(options.filter, state, state.value, state).then(result => {
+			if(!result)
 				throw new exposed.Error(`This route could not be closed${data !== undefined ? " with the given data." : "."}`);
 
-			if(typeof this.value === "function" && options.callFunctions)
-				return this.value(data);
+			if(typeof state.value === "function" && options.callFunctions)
+				return state.value(data);
 
 			if(data !== undefined)
-				return helpers.filter(this, data, options.writable, result => {
-					if(result !== options.writableInverse) {
-						tryWrite(this, "value", data);
+				return helpers.filter(options.writable, state, data, state).then(result => {
+					if(!result)
+						throw new exposed.Error("This route could not be closed with the given data.");
 
-						return this.value;
-					}
-					throw new exposed.Error(`This route could not be closed with the given data.`);
+					tryWrite(state, "value", data);
+
+					return state.value;
 				});
 
-			return this.value;
+			return state.value;
 
-		}).then(result => options.output.call(this, result));
+		}).then(result => options.output.call(state, result, state));
 	};
 }
 

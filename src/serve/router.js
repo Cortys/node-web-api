@@ -15,19 +15,17 @@ function router(options) {
 		options = {};
 
 	options = {
-		deep: options.deep || false,
-		deepArrays: options.deepArrays || false,
-		deepFunctions: options.deepFunctions || false,
-		deepen: options.deepen || false,
-		maxDepth: "maxDepth" in options ? options.maxDepth * 1 : Infinity,
+		deep: !!options.deep || false,
+		deepArrays: !!options.deepArrays || false,
+		deepFunctions: !!options.deepFunctions || false,
+		deepen: !!options.deepen || false,
+		maxDepth: "maxDepth" in options ? +options.maxDepth : Infinity,
 		mapFunctions: "mapFunctions" in options ? options.mapFunctions : "member",
 		mapRootFunction: options.mapRootFunction || false,
 		filter: "filter" in options ? options.filter : true,
-		filterInverse: !!options.filterInverse || false,
-		writable: options.writable || false,
-		writableInverse: options.writableInverse || false,
-		traversePrototype: options.traversePrototype || false,
-		output: typeof options.output === "function" ? options.output : value => value
+		writable: "writable" in options ? options.writable : false,
+		traversePrototype: !!options.traversePrototype || false,
+		output: "output" in options ? options.output : value => value
 	};
 
 	if(Number.isNaN(options.maxDepth) || options.maxDepth < 1)
@@ -35,17 +33,17 @@ function router(options) {
 	else if(options.deep && options.maxDepth > 0 && Number.isFinite(options.maxDepth))
 		options.maxDepth = Math.floor(options.maxDepth);
 
-	const baseRouter = function baseRouter(destination, caller) {
-		return tools.handle.call(this, options, caller, destination);
+	const baseRouter = function baseRouter(destination, state, caller) {
+		return tools.handle(options, caller, destination, state);
 	};
 
 	baseRouter[reduceDepthKey] = !options.deep || options.maxDepth === Infinity ? (function() {
-		const result = function servedRouter(destination) {
-				return baseRouter.call(this, destination, servedRouter);
-			},
-			innerResult = function servedRouter(destination) {
-				return baseRouter.call(this, destination, result);
-			};
+		const result = function servedRouter(destination, state) {
+			return baseRouter(destination, state, servedRouter);
+		};
+		const innerResult = function servedRouter(destination, state) {
+			return baseRouter(destination, state, result);
+		};
 
 		result[reduceDepthKey] = innerResult[reduceDepthKey] = function reduceDepth() {
 			return innerResult;
@@ -64,8 +62,8 @@ function router(options) {
 				throw new exposed.Error(`The maximum routing depth of ${options.maxDepth} has been exceeded.`);
 			};
 
-		const result = function servedRouter(destination) {
-			return baseRouter.call(this, destination, servedRouter);
+		const result = function servedRouter(destination, state) {
+			return baseRouter(destination, state, servedRouter);
 		};
 
 		result[reduceDepthKey] = reduceDepth;
@@ -97,20 +95,17 @@ const tools = {
 		}
 	},
 
-	handle(options, router, destination) {
-		const route = this.route;
-		const binding = this.binding;
-
-		let origin = this.value,
-			writable, target;
+	handle(options, router, destination, state) {
+		let origin = state.value;
+		let target, writable;
 
 		if(destination !== noDestination) {
 			if(typeof origin !== "object" && typeof origin !== "function" || origin === null)
 				throw new TypeError(helpers.string.tag`Router expected object or function but got '${origin}'.`);
 
 			writable = true;
-			target = Promise.resolve(helpers.filter(this, destination, options.filter)).then(result => {
-				if(result !== options.filterInverse) {
+			target = helpers.filter(options.filter, state, destination, state).then(result => {
+				if(result) {
 					if(options.mapRootFunction && typeof origin === "function" && router[isRoot]) {
 						if(options.mapRootFunction === "router") {
 							writable = false;
@@ -126,35 +121,37 @@ const tools = {
 					if(tools.safeInCheck(origin, destination, options.traversePrototype))
 						return origin[destination];
 				}
+
 				throw new exposed.Error(helpers.string.tag`'${destination}' could not be routed.`);
 			}).then(value => {
 				// Case 1: Function (not bound)
 				if(typeof value === "function" && !Binding.isBound(value)) {
 					// If function mapping is enabled and value was retrieved as an object property (writable = true):
 					if(options.mapFunctions && writable) {
+						const func = value;
+
 						writable = false;
 
 						// If functions should be mapped to being a router:
-						if(options.mapFunctions === "router") {
-							const func = value;
-
-							value = Binding.bind(null, function generatedRouter(destination) {
+						if(options.mapFunctions === "router")
+							value = Binding.bind(null, destination => {
 								return Promise.resolve(func.call(origin, destination)).then(result => {
-									return router.call(this.setValue({
+									const newState = state.setValue({
 										value: result
-									}), noDestination);
+									});
+
+									return router.call(newState, noDestination, newState);
 								});
-							}, binding.closer);
-						}
+							}, state.binding.closer);
 						else if(options.mapFunctions === "closer")
 							value = Binding.bind(null, destination => {
 								throw new exposed.Error(helpers.string.tag`'${destination}' could not be routed.`);
-							}, value.bind(origin));
+							}, data => func.call(origin, data));
 						else if(options.mapFunctions === "call")
-							value = value.call(origin);
+							value = func.call(origin);
 						else if(options.mapFunctions === "member") {
 							writable = true;
-							value = value.bind(origin);
+							value = func.bind(origin);
 						}
 						else if(options.mapFunctions === "direct")
 							writable = true;
@@ -179,13 +176,9 @@ const tools = {
 				return value;
 
 			return Promise.all([
-				options.output.call(this, value),
-				writable && helpers.filter(this, destination, options.writable)
-			]).then(res => {
-
-				let value = res[0];
-				const writable = res[1] !== options.writableInverse;
-
+				options.output.call(state, value, state),
+				writable && helpers.filter(options.writable, state, destination, state)
+			]).then(([value, writable]) => {
 				if(Binding.isBound(value))
 					return value;
 
@@ -215,7 +208,7 @@ const tools = {
 				else {
 					targetValue = null;
 
-					const showRoute = (destination === noDestination ? route : [...route, destination])
+					const showRoute = (destination === noDestination ? state.route : [...state.route, destination])
 						.map(helpers.string.convert).join("/");
 					const errorMessage = `${typeof value === "object" || typeof value === "function" ? "Object" : "Data"} at position '${showRoute}' is an end point and cannot be routed.`;
 
@@ -226,8 +219,10 @@ const tools = {
 					type = Binding.types.normal;
 				}
 
-				return Binding.bind(targetValue, traversedRouter, function closerPropagator(data) {
-					return binding.closer.call(this.modified ? this : this.setValue(valueDescriptor), data);
+				return Binding.bind(targetValue, traversedRouter, (data, innerState) => {
+					const newState = innerState.modified ? innerState : innerState.setValue(valueDescriptor);
+
+					return state.binding.closer.call(newState, data, newState);
 				}, type);
 			});
 		});

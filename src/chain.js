@@ -31,7 +31,7 @@ function chain(input, options) {
 
 		for(const key of Object.keys(firstVal)) {
 
-			const generator = function*() {
+			const generator = function* () {
 				for(const val of input)
 					yield typeof val === "object" && val !== null && val[key] || undefined;
 			};

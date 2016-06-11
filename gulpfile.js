@@ -6,6 +6,8 @@ const mocha = require("gulp-mocha");
 const eslint = require("gulp-eslint");
 const runSequence = require("run-sequence");
 
+require("chai").use(require("chai-as-promised"));
+
 gulp.task("eslint", () => {
 	return gulp.src(["src/**/*.js", "test/**/*.test.js"])
 		.pipe(eslint())
