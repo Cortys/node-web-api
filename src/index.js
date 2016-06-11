@@ -16,4 +16,7 @@ owe.chain = require("./chain");
 // Switches between multiple given router and/or closer functions:
 owe.switch = require("./switch");
 
+// Generates filter functions out of Arrays, Sets, Maps and similar objects:
+owe.filter = require("./filter");
+
 module.exports = owe;
