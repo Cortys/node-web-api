@@ -1,6 +1,6 @@
 "use strict";
 
-const expect = require("expect.js");
+const expect = require("chai").expect;
 
 const owe = require("../src");
 
@@ -31,28 +31,28 @@ describe(".reroute", () => {
 	});
 
 	it("result should be accepted by owe-function", () => {
-		expect(owe).withArgs(null, owe.reroute({})).not.to.throwError();
+		expect(owe(null, owe.reroute({}))).to.be.ok;
 	});
 
 	it("should require a bindable object as argument", () => {
-		expect(() => owe.reroute({})).not.to.throwError();
-		expect(() => owe.reroute(() => "test")).not.to.throwError();
-		expect(() => owe.reroute()).to.throwError();
-		expect(() => owe.reroute("test")).to.throwError();
-		expect(() => owe.reroute(123)).to.throwError();
+		expect(owe.reroute({})).to.be.ok;
+		expect(owe.reroute(() => "test")).to.be.ok;
+		expect(() => owe.reroute()).to.throw();
+		expect(() => owe.reroute("test")).to.throw();
+		expect(() => owe.reroute(123)).to.throw();
 	});
 
 	describe(".call() result", () => {
 		it("should contain empty router if mode = closer", () => {
 			expect(owe.reroute({}, {
 				mode: "closer"
-			}).router).to.be(undefined);
+			}).router).to.equal(undefined);
 		});
 
 		it("should contain empty closer if mode = router", () => {
 			expect(owe.reroute({}, {
 				mode: "router"
-			}).closer).to.be(undefined);
+			}).closer).to.equal(undefined);
 		});
 
 		const rerouting = owe.reroute(o);
@@ -62,8 +62,8 @@ describe(".reroute", () => {
 				const dummy = owe({}, rerouting.router, () => {});
 
 				return owe.api(dummy).route("foo").route("hello").close("WORLD").then(result => {
-					expect(result).to.be("HELLO WORLD");
-					expect(dummy).to.eql({});
+					expect(result).to.equal("HELLO WORLD");
+					expect(dummy).to.deep.equal({});
 				});
 			});
 
@@ -73,7 +73,7 @@ describe(".reroute", () => {
 				return api.route().then(() => {
 					expect().fail("Should not route.");
 				}, err => {
-					expect(err.message).to.eql("Only bound objects can be a rerouting target.");
+					expect(err.message).to.deep.equal("Only bound objects can be a rerouting target.");
 				});
 			});
 		});
@@ -83,8 +83,8 @@ describe(".reroute", () => {
 				const dummy = owe({}, () => {}, rerouting.closer);
 
 				return owe.api(dummy).close("STUFF").then(result => {
-					expect(result).to.be("CRAZY STUFF");
-					expect(dummy).to.eql({});
+					expect(result).to.equal("CRAZY STUFF");
+					expect(dummy).to.deep.equal({});
 				});
 			});
 
@@ -94,7 +94,7 @@ describe(".reroute", () => {
 				return api.close().then(() => {
 					expect().fail("Should not close.");
 				}, err => {
-					expect(err.message).to.eql("Only bound objects can be a rerouting target.");
+					expect(err.message).to.deep.equal("Only bound objects can be a rerouting target.");
 				});
 			});
 		});

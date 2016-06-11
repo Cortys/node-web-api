@@ -1,6 +1,6 @@
 "use strict";
 
-const expect = require("expect.js");
+const expect = require("chai").expect;
 
 const owe = require("../src");
 
@@ -16,23 +16,23 @@ describe(".serve", () => {
 	});
 
 	it("result should be accepted by owe-function", () => {
-		expect(owe).withArgs(null, owe.serve()).not.to.throwError();
+		expect(owe(null, owe.serve())).to.be.ok;
 	});
 
-	const routerTest = require("./serve/router.test.js"),
-		closerTest = require("./serve/closer.test.js");
+	const routerTest = require("./serve/router.test.js");
+	const closerTest = require("./serve/closer.test.js");
 
 	describe(".call() result", () => {
 		it("should contain empty router if mode = closer", () => {
 			expect(owe.serve({
 				mode: "closer"
-			}).router).to.be(undefined);
+			}).router).to.equal(undefined);
 		});
 
 		it("should contain empty closer if mode = router", () => {
 			expect(owe.serve({
 				mode: "router"
-			}).closer).to.be(undefined);
+			}).closer).to.equal(undefined);
 		});
 
 		describe(".router", () => {

@@ -1,17 +1,17 @@
 "use strict";
 
-const expect = require("expect.js");
+const expect = require("chai").expect;
 
 const owe = require("../src");
 
 describe(".chain", () => {
 	it("should throw for non iterable values", () => {
-		expect(owe.chain).withArgs(true).to.throwError();
-		expect(owe.chain).withArgs(1).to.throwError();
-		expect(owe.chain).withArgs({}).to.throwError();
-		expect(owe.chain).withArgs("test").to.throwError();
-		expect(owe.chain).withArgs(Symbol()).to.throwError();
-		expect(owe.chain).withArgs(() => undefined).to.throwError();
+		expect(() => owe.chain(true)).to.throw();
+		expect(() => owe.chain(1)).to.throw();
+		expect(() => owe.chain({})).to.throw();
+		expect(() => owe.chain("test")).to.throw();
+		expect(() => owe.chain(Symbol())).to.throw();
+		expect(() => owe.chain(() => undefined)).to.throw();
 	});
 
 	describe("function mode", () => {
@@ -19,7 +19,7 @@ describe(".chain", () => {
 			expect(owe.chain(new Set())).to.be.a("function");
 			expect(owe.chain([])).to.be.a("function");
 			expect(owe.chain(new Map())).to.be.a("function");
-			expect(owe.chain(function*() {
+			expect(owe.chain(function* () {
 				yield 1;
 				yield 2;
 				yield 3;
@@ -37,7 +37,7 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, errs => {
-					expect(errs).to.eql(["a", "b"]);
+					expect(errs).to.deep.equal(["a", "b"]);
 				});
 			});
 
@@ -51,7 +51,7 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, err => {
-					expect(err).to.be("a");
+					expect(err).to.equal("a");
 				});
 			});
 
@@ -65,7 +65,7 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, err => {
-					expect(err).to.be("b");
+					expect(err).to.equal("b");
 				});
 			});
 
@@ -81,7 +81,7 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, err => {
-					expect(err).to.be(error);
+					expect(err).to.equal(error);
 				});
 			});
 
@@ -92,7 +92,7 @@ describe(".chain", () => {
 					throw "b";
 				}], {
 					errors(errs) {
-						expect(this).to.eql(null);
+						expect(this).to.deep.equal(null);
 						errs.push("c");
 
 						return errs;
@@ -100,7 +100,7 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, errs => {
-					expect(errs).to.eql(["a", "b", "c"]);
+					expect(errs).to.deep.equal(["a", "b", "c"]);
 				});
 			});
 		});
@@ -119,7 +119,7 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, errs => {
-					expect(errs).to.eql(["a", "b"]);
+					expect(errs).to.deep.equal(["a", "b"]);
 				}));
 
 			it("errors = first: should return the first not-null error",
@@ -135,7 +135,7 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, errs => {
-					expect(errs).to.be("a");
+					expect(errs).to.equal("a");
 				}));
 
 			it("errors = last: should return the last not-null error",
@@ -151,7 +151,7 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, errs => {
-					expect(errs).to.be("b");
+					expect(errs).to.equal("b");
 				}));
 
 			it("errors = [function]: should remove all empty errors from the errors that go into the function",
@@ -169,21 +169,21 @@ describe(".chain", () => {
 				})().then(() => {
 					expect().fail("This chain should reject.");
 				}, errs => {
-					expect(errs).to.eql(["a", "b"]);
+					expect(errs).to.deep.equal(["a", "b"]);
 				}));
 		});
 
 		describe(".call() result", () => {
 			it("should be a Promise", () => {
-				expect(owe.chain([])()).to.be.a(Promise);
-				expect(owe.chain(new Map())()).to.be.a(Promise);
-				expect(owe.chain(new Set())()).to.be.a(Promise);
-				expect(owe.chain(function*() {
+				expect(owe.chain([])()).to.be.a("promise");
+				expect(owe.chain(new Map())()).to.be.a("promise");
+				expect(owe.chain(new Set())()).to.be.a("promise");
+				expect(owe.chain(function* () {
 					yield 1;
 					yield 2;
 					yield 3;
-				}())()).to.be.a(Promise);
-				expect(owe.chain([() => undefined, "test"])()).to.be.a(Promise);
+				}())()).to.be.a("promise");
+				expect(owe.chain([() => undefined, "test"])()).to.be.a("promise");
 			});
 
 			it("should return first successful function return", () => {
@@ -204,32 +204,18 @@ describe(".chain", () => {
 				}];
 
 				return Promise.all([
-					owe.chain([() => 1, () => 2])().then(result => {
-						expect(result).to.be(1);
-					}, () => {
-						expect().fail("chain should be successful.");
-					}),
-					owe.chain(arr)("test", "ING").then(result => {
-						expect(result).to.be("TESTING");
-					}),
-					owe.chain(arr)(1, 1).then(result => {
-						expect(result).to.be(Math.PI + 1);
-					}),
-					owe.chain(arr)(arr).then(result => {
-						expect(result).to.be(arr);
-					})
+					expect(owe.chain([() => 1, () => 2])()).to.eventually.equal(1),
+					expect(owe.chain(arr)("test", "ING")).to.eventually.equal("TESTING"),
+					expect(owe.chain(arr)(1, 1)).to.eventually.equal(Math.PI + 1),
+					expect(owe.chain(arr)(arr)).to.eventually.equal(arr)
 				]);
 			});
 
 			it("should reject if no function was given",
-				() => owe.chain([])().then(() => {
-					expect().fail("Empty chains should reject.");
-				}, err => {
-					expect(err).to.be.an(Error);
-				}));
+				() => expect(owe.chain([])()).to.be.rejectedWith(Error));
 
 			it("should ignore undefined chain entries",
-				() => owe.chain([
+				() => expect(owe.chain([
 					undefined,
 					() => {
 						throw "a";
@@ -240,11 +226,7 @@ describe(".chain", () => {
 						throw "b";
 					},
 					undefined
-				])().then(() => {
-					expect().fail("This chain should reject.");
-				}, err => {
-					expect(err).to.eql("b");
-				}));
+				])()).to.be.rejectedWith("b"));
 
 			it("should pass given this to all functions", () => {
 				const f = owe.chain([function(a) {
@@ -260,11 +242,9 @@ describe(".chain", () => {
 				const o = {};
 
 				return Promise.all([
-					f.call(o).then(result => {
-						expect(result).to.be(o);
-					}),
-					f.call(o, true).then(result => {
-						expect(result.object).to.be(o);
+					expect(f.call(o)).to.eventually.equal(o),
+					expect(f.call(o, true)).to.become({
+						object: o
 					})
 				]);
 			});
@@ -274,24 +254,16 @@ describe(".chain", () => {
 				const err2 = new Error("test 2");
 
 				return Promise.all([
-					owe.chain([() => {
+					expect(owe.chain([() => {
 						throw err1;
-					}])().then(() => {
-						expect().fail("This chain should reject.");
-					}, err => {
-						expect(err).to.be(err1);
-					}),
-					owe.chain([() => {
+					}])()).to.be.rejectedWith(err1),
+					expect(owe.chain([() => {
 						throw err1;
 					}, () => {
 						throw err1;
 					}, () => {
 						throw err2;
-					}])().then(() => {
-						expect().fail("This chain should reject.");
-					}, err => {
-						expect(err).to.eql(err2);
-					})
+					}])()).to.be.rejectedWith(err2)
 				]);
 			});
 		});
@@ -305,7 +277,7 @@ describe(".chain", () => {
 			}]);
 
 			expect(res).to.be.an("object");
-			expect(Object.keys(res)).to.eql(["foo", "baz"]);
+			expect(Object.keys(res)).to.deep.equal(["foo", "baz"]);
 			expect(res.foo).to.be.a("function");
 			expect(res.baz).to.be.a("function");
 		});
@@ -331,13 +303,9 @@ describe(".chain", () => {
 				}, {}]);
 
 				return Promise.all([
-					res.a().then(result => {
-						expect(result).to.eql(res);
-					}),
-					res.b.call("Hello World").then(result => {
-						expect(result).to.eql({
-							o: "Hello World"
-						});
+					expect(res.a()).to.eventually.equal(res),
+					expect(res.b.call("Hello World")).to.become({
+						o: "Hello World"
 					})
 				]);
 			});

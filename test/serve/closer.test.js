@@ -1,6 +1,6 @@
 "use strict";
 
-const expect = require("expect.js");
+const expect = require("chai").expect;
 
 const owe = require("owe-core");
 const closer = owe.serve.closer;
@@ -31,9 +31,9 @@ function testCloser(closerGenerator) {
 			return owe.api(o).route("foo").close("baz").then(() => {
 				expect().fail("foo should not be closable with data.");
 			}, err => {
-				expect(err.type).to.be("close");
-				expect(err.message).to.be("This route could not be closed with the given data.");
-				expect(o.foo).to.be("bar");
+				expect(err.type).to.equal("close");
+				expect(err.message).to.equal("This route could not be closed with the given data.");
+				expect(o.foo).to.equal("bar");
 			});
 		});
 
@@ -42,19 +42,15 @@ function testCloser(closerGenerator) {
 				owe.api(o).route("o").close().then(() => {
 					expect().fail("o should not be closable.");
 				}, err => {
-					expect(err.type).to.be("close");
-					expect(err.message).to.be("This route could not be closed.");
+					expect(err.type).to.equal("close");
+					expect(err.message).to.equal("This route could not be closed.");
 				}),
-				owe.api(o).route("a").then(result => {
-					expect(result).to.be(o.a);
-				})
+				expect(owe.api(o).route("a")).to.eventually.equal(o.a)
 			]);
 		});
 
 		it("should call functions instead of returning them", () => {
-			return owe.api(o).route("f").close("Hello World").then(result => {
-				expect(result).to.be("Hello World!");
-			});
+			return expect(owe.api(o).route("f").close("Hello World")).to.eventually.equal("Hello World!");
 		});
 
 	});
@@ -77,27 +73,18 @@ function testCloser(closerGenerator) {
 				}
 			};
 			const api = owe.api(o, router, closerGenerator({
-				writable: false,
-				writableInverse: true
+				writable: true
 			}));
 
-			expect(o.foo).to.be("bar");
+			expect(o.foo).to.equal("bar");
 
 			return Promise.all([
 				api.route("foo").close("baz").then(result => {
-					expect(result).to.be("baz");
-					expect(o.foo).to.be("baz");
+					expect(result).to.equal("baz");
+					expect(o.foo).to.equal("baz");
 				}),
-				api.route("baz").close("x").then(() => {
-					expect().fail("Should not be closed.");
-				}, err => {
-					expect(err.message).to.be("This route could not be closed with the given data.");
-				}),
-				api.route("qux").close("x").then(() => {
-					expect().fail("Should not be closed.");
-				}, err => {
-					expect(err.message).to.be("a");
-				})
+				expect(api.route("baz").close("x")).to.be.rejectedWith("This route could not be closed with the given data."),
+				expect(api.route("qux").close("x")).to.be.rejectedWith("a")
 			]);
 		});
 
@@ -114,17 +101,17 @@ function testCloser(closerGenerator) {
 			};
 			const api = owe.api(o, router, closerGenerator({
 				writable(data) {
-					expect(data).to.be("baz");
-					expect(this.value).to.be("bar");
-					expect(this.route).to.eql(["foo"]);
+					expect(data).to.equal("baz");
+					expect(this.value).to.equal("bar");
+					expect(this.route).to.deep.equal(["foo"]);
 
 					return Promise.resolve(true);
 				}
 			}));
 
 			return api.route("foo").close("baz").then(result => {
-				expect(result).to.be("baz");
-				expect(o.foo).to.be("baz");
+				expect(result).to.equal("baz");
+				expect(o.foo).to.equal("baz");
 			});
 		});
 
@@ -142,8 +129,8 @@ function testCloser(closerGenerator) {
 			const api = owe.api(o, router, closerGenerator({
 				filter(val) {
 					expect(o).to.have.property(this.route[this.route.length - 1]);
-					expect(this.route.length).to.eql(1);
-					expect(val).to.be(o[this.route[this.route.length - 1]]);
+					expect(this.route.length).to.deep.equal(1);
+					expect(val).to.equal(o[this.route[this.route.length - 1]]);
 
 					if(typeof val === "function" || typeof val === "string")
 						return true;
@@ -151,49 +138,35 @@ function testCloser(closerGenerator) {
 			}), true);
 
 			return Promise.all([
-				api.route("f").close("test").then(result => {
-					expect(result).to.be("test!");
-				}),
-				api.route("foo").then(result => {
-					expect(result).to.be("bar");
-				}),
+				expect(api.route("f").close("test")).to.eventually.equal("test!"),
+				expect(api.route("foo")).to.eventually.equal("bar"),
 				api.route("a").then(() => {
 					expect().fail("a should not be closable.");
 				}, err => {
-					expect(err.type).to.be("close");
-					expect(err.route).to.eql(["a"]);
-					expect(err.message).to.be("This route could not be closed.");
+					expect(err.type).to.equal("close");
+					expect(err.route).to.deep.equal(["a"]);
+					expect(err.message).to.equal("This route could not be closed.");
 				}),
 				api.route("a").close(null).then(() => {
 					expect().fail("a should not be closable.");
 				}, err => {
-					expect(err.type).to.be("close");
-					expect(err.route).to.eql(["a"]);
-					expect(err.message).to.be("This route could not be closed with the given data.");
+					expect(err.type).to.equal("close");
+					expect(err.route).to.deep.equal(["a"]);
+					expect(err.message).to.equal("This route could not be closed with the given data.");
 				})
 			]);
 		});
-
-		it("should invert if filterInverse is set", () => {
-			return owe.api(o, router, closerGenerator({
-				filter: false,
-				filterInverse: true
-			}), true).route("o");
-		});
-
 	});
 
 	describe("output", () => {
 		it("should replace output", () => {
-			return owe.api({
+			return expect(owe.api({
 				test: "foo"
 			}, router, closerGenerator({
 				output(val) {
 					return val.toUpperCase();
 				}
-			})).route("test").then(result => {
-				expect(result).to.be("FOO");
-			});
+			})).route("test")).to.eventually.equal("FOO");
 		});
 	});
 
@@ -203,11 +176,9 @@ function testCloser(closerGenerator) {
 				return 42;
 			};
 
-			return owe.api(o, router, closerGenerator({
+			return expect(owe.api(o, router, closerGenerator({
 				callFunctions: false
-			})).then(result => {
-				expect(result).to.be(o);
-			});
+			}))).to.eventually.equal(o);
 		});
 	});
 
