@@ -6,7 +6,7 @@ const owe = require("../src");
 
 describe(".switch", () => {
 	it("should always require a switcher function", () => {
-		expect(() => owe.switch(() => undefined)).not.to.throw();
+		expect(() => owe.switch(() => {})).not.to.throw();
 		expect(() => owe.switch()).to.throw();
 		expect(() => owe.switch({})).to.throw();
 		expect(() => owe.switch("test")).to.throw();

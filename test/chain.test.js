@@ -11,7 +11,7 @@ describe(".chain", () => {
 		expect(() => owe.chain({})).to.throw();
 		expect(() => owe.chain("test")).to.throw();
 		expect(() => owe.chain(Symbol())).to.throw();
-		expect(() => owe.chain(() => undefined)).to.throw();
+		expect(() => owe.chain(() => {})).to.throw();
 	});
 
 	describe("function mode", () => {
@@ -183,7 +183,7 @@ describe(".chain", () => {
 					yield 2;
 					yield 3;
 				}())()).to.be.a("promise");
-				expect(owe.chain([() => undefined, "test"])()).to.be.a("promise");
+				expect(owe.chain([() => {}, "test"])()).to.be.a("promise");
 			});
 
 			it("should return first successful function return", () => {
