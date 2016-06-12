@@ -1,7 +1,7 @@
 "use strict";
 
 const serve = function serve(options) {
-	if(typeof options !== "object")
+	if(!options || typeof options !== "object")
 		options = {};
 
 	const mode = options.mode || "both";

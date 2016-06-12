@@ -3,10 +3,10 @@
 const Binding = require("owe-core").Binding;
 
 function reroute(object, options) {
-	if(typeof object !== "object" && typeof object !== "function" || object === null)
+	if(!object || typeof object !== "object" && typeof object !== "function")
 		throw new TypeError("reroute requires a bindable object.");
 
-	if(typeof options !== "object" || options === null)
+	if(!options || typeof options !== "object")
 		options = {};
 
 	const mode = options.mode || "both";

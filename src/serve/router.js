@@ -11,7 +11,7 @@ const currentDepthKey = Symbol("currentDepth");
 const reduceDepthKey = Symbol("reduceDepth");
 
 function router(options) {
-	if(typeof options !== "object" || options === null)
+	if(!options || typeof options !== "object")
 		options = {};
 
 	options = {
@@ -100,7 +100,7 @@ const tools = {
 		let target, writable;
 
 		if(destination !== noDestination) {
-			if(typeof origin !== "object" && typeof origin !== "function" || origin === null)
+			if(!origin || typeof origin !== "object" && typeof origin !== "function")
 				throw new TypeError(helpers.string.tag`Router expected object or function but got '${origin}'.`);
 
 			writable = true;
@@ -197,7 +197,7 @@ const tools = {
 
 				let targetValue, traversedRouter, type;
 
-				if((typeof value === "object" || typeof value === "function" && options.deepFunctions) && value !== null && options.deep && (!Array.isArray(value) || options.deepArrays)) {
+				if(value && (typeof value === "object" || typeof value === "function" && options.deepFunctions) && options.deep && (!Array.isArray(value) || options.deepArrays)) {
 					targetValue = value;
 
 					// Request a version of this router with reduced depth:
