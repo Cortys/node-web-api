@@ -99,8 +99,6 @@ function testRouter(routerGenerator) {
 			expect(o.a).to.equal("test");
 
 			return api.route("a").then(r => {
-				console.log("xxx", r);
-
 				expect().fail("Object prototype should not be traversed.");
 			}, err => {
 				expect(err.type).to.equal("route");
@@ -687,8 +685,6 @@ function testRouter(routerGenerator) {
 
 				return owe.api(o).route("A").close("Y");
 			}).then(() => {
-				console.log("x", o);
-
 				expect().fail("A should not be writable.");
 			}, err => {
 				expect(o.a).to.equal("X");
