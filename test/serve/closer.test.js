@@ -52,7 +52,6 @@ function testCloser(closerGenerator) {
 		it("should call functions instead of returning them", () => {
 			return expect(owe.api(o).route("f").close("Hello World")).to.eventually.equal("Hello World!");
 		});
-
 	});
 
 	describe("writable", () => {
@@ -114,7 +113,6 @@ function testCloser(closerGenerator) {
 				expect(o.foo).to.equal("baz");
 			});
 		});
-
 	});
 
 	describe("filter", () => {
@@ -181,7 +179,6 @@ function testCloser(closerGenerator) {
 			}))).to.eventually.equal(o);
 		});
 	});
-
 }
 
 module.exports = testCloser;

@@ -3,7 +3,6 @@
 const tag = require("owe-helpers").string.tag;
 
 function chain(input, options) {
-
 	if(!options || typeof options !== "object")
 		options = {};
 
@@ -16,7 +15,6 @@ function chain(input, options) {
 	let firstVal;
 
 	if(input && (typeof input === "object" || typeof input === "function") && Symbol.iterator in input) {
-
 		if(options.mode !== "function")
 			firstVal = input[Symbol.iterator]().next().value;
 
@@ -30,7 +28,6 @@ function chain(input, options) {
 		const result = {};
 
 		for(const key of Object.keys(firstVal)) {
-
 			const generator = function* () {
 				for(const val of input)
 					yield val && typeof val === "object" && val[key] || undefined;

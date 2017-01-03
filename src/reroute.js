@@ -19,7 +19,6 @@ function reroute(object, options) {
 
 function rerouteGenerator(method, object) {
 	return function servedRerouter(data) {
-
 		const binding = Binding.getBinding(object);
 
 		if(!binding)

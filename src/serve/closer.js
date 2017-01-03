@@ -45,7 +45,6 @@ function closer(options) {
 				});
 
 			return state.value;
-
 		}).then(result => options.output.call(state, result, state));
 	};
 }

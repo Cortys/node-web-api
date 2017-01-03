@@ -5,7 +5,6 @@ const expect = require("chai").expect;
 const owe = require("../src");
 
 describe(".reroute", () => {
-
 	const o = owe({
 		param: "crazy"
 	}, function(destination) {
@@ -98,7 +97,5 @@ describe(".reroute", () => {
 				});
 			});
 		});
-
 	});
-
 });

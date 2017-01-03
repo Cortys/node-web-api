@@ -5,9 +5,7 @@ const expect = require("chai").expect;
 const owe = require("../src");
 
 describe(".serve", () => {
-
 	it("should return an object with a router and a closer function", () => {
-
 		const result = owe.serve();
 
 		expect(result).to.be.an("object");
@@ -50,7 +48,5 @@ describe(".serve", () => {
 				}).closer;
 			});
 		});
-
 	});
-
 });

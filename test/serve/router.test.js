@@ -98,7 +98,7 @@ function testRouter(routerGenerator) {
 
 			expect(o.a).to.equal("test");
 
-			return api.route("a").then(r => {
+			return api.route("a").then(() => {
 				expect().fail("Object prototype should not be traversed.");
 			}, err => {
 				expect(err.type).to.equal("route");
@@ -161,7 +161,6 @@ function testRouter(routerGenerator) {
 		function defaultRequirements(router, options) {
 			if(options.objects)
 				it("should traverse normal objects", () => {
-
 					const o = {
 						foo: {
 							bar: {
@@ -263,7 +262,6 @@ function testRouter(routerGenerator) {
 			});
 
 			it("should traverse arrays", () => {
-
 				const o = {
 					foo: [1, 2, 3.4, [5, 6]]
 				};
@@ -275,7 +273,6 @@ function testRouter(routerGenerator) {
 					expect(api).to.eventually.equal(o.foo)
 				]);
 			});
-
 		});
 
 		describe("deep functions", () => {
@@ -602,7 +599,6 @@ function testRouter(routerGenerator) {
 
 			return Promise.all(promises);
 		});
-
 	});
 
 	describe("filter", () => {
