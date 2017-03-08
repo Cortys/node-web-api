@@ -5,7 +5,7 @@
  * @param {any} filter The filter.
  * @return {function} A filter function for `filter`.
  */
- function filterGenerator(filter) {
+function filterGenerator(filter) {
 	if(typeof filter === "boolean")
 		return () => filter;
 
