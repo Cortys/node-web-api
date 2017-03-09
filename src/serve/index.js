@@ -12,8 +12,7 @@ const serve = function serve(options) {
 	};
 };
 
-serve.router = require("./serve/router");
-
-serve.closer = require("./serve/closer");
+serve.router = require("./router");
+serve.closer = require("./closer");
 
 module.exports = serve;
