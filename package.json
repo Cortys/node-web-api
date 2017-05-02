@@ -42,7 +42,7 @@
 		"gulp-mocha": "4.3.0",
 		"mocha": "3.3.0",
 		"run-sequence": "1.2.2",
-		"coveralls": "2.13.0"
+		"coveralls": "2.13.1"
 	},
 	"scripts": {
 		"test": "./node_modules/.bin/gulp test",
