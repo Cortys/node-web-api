@@ -40,7 +40,7 @@
 		"gulp-eslint": "3.0.1",
 		"gulp-istanbul": "1.1.1",
 		"gulp-mocha": "4.3.1",
-		"mocha": "3.5.3",
+		"mocha": "4.0.0",
 		"run-sequence": "2.1.0",
 		"coveralls": "2.13.1"
 	},
